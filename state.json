@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-04-29T17:05Z",
+  "last_run": "2026-04-29T17:20Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -11,17 +11,17 @@
       "phase_name": "Informal spec complete",
       "lean_file": null,
       "properties": ["round-trip", "positivity", "monotonicity", "identity-at-zero"],
-      "notes": "Top priority. 5 compounding modes. Informal spec done.",
+      "notes": "Top priority. 5 compounding modes. Informal spec written. Ready for Lean spec.",
       "pr": null
     },
     {
       "name": "Actual360",
       "file": "ql/time/daycounters/actual360.hpp",
-      "phase": 1,
-      "phase_name": "Research complete",
+      "phase": 2,
+      "phase_name": "Informal spec complete",
       "lean_file": null,
       "properties": ["formula-correctness", "additivity", "non-negativity"],
-      "notes": "Simple target, quick win.",
+      "notes": "Simple target, quick win. Informal spec written. Ready for Lean spec.",
       "pr": null
     },
     {
@@ -59,5 +59,5 @@
   "open_prs": [],
   "ci_status": "not-created",
   "bugs_found": [],
-  "notes": "First run. Research and informal spec for InterestRate completed. C++ codebase — no Aeneas, use Route B for correspondence."
+  "notes": "Run 2: Research artifacts and informal specs committed. Next run: Lean 4 specs for InterestRate and Actual360."
 }
