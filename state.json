@@ -1,0 +1,63 @@
+{
+  "last_run": "2026-04-29T17:05Z",
+  "fv_tool": "Lean 4 + Mathlib",
+  "language": "C++",
+  "aeneas_applicable": false,
+  "targets": [
+    {
+      "name": "InterestRate",
+      "file": "ql/interestrate.hpp, ql/interestrate.cpp",
+      "phase": 2,
+      "phase_name": "Informal spec complete",
+      "lean_file": null,
+      "properties": ["round-trip", "positivity", "monotonicity", "identity-at-zero"],
+      "notes": "Top priority. 5 compounding modes. Informal spec done.",
+      "pr": null
+    },
+    {
+      "name": "Actual360",
+      "file": "ql/time/daycounters/actual360.hpp",
+      "phase": 1,
+      "phase_name": "Research complete",
+      "lean_file": null,
+      "properties": ["formula-correctness", "additivity", "non-negativity"],
+      "notes": "Simple target, quick win.",
+      "pr": null
+    },
+    {
+      "name": "LinearInterpolation",
+      "file": "ql/math/interpolations/linearinterpolation.hpp",
+      "phase": 1,
+      "phase_name": "Research complete",
+      "lean_file": null,
+      "properties": ["knot-interpolation", "affine-between-points", "monotonicity-preservation"],
+      "notes": "Good spec-to-impl ratio.",
+      "pr": null
+    },
+    {
+      "name": "Thirty360",
+      "file": "ql/time/daycounters/thirty360.hpp, thirty360.cpp",
+      "phase": 1,
+      "phase_name": "Research complete",
+      "lean_file": null,
+      "properties": ["ISDA-formula", "consistency"],
+      "notes": "Complex edge cases, high bug potential.",
+      "pr": null
+    },
+    {
+      "name": "NormalDistribution",
+      "file": "ql/math/distributions/normaldistribution.hpp, .cpp",
+      "phase": 1,
+      "phase_name": "Research complete",
+      "lean_file": null,
+      "properties": ["range", "monotonicity", "symmetry", "round-trip"],
+      "notes": "Polynomial approximation hard to verify; focus on abstract properties.",
+      "pr": null
+    }
+  ],
+  "open_issues": [],
+  "open_prs": [],
+  "ci_status": "not-created",
+  "bugs_found": [],
+  "notes": "First run. Research and informal spec for InterestRate completed. C++ codebase — no Aeneas, use Route B for correspondence."
+}
