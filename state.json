@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-04-29T20:30Z",
+  "last_run": "2026-04-29T20:42Z",
   "fv_tool": "Lean 4 (stdlib only, Mathlib blocked by firewall)",
   "language": "C++",
   "aeneas_applicable": false,
@@ -7,13 +7,14 @@
     {
       "name": "InterestRate",
       "file": "ql/interestrate.hpp, ql/interestrate.cpp",
-      "phase": 3,
-      "phase_name": "Lean spec written",
+      "phase": 5,
+      "phase_name": "Proofs (partial)",
       "lean_file": "formal-verification/lean/FVSquad/InterestRate.lean",
-      "properties": ["round-trip-simple", "round-trip-continuous", "round-trip-compounded", "positivity-continuous", "identity-zero-time", "identity-zero-rate"],
-      "sorry_count": 6,
+      "properties_proved": ["simple-roundtrip-exact", "simple-zero-time", "simple-zero-rate", "compounded-zero-periods", "compounded-zero-rate", "simple-additive-excess", "simple-monotone-rate"],
+      "properties_sorry": ["compoundContinuous-pos", "continuous-roundtrip", "compounded-roundtrip"],
+      "sorry_count": 3,
       "correspondence": "abstraction, no tests yet",
-      "notes": "All 6 theorems sorry-guarded. Needs Mathlib Real for proofs."
+      "notes": "Dual model: Rat for proofs, Float for computation. Sorry items need Mathlib Real."
     },
     {
       "name": "Actual360",
@@ -21,7 +22,7 @@
       "phase": 5,
       "phase_name": "Fully proved + correspondence validated",
       "lean_file": "formal-verification/lean/FVSquad/Actual360.lean",
-      "properties": ["formula-correctness", "non-negativity", "positivity-includeLastDay", "additivity", "additivity-breaks-includeLastDay", "same-date", "antisymmetry"],
+      "properties_proved": ["formula-correctness", "non-negativity", "positivity-includeLastDay", "additivity", "additivity-breaks-includeLastDay", "same-date", "antisymmetry"],
       "sorry_count": 0,
       "correspondence": "exact, validated by 2920 test cases",
       "notes": "All 7 theorems proved. Correspondence tests at formal-verification/tests/actual360/."
@@ -32,7 +33,6 @@
       "phase": 1,
       "phase_name": "Research complete",
       "lean_file": null,
-      "properties": ["knot-interpolation", "affine-between-points", "monotonicity-preservation"],
       "notes": "Good spec-to-impl ratio. Next for informal spec."
     },
     {
@@ -41,7 +41,6 @@
       "phase": 1,
       "phase_name": "Research complete",
       "lean_file": null,
-      "properties": ["ISDA-formula", "consistency"],
       "notes": "Complex edge cases, high bug potential."
     },
     {
@@ -50,7 +49,6 @@
       "phase": 1,
       "phase_name": "Research complete",
       "lean_file": null,
-      "properties": ["range", "monotonicity", "symmetry", "round-trip"],
       "notes": "Hard to verify; focus on abstract properties."
     }
   ],
@@ -61,5 +59,7 @@
   "correspondence_tests": ["actual360"],
   "lean_version": "4.30.0-rc2",
   "mathlib_available": false,
-  "notes": "Run 4: Task 8 (Route B) - Actual360 correspondence tests (2920 cases, all pass). Task 10 - Project report created. CORRESPONDENCE.md created. Next priorities: InterestRate correspondence tests, InterestRate proofs (needs Mathlib), LinearInterpolation informal spec, CI setup."
+  "total_proved": 14,
+  "total_sorry": 3,
+  "notes": "Run 5: Task 5 - InterestRate proofs (7 proved via Rat model). Task 10 - Report updated. Dual Rat/Float model pattern established. Next: InterestRate correspondence tests, LinearInterpolation informal spec, CI setup, critique."
 }
