@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-04-30T10:00Z",
+  "last_run": "2026-04-30T10:53Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -8,12 +8,12 @@
       "name": "InterestRate",
       "file": "ql/interestrate.hpp, ql/interestrate.cpp",
       "phase": 5,
-      "phase_name": "Proofs (partial)",
+      "phase_name": "Proofs (partial) + Correspondence validated",
       "lean_file": "formal-verification/lean/FVSquad/InterestRate.lean",
       "properties_proved": ["simple-roundtrip-exact", "simple-zero-time", "simple-zero-rate", "compounded-zero-periods", "compounded-zero-rate", "simple-additive-excess", "simple-monotone-rate", "compounded-one-period", "simple-pos", "compounded-mul-periods", "simple-time-scaling", "compoundContinuousR-pos", "continuousR-roundtrip", "continuousR-zero-time", "continuousR-zero-rate", "continuousR-mul-periods", "continuousR-monotone-rate", "continuousR-monotone-time", "continuousR-discount", "compounded-pos"],
-      "properties_sorry": ["compoundContinuous-pos-float", "continuous-roundtrip-float", "compounded-roundtrip-float"],
       "sorry_count": 3,
-      "notes": "21 proved (12 Rat + 9 Real via Mathlib). 3 Float sorry remain. Run 11 added monotonicity, discount, positivity."
+      "correspondence": "Validated by 1394 test cases (Route B)",
+      "notes": "Run 12 added correspondence tests. 21 proved, 3 Float sorry remain."
     },
     {
       "name": "Actual360",
@@ -54,5 +54,5 @@
   "mathlib_available": true,
   "total_proved": 29,
   "total_sorry": 3,
-  "notes": "Run 11: Task 5 added 5 new proofs (monotonicity, discount, positivity). Task 6 updated CORRESPONDENCE.md. Total 29 proved theorems across 2 targets."
+  "notes": "Run 12: Task 8 added 1394 InterestRate correspondence tests (all passing). Task 6 updated CORRESPONDENCE.md. Both targets now have validated correspondence."
 }
