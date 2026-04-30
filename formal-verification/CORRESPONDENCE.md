@@ -3,8 +3,8 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-04-30 11:24 UTC
-- **Commit**: `HEAD` (Run 13)
+- **Date**: 2026-04-30 17:42 UTC
+- **Commit**: `6d91eb404` (Run 16)
 
 ---
 
@@ -96,6 +96,46 @@ The **6 Real-proved theorems** added in Runs 11–13:
 The **3 sorry-guarded Float theorems** (`compoundContinuous_pos`, `continuous_roundtrip`, `compounded_roundtrip`) remain unproved because `Float` lacks algebraic axioms. Their Real counterparts are now proved.
 
 **Validation evidence**: Runnable correspondence tests at `formal-verification/tests/interestrate/` — 1394 test cases covering compoundFactor (344 cases), impliedRate (240 cases), round-trip (432 cases), and monotonicity (378 cases), all passing. See `formal-verification/tests/interestrate/README.md` for details.
+
+---
+
+## Thirty360 (European Convention)
+
+| Lean Definition | C++ Source | File / Line | Correspondence | Justification |
+|----------------|-----------|-------------|----------------|---------------|
+| `adjustDayEU` | `EU_Impl::dayCount` (inline) | `ql/time/daycounters/thirty360.cpp` L93–94 | **Exact** | Both cap day at 30: C++ `if (dd == 31) dd = 30`, Lean `if d ≥ 31 then 30 else d`. Semantically identical for valid days (1–31). |
+| `dayCountEU` | `Thirty360::EU_Impl::dayCount` | `ql/time/daycounters/thirty360.cpp` L87–97 | **Exact** | Both compute `360*(Y2-Y1) + 30*(M2-M1) + (D2'-D1')` after adjustment. Lean uses `Int`, C++ uses `Day`/`Month`/`Year` (all integer types). |
+| `yearFractionEU` | `DayCounter::yearFraction` | `ql/time/daycounter.hpp` (base class) | **Exact** | Both compute `dayCount / 360`. Lean uses `ℚ` (exact rational), C++ uses `double`. |
+
+**Divergences**: None for the European convention. The Lean model:
+1. Uses `SimpleDate` (year, month, day as `Int`) instead of QuantLib's `Date` class. This is a simplification — QuantLib's `Date` validates calendrical correctness, while Lean accepts any `Int` triple. All proofs assume valid date components (day 1–31, month 1–12).
+2. Uses the condition `d ≥ 31` rather than `d == 31`. For valid days (1–31), these are equivalent. The Lean form is slightly more defensive (handles impossible day=32+) but identical for valid inputs.
+3. Does not model other conventions (US, ISMA, Italian, ISDA, NASD) — only European/30E/360.
+
+**Impact on proofs**: All 9 proved theorems (`same_date_zero`, `yearfrac_eq_daycount_div_360`, `antisymmetry`, `full_year`, `full_month`, `adjust_idempotent`, `adjust_le_30`, `bounded_same_month`, `additivity_normal_days`) reason over the exact same formula as the C++. The proofs are sound for valid date inputs.
+
+**Validation evidence**: No runnable correspondence tests yet. The formula is simple enough that manual inspection confirms exact correspondence for the European convention.
+
+---
+
+## LinearInterpolation
+
+| Lean Definition | C++ Source | File / Line | Correspondence | Justification |
+|----------------|-----------|-------------|----------------|---------------|
+| `slope` | `s_[i]` (precomputed in `update()`) | `ql/math/interpolations/linearinterpolation.hpp` L84 | **Exact** | Both compute `(y[i+1] - y[i]) / (x[i+1] - x[i])`. Lean uses `ℚ`, C++ uses `Real` (double). |
+| `value` | `LinearInterpolationImpl::value` | `ql/math/interpolations/linearinterpolation.hpp` L90 | **Exact** | Both compute `y[i] + (x - x[i]) * s[i]`. Lean uses `ℚ`, C++ uses `Real` (double). |
+| `derivative` | `LinearInterpolationImpl::derivative` | `ql/math/interpolations/linearinterpolation.hpp` L99 | **Exact** | Both return `s[i]` (the slope of the segment). |
+| `secondDerivative` | `LinearInterpolationImpl::secondDerivative` | `ql/math/interpolations/linearinterpolation.hpp` L102 | **Exact** | Both return `0.0`. |
+
+**Divergences**:
+1. **Segment location**: The C++ `locate(x)` function performs binary search to find which segment `x` falls in. The Lean model takes segment index `i` as an explicit parameter — it does not model the binary search. Proofs assume the correct segment is provided.
+2. **Out-of-bounds handling**: C++ uses `getD` with default 0; Lean uses `Array.getD` with default 0 — these are equivalent. The C++ version additionally has extrapolation/bounds-checking logic not modelled.
+3. **Numeric type**: Lean uses exact rationals (`ℚ`), C++ uses `double`. For rational inputs, results are identical. For irrational inputs, C++ rounds; Lean cannot represent them.
+4. **Primitive (integral)**: The C++ class also implements `primitive(x)` for antiderivatives. The Lean model does not include this — it is noted as future work.
+
+**Impact on proofs**: All 7 proved theorems (`second_derivative_zero`, `knot_interpolation`, `derivative_eq_slope`, `constant_function`, `linear_function`, `monotone_preservation`, `value_bounded`) reason over the exact same pointwise formula as C++. The proofs are sound for valid inputs within a correctly identified segment.
+
+**Validation evidence**: Runnable correspondence tests at `formal-verification/tests/linearinterpolation/` — 12 test cases covering knot interpolation, midpoint interpolation, and derivative computation. See the test harness for details.
 
 ---
 

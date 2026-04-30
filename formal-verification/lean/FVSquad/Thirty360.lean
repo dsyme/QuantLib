@@ -108,4 +108,19 @@ theorem additivity_normal_days (d1 d2 d3 : SimpleDate)
   simp only []
   split_ifs <;> omega
 
+/-- Day-31 equivalence: day 31 and day 30 give the same dayCount result
+    because both are adjusted to 30. -/
+theorem day31_eq_day30 (d1 d2 : SimpleDate) :
+    dayCountEU ⟨d1.year, d1.month, 31⟩ d2 = dayCountEU ⟨d1.year, d1.month, 30⟩ d2 := by
+  unfold dayCountEU adjustDayEU
+  simp only []
+  split_ifs <;> omega
+
+/-- Monotonicity in year: later year ⇒ higher dayCount (same month/day ≤ 30). -/
+theorem monotone_year (d : SimpleDate) (hd : d.day ≤ 30) (k : Int) (hk : k ≥ 0) :
+    dayCountEU d ⟨d.year + k, d.month, d.day⟩ ≥ 0 := by
+  unfold dayCountEU adjustDayEU
+  simp only []
+  split_ifs <;> omega
+
 end FVSquad.Thirty360
