@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-04-30T10:53Z",
+  "last_run": "2026-04-30T10:15Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -8,12 +8,12 @@
       "name": "InterestRate",
       "file": "ql/interestrate.hpp, ql/interestrate.cpp",
       "phase": 5,
-      "phase_name": "Proofs (partial) + Correspondence validated",
+      "phase_name": "Proofs (partial)",
       "lean_file": "formal-verification/lean/FVSquad/InterestRate.lean",
-      "properties_proved": ["simple-roundtrip-exact", "simple-zero-time", "simple-zero-rate", "compounded-zero-periods", "compounded-zero-rate", "simple-additive-excess", "simple-monotone-rate", "compounded-one-period", "simple-pos", "compounded-mul-periods", "simple-time-scaling", "compoundContinuousR-pos", "continuousR-roundtrip", "continuousR-zero-time", "continuousR-zero-rate", "continuousR-mul-periods", "continuousR-monotone-rate", "continuousR-monotone-time", "continuousR-discount", "compounded-pos"],
+      "properties_proved": ["simple-roundtrip-exact", "simple-zero-time", "simple-zero-rate", "compounded-zero-periods", "compounded-zero-rate", "simple-additive-excess", "simple-monotone-rate", "compounded-one-period", "simple-pos", "compounded-mul-periods", "simple-time-scaling", "compoundContinuousR-pos", "continuousR-roundtrip", "continuousR-zero-time", "continuousR-zero-rate", "continuousR-mul-periods", "continuousR-monotone-rate", "continuousR-monotone-time", "continuousR-discount", "compounded-pos", "simple-monotone-time", "compounded-monotone-periods", "continuousR-gt-one", "continuousR-split-period"],
+      "properties_sorry": ["compoundContinuous-pos-float", "continuous-roundtrip-float", "compounded-roundtrip-float"],
       "sorry_count": 3,
-      "correspondence": "Validated by 1394 test cases (Route B)",
-      "notes": "Run 12 added correspondence tests. 21 proved, 3 Float sorry remain."
+      "notes": "25 proved (14 Rat + 11 Real). 3 Float sorry remain. Run 12 added simple_monotone_time, compounded_monotone_periods, continuousR_gt_one, continuousR_split_period."
     },
     {
       "name": "Actual360",
@@ -29,9 +29,9 @@
     {
       "name": "LinearInterpolation",
       "file": "ql/math/interpolations/linearinterpolation.hpp",
-      "phase": 1,
+      "phase": 2,
       "lean_file": null,
-      "notes": "Good spec-to-impl ratio. Next for informal spec."
+      "notes": "Informal spec written in run 12. Key properties: knot interpolation, piecewise affine, monotonicity preservation, second derivative zero."
     },
     {
       "name": "Thirty360",
@@ -52,7 +52,7 @@
   "ci_status": "lean-ci.yml created",
   "bugs_found": [],
   "mathlib_available": true,
-  "total_proved": 29,
+  "total_proved": 33,
   "total_sorry": 3,
-  "notes": "Run 12: Task 8 added 1394 InterestRate correspondence tests (all passing). Task 6 updated CORRESPONDENCE.md. Both targets now have validated correspondence."
+  "notes": "Run 12: Task 5 added 4 new InterestRate proofs (monotonicity, gt_one, split_period). Task 2 wrote LinearInterpolation informal spec. Total 33 proved across 2 targets."
 }
