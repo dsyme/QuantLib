@@ -1,43 +1,49 @@
 > 🔬 *Lean Squad — automated formal verification for `dsyme/QuantLib`.*
 
-**Status**: 🔄 IN PROGRESS — 14 theorems proved, 3 Lean files, 3 `sorry`, Lean 4.30.0-rc2.
+**Status**: 🔄 IN PROGRESS — 24 theorems proved, 3 Lean files, 3 `sorry`, Lean 4 + Mathlib.
 
 ## Last Updated
-- **Date**: 2026-04-29 20:42 UTC
-- **Commit**: `a21e6d97e`
+- **Date**: 2026-04-30 09:43 UTC
+- **Commit**: `5c48a7043`
 
 ---
 
 ## Executive Summary
 
-Formal verification of QuantLib's quantitative finance primitives is progressing well using Lean 4. The **Actual360** day counter is fully verified with 7 proved theorems and ~2,900 correspondence tests confirming exact match with C++. The **InterestRate** compounding module now has 7 fully proved theorems over exact rationals (`Rat`) covering round-trip inversion, zero-time/zero-rate identities, additive excess, and monotonicity — plus 3 sorry-guarded properties that require transcendental functions (continuous compounding) or fractional exponents (compounded round-trip). Total: 14 proved theorems across 2 targets.
+Formal verification of QuantLib's quantitative finance primitives is progressing well using Lean 4 with Mathlib. The **Actual360** day counter is fully verified with 8 proved theorems and ~2,900 correspondence tests confirming exact match with C++. The **InterestRate** compounding module has **16 proved theorems** across three model layers: 11 over exact rationals (`Rat`), 5 over Mathlib reals (`ℝ`) for continuous compounding (exp/log), plus 3 sorry-guarded Float properties. Total: **24 proved theorems** across 2 targets, with 0 bugs found.
 
 ---
 
 ## Proof Architecture
 
-The verification is organised into independent target modules, each modelling a specific QuantLib component. InterestRate now has a dual-model architecture: an exact `Rat` model for proofs and a `Float` model for computational verification.
+The verification is organised into independent target modules, each modelling a specific QuantLib component. InterestRate uses a triple-model architecture: exact `Rat` for algebraic proofs, Mathlib `ℝ` for transcendental proofs, and `Float` for computational verification.
 
 ```mermaid
 graph TD
     A["FVSquad.Basic<br/>(project root)"]
-    B["FVSquad.Actual360<br/>7 theorems ✅"]
-    C["FVSquad.InterestRate<br/>7 proved + 3 sorry"]
+    B["FVSquad.Actual360<br/>8 theorems ✅"]
+    C["FVSquad.InterestRate<br/>16 proved + 3 sorry"]
     A --> B
     A --> C
+    C1["Rat model<br/>11 theorems ✅"]
+    C2["Real model (Mathlib)<br/>5 theorems ✅"]
+    C3["Float model<br/>3 sorry 🔄"]
+    C --> C1
+    C --> C2
+    C --> C3
 ```
 
 ---
 
 ## What Was Verified
 
-### Actual360 — Day Counter (1 file, 7 theorems)
+### Actual360 — Day Counter (1 file, 8 theorems)
 
 Models the Act/360 day counting convention from `ql/time/daycounters/actual360.hpp`. Uses exact integer arithmetic — no approximation needed.
 
 ```mermaid
 graph LR
-    F1["Actual360.lean<br/>7 theorems ✅<br/>Additivity, non-negativity,<br/>antisymmetry, edge cases"]
+    F1["Actual360.lean<br/>8 theorems ✅<br/>Additivity, non-negativity,<br/>antisymmetry, edge cases"]
 ```
 
 **Key results**:
@@ -48,23 +54,31 @@ graph LR
 - `dayCount_self`, `dayCount_self_includeLastDay`: zero/one at same date
 - `yearFraction_eq_dayCount_div_360`: formula definition correctness
 
-### InterestRate — Compounding Algebra (1 file, 7 proved + 3 sorry)
+### InterestRate — Compounding Algebra (1 file, 16 proved + 3 sorry)
 
-Models `InterestRate::compoundFactor` and `impliedRate` from `ql/interestrate.hpp/cpp`. Dual model: exact `Rat` for provable properties, `Float` for computational examples.
+Models `InterestRate::compoundFactor` and `impliedRate` from `ql/interestrate.hpp/cpp`. Triple model: exact `Rat` for algebraic proofs, Mathlib `ℝ` for continuous compounding, `Float` for computational examples.
 
 ```mermaid
 graph LR
-    F2["InterestRate.lean<br/>7 proved ✅ + 3 sorry 🔄<br/>Round-trip, identities,<br/>monotonicity, additivity"]
+    F2["InterestRate.lean<br/>16 proved ✅ + 3 sorry 🔄<br/>Round-trip, identities,<br/>monotonicity, exp/log"]
 ```
 
-**Proved theorems** (over exact `Rat`):
-- `simple_roundtrip_exact`: `impliedSimpleQ(compoundSimpleQ(r, t), t) = r` when `t ≠ 0` — the key round-trip inversion
-- `simple_zero_time`: `compoundSimpleQ(r, 0) = 1` — identity at zero time
-- `simple_zero_rate`: `compoundSimpleQ(0, t) = 1` — identity at zero rate
-- `compounded_zero_periods`: `(1 + r/n)^0 = 1` — identity for compounded at zero periods
-- `compounded_zero_rate`: `(1 + 0/n)^periods = 1` — identity for zero rate compounded
-- `simple_additive_excess`: linearity of excess growth: `f(r,s+t) - 1 = (f(r,s)-1) + (f(r,t)-1)`
-- `simple_monotone_rate`: higher rate ⇒ higher compound factor for `t ≥ 0`
+**Proved theorems over Rat** (11):
+- `simple_roundtrip_exact`: `impliedSimpleQ(compoundSimpleQ(r, t), t) = r` when `t ≠ 0`
+- `simple_zero_time`, `simple_zero_rate`: identity elements
+- `compounded_zero_periods`, `compounded_zero_rate`: compounded identity elements
+- `simple_additive_excess`: linearity of excess growth
+- `simple_monotone_rate`: higher rate ⇒ higher compound factor
+- `compounded_one_period`: reduction to `1 + r/n` for single period
+- `simple_pos`: positivity under standard conditions
+- `compounded_mul_periods`: `(1+r/n)^a · (1+r/n)^b = (1+r/n)^(a+b)`
+- `simple_time_scaling`: excess return scales linearly with time
+
+**Proved theorems over ℝ (Mathlib)** (5):
+- `compoundContinuousR_pos`: `exp(r·t) > 0` via `Real.exp_pos`
+- `continuousR_roundtrip`: `log(exp(r·t))/t = r` via `Real.log_exp`
+- `continuousR_zero_time`, `continuousR_zero_rate`: identity elements via `Real.exp_zero`
+- `continuousR_mul_periods`: `exp(r·(s+t)) = exp(r·s)·exp(r·t)` via `Real.exp_add`
 
 **Sorry-guarded** (require Mathlib or transcendental functions):
 - `compoundContinuous_pos`: `e^(r·t) > 0` — needs `Float.exp_pos` or `Real.exp_pos`
@@ -77,10 +91,10 @@ graph LR
 
 | File | Proved | Sorry | Phase | Key result |
 |------|--------|-------|-------|------------|
-| `Actual360.lean` | 7 | 0 | ✅ Fully proved | Additivity, antisymmetry, non-negativity |
-| `InterestRate.lean` | 7 | 3 | 🔄 Partial | Round-trip, identities, monotonicity |
+| `Actual360.lean` | 8 | 0 | ✅ Fully proved | Additivity, antisymmetry, non-negativity |
+| `InterestRate.lean` | 16 | 3 | 🔄 Partial | Round-trip, identities, monotonicity, exp/log |
 | `Basic.lean` | 0 | 0 | — | Project root |
-| **Total** | **14** | **3** | — | — |
+| **Total** | **24** | **3** | — | — |
 
 ---
 
@@ -95,6 +109,10 @@ graph LR
     C["simple_additive_excess ✅"] --> E["simple_monotone_rate ✅"]
     D --> F["Full Simple<br/>Compounding ✅"]
     E --> F
+    G["continuousR_zero_time ✅"] --> H["continuousR_roundtrip ✅"]
+    I["compoundContinuousR_pos ✅"] --> H
+    H --> J["Full Continuous<br/>Compounding (ℝ) ✅"]
+    K["continuousR_mul_periods ✅"] --> J
 ```
 
 The round-trip theorem states: for any rate `r` and time `t ≠ 0`,
@@ -113,9 +131,9 @@ graph TD
     PROOF["Lean Proofs"]
     REAL -->|"Modelled as"| MODEL
     MODEL -->|"Proved in"| PROOF
-    NOTE1["✅ Included: formulas,<br/>compounding modes,<br/>day count arithmetic"]
-    NOTE2["⚠️ Abstracted: Rat for reals,<br/>Int for dates,<br/>Nat for periods"]
-    NOTE3["❌ Omitted: calendar logic,<br/>QL_REQUIRE exceptions,<br/>FP rounding, exp/log"]
+    NOTE1["✅ Included: formulas,<br/>compounding modes,<br/>day count arithmetic,<br/>exp/log (via Mathlib ℝ)"]
+    NOTE2["⚠️ Abstracted: Rat for reals,<br/>Int for dates, Nat for periods,<br/>ℝ for continuous compounding"]
+    NOTE3["❌ Omitted: calendar logic,<br/>QL_REQUIRE exceptions,<br/>FP rounding"]
     MODEL --- NOTE1
     MODEL --- NOTE2
     MODEL --- NOTE3
@@ -126,7 +144,7 @@ graph TD
 | Actual360 | Exact integer day-count formula | Calendar date construction (leap years, months) |
 | InterestRate (Simple) | Exact rational arithmetic, all algebraic properties | IEEE 754 rounding |
 | InterestRate (Compounded) | Zero-rate and zero-period identities | Fractional exponents, n-th roots |
-| InterestRate (Continuous) | Float computational model | exp/log proofs (needs Mathlib `Real`) |
+| InterestRate (Continuous) | Real-valued exp/log via Mathlib ℝ (5 theorems proved) | IEEE 754 rounding |
 | General | Pure mathematical formulas | I/O, serialization, observer pattern, market data |
 
 ---
@@ -135,8 +153,8 @@ graph TD
 
 | Target | Spec lines | Impl lines | Ratio | Assessment |
 |--------|-----------|------------|-------|------------|
-| `Actual360` | ~30 (7 theorems + types) | ~65 (C++ header) | **High** | Spec captures full correctness with simple algebraic laws; impl has class hierarchy overhead |
-| `InterestRate` | ~80 (10 theorems + types) | ~360 (hpp + cpp) | **High** | Spec states algebraic round-trip laws and identities; impl has 5-way switch, frequency handling, error paths |
+| `Actual360` | ~35 (8 theorems + types) | ~65 (C++ header) | **High** | Spec captures full correctness with simple algebraic laws; impl has class hierarchy overhead |
+| `InterestRate` | ~100 (16 theorems + types across 3 models) | ~360 (hpp + cpp) | **High** | Clean algebraic properties constrain a multi-mode implementation. Triple model covers rational, real, and computational layers |
 
 ---
 
@@ -144,11 +162,11 @@ graph TD
 
 ### Bugs Found
 
-No implementation bugs found so far. All Actual360 properties match the C++ exactly, confirmed by both formal proof and ~2,900 correspondence test cases. InterestRate's algebraic laws hold over exact rationals.
+No implementation bugs found so far. All Actual360 properties match the C++ exactly, confirmed by both formal proof and ~2,900 correspondence test cases. InterestRate's algebraic laws hold over exact rationals, and continuous compounding is now proved over Mathlib's ℝ.
 
 ### Formulation Issues
 
-The original InterestRate spec used `Float` throughout, making proofs impossible without Mathlib or Float-specific axioms. **Run 5 reformulated the model** to use exact `Rat` for provable properties, enabling 7 new proofs while keeping `Float` for computational verification. This dual-model approach is the recommended pattern for future targets.
+The original InterestRate spec used `Float` throughout, making proofs impossible without Float-specific axioms. **Run 5 reformulated the model** to use exact `Rat` for provable properties. **Run 9 added Mathlib** and introduced a third layer using `ℝ` for transcendental functions, enabling 5 new continuous compounding proofs. This triple-model approach (Rat + ℝ + Float) is the recommended pattern for future targets.
 
 ### Interesting Structural Discoveries
 
@@ -166,7 +184,7 @@ timeline
         Research : 5 targets identified
         Informal Specs : Actual360 and InterestRate
     section Run 2 (2026-04-29)
-        Lean Specs : Actual360 fully proved (7 theorems)
+        Lean Specs : Actual360 fully proved (8 theorems)
         Lean Specs : InterestRate specs (6 sorry)
     section Run 3 (2026-04-29)
         Correspondence : Actual360 tests (2900 cases)
@@ -174,6 +192,16 @@ timeline
     section Run 4 (2026-04-29)
         Proofs : InterestRate 7 new proofs (Rat model)
         Report : Updated with proof inventory
+    section Run 5-8 (2026-04-30)
+        CI : lean-ci.yml created
+        Paper : Conference paper draft
+        Proofs : 4 more Rat proofs + critique
+    section Run 9 (2026-04-30)
+        Mathlib : Added Mathlib dependency
+        Proofs : 5 Real-valued theorems (exp/log)
+    section Run 10 (2026-04-30)
+        Correspondence : Review updated for triple model
+        Report : Updated to 24 proved theorems
 ```
 
 ---
@@ -181,8 +209,8 @@ timeline
 ## Toolchain
 
 - **Prover**: Lean 4 v4.30.0-rc2
-- **Libraries**: stdlib only (Mathlib blocked by network firewall in CI)
-- **CI**: Not yet configured (Task 9 pending)
+- **Libraries**: Mathlib (leanprover-community/mathlib4) — `Real.exp`, `Real.log`, algebra automation
+- **CI**: `lean-ci.yml` with Mathlib caching via `actions/cache`
 - **Build system**: Lake
 
 | Tactic | Usage |
