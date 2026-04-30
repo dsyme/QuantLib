@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-04-29T20:42Z",
+  "last_run": "2026-04-30T03:28Z",
   "fv_tool": "Lean 4 (stdlib only, Mathlib blocked by firewall)",
   "language": "C++",
   "aeneas_applicable": false,
@@ -53,13 +53,15 @@
     }
   ],
   "open_issues": [3],
-  "ci_status": "not-created",
+  "ci_status": "lean-ci.yml created (PR pending)",
   "bugs_found": [],
-  "documents": ["RESEARCH.md", "TARGETS.md", "CORRESPONDENCE.md", "REPORT.md"],
+  "documents": ["RESEARCH.md", "TARGETS.md", "CORRESPONDENCE.md", "REPORT.md", "paper/paper.tex"],
   "correspondence_tests": ["actual360"],
   "lean_version": "4.30.0-rc2",
   "mathlib_available": false,
   "total_proved": 14,
   "total_sorry": 3,
-  "notes": "Run 5: Task 5 - InterestRate proofs (7 proved via Rat model). Task 10 - Report updated. Dual Rat/Float model pattern established. Next: InterestRate correspondence tests, LinearInterpolation informal spec, CI setup, critique."
+  "paper_exists": true,
+  "paper_pdf_compiled": false,
+  "notes": "Run 6: Task 9 - CI workflow created. Task 11 - Conference paper draft (ACM sigconf). PDF not compiled (no LaTeX). Next: compile PDF, critique, LinearInterpolation informal spec, InterestRate correspondence tests."
 }
