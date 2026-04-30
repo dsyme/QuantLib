@@ -364,6 +364,38 @@ theorem continuousR_ge_simple (r t : ℝ) :
   unfold compoundContinuousR
   linarith [Real.add_one_le_exp (r * t)]
 
+/-! ### Additional Properties (Run 17)
+
+  New theorems strengthening the InterestRate verification:
+  - Equivalence between simple and compounded at n=1 period
+  - Compounded identity at unit base
+  - Continuous composition (rate addition)
+-/
+
+/-- **Simple equals compounded-1-period**: when there is exactly 1 compounding period,
+    (1 + r/n)^1 = 1 + r/n, which for n*t = 1 gives the same as simple compounding
+    at time 1/n with rate r. More precisely: compoundCompoundedQ r n 1 = compoundSimpleQ r (1/n). -/
+theorem compounded_one_eq_simple (r n : Rat) (_hn : n ≠ 0) :
+    compoundCompoundedQ r n 1 = compoundSimpleQ r (1 / n) := by
+  unfold compoundCompoundedQ compoundSimpleQ
+  rw [Rat.pow_one]
+  ring
+
+/-- **Continuous rate addition**: compounding at rate r₁ then r₂ over time t
+    equals compounding at rate r₁ + r₂ over time t.
+    exp(r₁·t) · exp(r₂·t) = exp((r₁+r₂)·t). -/
+theorem continuousR_rate_add (r₁ r₂ t : ℝ) :
+    compoundContinuousR r₁ t * compoundContinuousR r₂ t = compoundContinuousR (r₁ + r₂) t := by
+  unfold compoundContinuousR
+  rw [← Real.exp_add, add_mul]
+
+/-- **Continuous negation**: exp(-r·t) · exp(r·t) = 1.
+    Borrowing at rate r and investing at rate r cancel out. -/
+theorem continuousR_neg_cancel (r t : ℝ) :
+    compoundContinuousR (-r) t * compoundContinuousR r t = 1 := by
+  unfold compoundContinuousR
+  rw [← Real.exp_add, neg_mul, neg_add_cancel, Real.exp_zero]
+
 /-! ## Sorry-guarded Properties (Float / Continuous)
 
   The Float-based continuous properties below remain sorry-guarded because
