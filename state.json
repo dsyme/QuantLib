@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-04-30T07:54Z",
-  "fv_tool": "Lean 4 (stdlib only, Mathlib blocked by firewall)",
+  "last_run": "2026-04-30T09:09Z",
+  "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
   "targets": [
@@ -10,11 +10,10 @@
       "phase": 5,
       "phase_name": "Proofs (partial)",
       "lean_file": "formal-verification/lean/FVSquad/InterestRate.lean",
-      "properties_proved": ["simple-roundtrip-exact", "simple-zero-time", "simple-zero-rate", "compounded-zero-periods", "compounded-zero-rate", "simple-additive-excess", "simple-monotone-rate", "compounded-one-period", "simple-pos", "compounded-mul-periods", "simple-time-scaling"],
-      "properties_sorry": ["compoundContinuous-pos", "continuous-roundtrip", "compounded-roundtrip"],
+      "properties_proved": ["simple-roundtrip-exact", "simple-zero-time", "simple-zero-rate", "compounded-zero-periods", "compounded-zero-rate", "simple-additive-excess", "simple-monotone-rate", "compounded-one-period", "simple-pos", "compounded-mul-periods", "simple-time-scaling", "compoundContinuousR-pos", "continuousR-roundtrip", "continuousR-zero-time", "continuousR-zero-rate", "continuousR-mul-periods"],
+      "properties_sorry": ["compoundContinuous-pos-float", "continuous-roundtrip-float", "compounded-roundtrip-float"],
       "sorry_count": 3,
-      "correspondence": "Reviewed. No runnable tests yet.",
-      "notes": "11 proved theorems. 3 sorry need Mathlib Real/Float axioms."
+      "notes": "16 proved theorems (11 Rat + 5 Real via Mathlib). 3 Float sorry remain (Float lacks axioms)."
     },
     {
       "name": "Actual360",
@@ -25,13 +24,12 @@
       "properties_proved": ["formula-correctness", "non-negativity", "positivity-includeLastDay", "additivity", "additivity-breaks-includeLastDay", "same-date", "antisymmetry"],
       "sorry_count": 0,
       "correspondence": "Exact, validated by 2920 test cases",
-      "notes": "All 7 theorems proved. Correspondence fully reviewed."
+      "notes": "All 7 theorems proved."
     },
     {
       "name": "LinearInterpolation",
       "file": "ql/math/interpolations/linearinterpolation.hpp",
       "phase": 1,
-      "phase_name": "Research complete",
       "lean_file": null,
       "notes": "Good spec-to-impl ratio. Next for informal spec."
     },
@@ -53,11 +51,8 @@
   "open_issues": [3],
   "ci_status": "lean-ci.yml created",
   "bugs_found": [],
-  "correspondence_tests": ["actual360"],
-  "lean_version": "4.30.0-rc2",
-  "mathlib_available": false,
-  "total_proved": 18,
+  "mathlib_available": true,
+  "total_proved": 23,
   "total_sorry": 3,
-  "has_critique": true,
-  "notes": "Run 8: Task 5 - 4 new InterestRate proofs (compounded_one_period, simple_pos, compounded_mul_periods, simple_time_scaling). Task 7 - CRITIQUE.md created. Next priorities: InterestRate correspondence tests, LinearInterpolation informal spec, compounded monotonicity theorem."
+  "notes": "Run 9: Successfully added Mathlib dependency. Proved 5 new Real-valued theorems for continuous compounding using Real.exp/Real.log from Mathlib."
 }
