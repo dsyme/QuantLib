@@ -7,7 +7,7 @@
 | 1 | InterestRate | `ql/interestrate.hpp/cpp` | 2 — Informal Spec | 🔄 In progress | **Top** | High |
 | 2 | Actual360 | `ql/time/daycounters/actual360.hpp` | 2 — Informal Spec | 🔄 In progress | High | High |
 | 3 | LinearInterpolation | `ql/math/interpolations/linearinterpolation.hpp` | 1 — Research | ⬜ Not started | Medium | Medium-High |
-| 4 | Thirty360 | `ql/time/daycounters/thirty360.hpp/cpp` | 1 — Research | ⬜ Not started | Medium | Medium |
+| 4 | Thirty360 | `ql/time/daycounters/thirty360.hpp/cpp` | 2 — Informal Spec | 🔄 In progress | Medium | Medium |
 | 5 | NormalDistribution | `ql/math/distributions/normaldistribution.hpp/cpp` | 1 — Research | ⬜ Not started | Low | Medium |
 
 ## Phase Key

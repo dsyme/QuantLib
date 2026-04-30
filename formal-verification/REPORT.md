@@ -1,16 +1,16 @@
 > 🔬 *Lean Squad — automated formal verification for `dsyme/QuantLib`.*
 
-**Status**: 🔄 IN PROGRESS — 24 theorems proved, 3 Lean files, 3 `sorry`, Lean 4 + Mathlib.
+**Status**: 🔄 IN PROGRESS — 33 theorems proved, 3 Lean files, 3 `sorry`, Lean 4 + Mathlib.
 
 ## Last Updated
-- **Date**: 2026-04-30 09:43 UTC
-- **Commit**: `5c48a7043`
+- **Date**: 2026-04-30 12:19 UTC
+- **Commit**: `329ab3c6f`
 
 ---
 
 ## Executive Summary
 
-Formal verification of QuantLib's quantitative finance primitives is progressing well using Lean 4 with Mathlib. The **Actual360** day counter is fully verified with 8 proved theorems and ~2,900 correspondence tests confirming exact match with C++. The **InterestRate** compounding module has **16 proved theorems** across three model layers: 11 over exact rationals (`Rat`), 5 over Mathlib reals (`ℝ`) for continuous compounding (exp/log), plus 3 sorry-guarded Float properties. Total: **24 proved theorems** across 2 targets, with 0 bugs found.
+Formal verification of QuantLib's quantitative finance primitives is progressing well using Lean 4 with Mathlib. The **Actual360** day counter is fully verified with 8 proved theorems and ~2,900 correspondence tests confirming exact match with C++. The **InterestRate** compounding module has **25 proved theorems** across three model layers: 14 over exact rationals (`Rat`), 11 over Mathlib reals (`ℝ`) for continuous compounding (exp/log), plus 3 sorry-guarded Float properties. Total: **33 proved theorems** across 2 targets, with 0 bugs found. Informal specs now cover 3 targets (Actual360, InterestRate, LinearInterpolation, Thirty360).
 
 ---
 
@@ -60,10 +60,10 @@ Models `InterestRate::compoundFactor` and `impliedRate` from `ql/interestrate.hp
 
 ```mermaid
 graph LR
-    F2["InterestRate.lean<br/>16 proved ✅ + 3 sorry 🔄<br/>Round-trip, identities,<br/>monotonicity, exp/log"]
+    F2["InterestRate.lean<br/>25 proved ✅ + 3 sorry 🔄<br/>Round-trip, identities,<br/>monotonicity, exp/log"]
 ```
 
-**Proved theorems over Rat** (11):
+**Proved theorems over Rat** (14):
 - `simple_roundtrip_exact`: `impliedSimpleQ(compoundSimpleQ(r, t), t) = r` when `t ≠ 0`
 - `simple_zero_time`, `simple_zero_rate`: identity elements
 - `compounded_zero_periods`, `compounded_zero_rate`: compounded identity elements
@@ -74,7 +74,11 @@ graph LR
 - `compounded_mul_periods`: `(1+r/n)^a · (1+r/n)^b = (1+r/n)^(a+b)`
 - `simple_time_scaling`: excess return scales linearly with time
 
-**Proved theorems over ℝ (Mathlib)** (5):
+- `simple_monotone_time`: longer time ⇒ higher compound factor (r > 0)
+- `compounded_monotone_periods`: more periods ⇒ higher compound factor
+- `continuousR_gt_one`: `exp(r·t) > 1` when r > 0 and t > 0
+
+**Proved theorems over ℝ (Mathlib)** (11):
 - `compoundContinuousR_pos`: `exp(r·t) > 0` via `Real.exp_pos`
 - `continuousR_roundtrip`: `log(exp(r·t))/t = r` via `Real.log_exp`
 - `continuousR_zero_time`, `continuousR_zero_rate`: identity elements via `Real.exp_zero`
@@ -202,6 +206,12 @@ timeline
     section Run 10 (2026-04-30)
         Correspondence : Review updated for triple model
         Report : Updated to 24 proved theorems
+    section Run 11-12 (2026-04-30)
+        Proofs : 9 more InterestRate proofs (monotonicity, split_period)
+        Spec : LinearInterpolation informal spec
+    section Run 13 (2026-04-30)
+        Spec : Thirty360 informal spec
+        Report : Updated to 33 proved theorems
 ```
 
 ---
