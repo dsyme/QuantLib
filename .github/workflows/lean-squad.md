@@ -45,6 +45,11 @@ network:
     - "reservoir.leancache.cloud"
     - ocaml
   
+sandbox:
+  mcp:
+    version: v0.3.3
+strict: false
+
 engine:
   id: copilot
   model: claude-opus-4.6
