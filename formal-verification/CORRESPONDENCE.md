@@ -3,8 +3,8 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-04-30 04:14 UTC
-- **Commit**: `a367cac64`
+- **Date**: 2026-04-30 09:43 UTC
+- **Commit**: `5c48a7043`
 
 ---
 
@@ -56,14 +56,30 @@
 2. **Error handling model**: C++ throws via `QL_REQUIRE`; Lean returns `none`. The error conditions are equivalent: `t < 0`, missing frequency, `compound ≤ 0`.
 3. **Day counter abstraction**: C++ takes `Date` objects and a `DayCounter`; Lean takes `Float` time directly. The day-counting layer is not modelled.
 
+### Real (ℝ) Model — used for continuous compounding proofs
+
+| Lean Definition | C++ Source | File / Line | Correspondence | Justification |
+|----------------|-----------|-------------|----------------|---------------|
+| `compoundContinuousR` | `compoundFactor` Continuous case | `ql/interestrate.cpp` L55 | **Exact** | Both compute `exp(r·t)`. Lean uses Mathlib's `Real.exp`, C++ uses `std::exp`. Over exact reals, semantics are identical. |
+| `impliedContinuousR` | `impliedRate` Continuous case | `ql/interestrate.cpp` L92 | **Exact** | Both compute `log(compound)/t`. Lean uses Mathlib's `Real.log`, C++ uses `std::log`. |
+
+**Divergences (Real model)**: None for the mathematical semantics. The Real model operates over Mathlib's `ℝ`, which represents exact real numbers — the formulas are mathematically identical to the C++. The only gap is that C++ uses IEEE 754 `double`, which introduces floating-point rounding; the Real model does not capture this.
+
 ### Impact on proofs
 
-The 7 proved theorems operate on the **Rat model** and are fully valid:
+The **11 Rat-proved theorems** are fully valid:
 - `simple_roundtrip_exact`, `simple_zero_time`, `simple_zero_rate`: exact correspondence for Simple compounding.
 - `compounded_zero_periods`, `compounded_zero_rate`: valid for integer periods (the Nat restriction does not affect zero-period/zero-rate edge cases).
 - `simple_additive_excess`, `simple_monotone_rate`: algebraic properties of `1 + r*t`, exact correspondence.
+- `compounded_one_period`, `simple_pos`, `compounded_mul_periods`, `simple_time_scaling`: additional structural properties of Rat model.
 
-The 3 sorry-guarded theorems (`compoundContinuous_pos`, `continuous_roundtrip`, `compounded_roundtrip`) operate on the **Float model** and would need `Float.exp`/`Float.log` axioms or Mathlib `Real` to prove.
+The **5 Real-proved theorems** use Mathlib and are fully valid:
+- `compoundContinuousR_pos`: `exp(r·t) > 0` — proved via `Real.exp_pos`.
+- `continuousR_roundtrip`: `log(exp(r·t))/t = r` — proved via `Real.log_exp`.
+- `continuousR_zero_time`, `continuousR_zero_rate`: identity elements — proved via `Real.exp_zero`.
+- `continuousR_mul_periods`: `exp(r·(s+t)) = exp(r·s)·exp(r·t)` — proved via `Real.exp_add`.
+
+The **3 sorry-guarded Float theorems** (`compoundContinuous_pos`, `continuous_roundtrip`, `compounded_roundtrip`) remain unproved because `Float` lacks algebraic axioms. Their Real counterparts are now proved.
 
 **Validation evidence**: No runnable correspondence tests for InterestRate yet. Actual360 has validated correspondence tests. InterestRate correspondence tests are the next priority.
 
