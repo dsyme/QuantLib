@@ -305,6 +305,33 @@ theorem continuousR_mul_periods (r s t : ℝ) :
   unfold compoundContinuousR
   rw [mul_add, Real.exp_add]
 
+/-- **Continuous monotonicity in rate**: for t ≥ 0, higher rate ⇒ higher compound factor.
+    If r₁ ≤ r₂ and t ≥ 0, then exp(r₁·t) ≤ exp(r₂·t). -/
+theorem continuousR_monotone_rate (r₁ r₂ t : ℝ) (hr : r₁ ≤ r₂) (ht : 0 ≤ t) :
+    compoundContinuousR r₁ t ≤ compoundContinuousR r₂ t := by
+  unfold compoundContinuousR
+  exact Real.exp_le_exp_of_le (mul_le_mul_of_nonneg_right hr ht)
+
+/-- **Continuous monotonicity in time**: for r ≥ 0, longer time ⇒ higher compound factor.
+    If t₁ ≤ t₂ and r ≥ 0, then exp(r·t₁) ≤ exp(r·t₂). -/
+theorem continuousR_monotone_time (r t₁ t₂ : ℝ) (ht : t₁ ≤ t₂) (hr : 0 ≤ r) :
+    compoundContinuousR r t₁ ≤ compoundContinuousR r t₂ := by
+  unfold compoundContinuousR
+  exact Real.exp_le_exp_of_le (mul_le_mul_of_nonneg_left ht hr)
+
+/-- **Discount factor identity**: 1 / exp(r·t) = exp(-r·t).
+    This is the continuous analogue of `discountFactor = 1 / compoundFactor`. -/
+theorem continuousR_discount (r t : ℝ) :
+    1 / compoundContinuousR r t = Real.exp (-(r * t)) := by
+  unfold compoundContinuousR
+  rw [one_div, Real.exp_neg]
+
+/-- **Compounded positivity** (Rat): (1 + r/n)^k > 0 when 1 + r/n > 0. -/
+theorem compounded_pos (r n : Rat) (k : Nat) (h : 0 < 1 + r / n) :
+    0 < compoundCompoundedQ r n k := by
+  unfold compoundCompoundedQ
+  positivity
+
 /-! ## Sorry-guarded Properties (Float / Continuous)
 
   The Float-based continuous properties below remain sorry-guarded because
