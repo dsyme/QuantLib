@@ -1,0 +1,14 @@
+[
+  {"desc": "knot interpolation at x[0]", "xs": [1.0, 2.0, 3.0], "ys": [10.0, 20.0, 30.0], "segment": 0, "x": 1.0, "expected_value": 10.0, "expected_deriv": 10.0, "expected_second_deriv": 0.0},
+  {"desc": "knot interpolation at x[1]", "xs": [1.0, 2.0, 3.0], "ys": [10.0, 20.0, 30.0], "segment": 1, "x": 2.0, "expected_value": 20.0, "expected_deriv": 10.0, "expected_second_deriv": 0.0},
+  {"desc": "midpoint", "xs": [0.0, 2.0], "ys": [0.0, 4.0], "segment": 0, "x": 1.0, "expected_value": 2.0, "expected_deriv": 2.0, "expected_second_deriv": 0.0},
+  {"desc": "quarter point", "xs": [0.0, 4.0], "ys": [0.0, 8.0], "segment": 0, "x": 1.0, "expected_value": 2.0, "expected_deriv": 2.0, "expected_second_deriv": 0.0},
+  {"desc": "negative slope", "xs": [0.0, 1.0], "ys": [5.0, 3.0], "segment": 0, "x": 0.5, "expected_value": 4.0, "expected_deriv": -2.0, "expected_second_deriv": 0.0},
+  {"desc": "zero slope constant", "xs": [0.0, 1.0, 2.0], "ys": [7.0, 7.0, 7.0], "segment": 0, "x": 0.5, "expected_value": 7.0, "expected_deriv": 0.0, "expected_second_deriv": 0.0},
+  {"desc": "zero slope seg 1", "xs": [0.0, 1.0, 2.0], "ys": [7.0, 7.0, 7.0], "segment": 1, "x": 1.5, "expected_value": 7.0, "expected_deriv": 0.0, "expected_second_deriv": 0.0},
+  {"desc": "steep slope", "xs": [0.0, 0.01], "ys": [0.0, 100.0], "segment": 0, "x": 0.005, "expected_value": 50.0, "expected_deriv": 10000.0, "expected_second_deriv": 0.0},
+  {"desc": "non-uniform spacing seg 0", "xs": [0.0, 1.0, 4.0], "ys": [0.0, 3.0, 12.0], "segment": 0, "x": 0.5, "expected_value": 1.5, "expected_deriv": 3.0, "expected_second_deriv": 0.0},
+  {"desc": "non-uniform spacing seg 1", "xs": [0.0, 1.0, 4.0], "ys": [0.0, 3.0, 12.0], "segment": 1, "x": 2.0, "expected_value": 6.0, "expected_deriv": 3.0, "expected_second_deriv": 0.0},
+  {"desc": "negative domain", "xs": [-2.0, -1.0, 0.0], "ys": [4.0, 1.0, 0.0], "segment": 0, "x": -1.5, "expected_value": 2.5, "expected_deriv": -3.0, "expected_second_deriv": 0.0},
+  {"desc": "large values", "xs": [0.0, 1000000.0], "ys": [0.0, 1000000.0], "segment": 0, "x": 500000.0, "expected_value": 500000.0, "expected_deriv": 1.0, "expected_second_deriv": 0.0}
+]
