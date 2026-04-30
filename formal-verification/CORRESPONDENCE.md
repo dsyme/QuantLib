@@ -3,8 +3,8 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-04-30 10:00 UTC
-- **Commit**: `baace29d8`
+- **Date**: 2026-04-30 10:53 UTC
+- **Commit**: `6cc004b6b`
 
 ---
 
@@ -89,7 +89,7 @@ The **4 new Real-proved theorems** added in Run 11:
 
 The **3 sorry-guarded Float theorems** (`compoundContinuous_pos`, `continuous_roundtrip`, `compounded_roundtrip`) remain unproved because `Float` lacks algebraic axioms. Their Real counterparts are now proved.
 
-**Validation evidence**: No runnable correspondence tests for InterestRate yet. Actual360 has validated correspondence tests. InterestRate correspondence tests are the next priority.
+**Validation evidence**: Runnable correspondence tests at `formal-verification/tests/interestrate/` — 1394 test cases covering compoundFactor (344 cases), impliedRate (240 cases), round-trip (432 cases), and monotonicity (378 cases), all passing. See `formal-verification/tests/interestrate/README.md` for details.
 
 ---
 
