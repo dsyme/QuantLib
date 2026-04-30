@@ -8,17 +8,18 @@
 
   **Modelling choices**:
   - **Exact model** uses `Rat` (exact rationals) for provable algebraic properties.
-    This captures the mathematical intent of the C++ formulas without floating-point noise.
+  - **Real model** uses Mathlib's `ℝ` for continuous compounding (exp/log).
   - **Computational model** uses `Float` for executable verification examples.
-  - Day counting is abstracted: we take time `t` as a nonneg rational.
+  - Day counting is abstracted: we take time `t` as a nonneg rational/real.
   - Error handling (QL_REQUIRE) is modelled via Option types.
-  - Continuous compounding (e^(r·t)) requires real `exp`/`log` which are not available
-    in Lean stdlib for `Rat`. Those properties remain sorry-guarded pending Mathlib.
   - Compounded mode uses `Nat` exponent: `periods = n * t` must be a natural number,
     which is accurate for integer compounding periods.
   - IEEE 754 floating-point semantics are NOT modelled; we reason about
     the mathematical formulas only.
 -/
+
+import Mathlib.Analysis.SpecialFunctions.ExpDeriv
+import Mathlib.Analysis.SpecialFunctions.Log.Basic
 
 namespace FVSquad.InterestRate
 
@@ -119,8 +120,7 @@ private theorem rat_one_pow (k : Nat) : (1 : Rat) ^ k = 1 := by
 theorem compounded_zero_rate (n : Rat) (_hn : n ≠ 0) (periods : Nat) :
     compoundCompoundedQ 0 n periods = 1 := by
   unfold compoundCompoundedQ
-  simp [Rat.div_def, Rat.zero_mul, Rat.add_zero]
-  exact rat_one_pow periods
+  simp
 
 /-- **Simple linearity in time**: the excess over 1 scales linearly with time.
     compoundSimpleQ(r, s+t) - 1 = (compoundSimpleQ(r, s) - 1) + (compoundSimpleQ(r, t) - 1). -/
@@ -240,7 +240,7 @@ theorem compounded_mul_periods (r n : Rat) (a b : Nat) :
     compoundCompoundedQ r n a * compoundCompoundedQ r n b = compoundCompoundedQ r n (a + b) := by
   unfold compoundCompoundedQ
   induction b with
-  | zero => simp [Rat.pow_zero, Rat.mul_one, Nat.add_zero]
+  | zero => simp
   | succ k ih =>
     rw [Rat.pow_succ (1 + r / n) k]
     rw [← Rat.mul_assoc]
@@ -260,11 +260,56 @@ theorem simple_time_scaling (r t c : Rat) :
   congr 1
   rw [← Rat.mul_assoc, Rat.mul_comm r c, Rat.mul_assoc]
 
+/-! ## Real Model (Mathlib ℝ) — Continuous Compounding
+
+  Using Mathlib's `Real.exp` and `Real.log` to prove properties that
+  require transcendental functions. These were previously sorry-guarded.
+-/
+
+/-- Compound factor for Continuous mode over ℝ: exp(r·t) -/
+noncomputable def compoundContinuousR (r t : ℝ) : ℝ := Real.exp (r * t)
+
+/-- Implied rate for Continuous mode over ℝ: ln(compound) / t -/
+noncomputable def impliedContinuousR (compound t : ℝ) : ℝ := Real.log compound / t
+
+/-- **Positivity of continuous compounding**: exp(r·t) > 0 for all r, t.
+    Proved using Mathlib's `Real.exp_pos`. -/
+theorem compoundContinuousR_pos (r t : ℝ) :
+    compoundContinuousR r t > 0 := by
+  unfold compoundContinuousR
+  exact Real.exp_pos (r * t)
+
+/-- **Continuous round-trip**: ln(exp(r·t)) / t = r when t ≠ 0.
+    Proved using Mathlib's `Real.log_exp`. -/
+theorem continuousR_roundtrip (r t : ℝ) (ht : t ≠ 0) :
+    impliedContinuousR (compoundContinuousR r t) t = r := by
+  unfold impliedContinuousR compoundContinuousR
+  rw [Real.log_exp]
+  exact mul_div_cancel_of_imp (fun h => absurd h ht)
+
+/-- **Continuous compounding at zero time**: exp(r·0) = 1. -/
+theorem continuousR_zero_time (r : ℝ) :
+    compoundContinuousR r 0 = 1 := by
+  unfold compoundContinuousR
+  rw [mul_zero, Real.exp_zero]
+
+/-- **Continuous compounding at zero rate**: exp(0·t) = 1. -/
+theorem continuousR_zero_rate (t : ℝ) :
+    compoundContinuousR 0 t = 1 := by
+  unfold compoundContinuousR
+  rw [zero_mul, Real.exp_zero]
+
+/-- **Continuous compounding multiplicativity**: exp(r·(s+t)) = exp(r·s) · exp(r·t). -/
+theorem continuousR_mul_periods (r s t : ℝ) :
+    compoundContinuousR r (s + t) = compoundContinuousR r s * compoundContinuousR r t := by
+  unfold compoundContinuousR
+  rw [mul_add, Real.exp_add]
+
 /-! ## Sorry-guarded Properties (Float / Continuous)
 
-  These properties require either Mathlib's `Real` type or `Float`-specific
-  axioms that are not available in Lean 4 stdlib. They remain sorry-guarded
-  as goals for future work.
+  The Float-based continuous properties below remain sorry-guarded because
+  Float does not satisfy field axioms. The corresponding Real-valued proofs
+  are above (compoundContinuousR_pos, continuousR_roundtrip, etc.).
 -/
 
 /-- **Positivity of continuous compounding**: e^(r·t) > 0 for all r, t.
