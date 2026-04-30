@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-04-30T10:15Z",
+  "last_run": "2026-04-30T12:19Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -11,9 +11,8 @@
       "phase_name": "Proofs (partial)",
       "lean_file": "formal-verification/lean/FVSquad/InterestRate.lean",
       "properties_proved": ["simple-roundtrip-exact", "simple-zero-time", "simple-zero-rate", "compounded-zero-periods", "compounded-zero-rate", "simple-additive-excess", "simple-monotone-rate", "compounded-one-period", "simple-pos", "compounded-mul-periods", "simple-time-scaling", "compoundContinuousR-pos", "continuousR-roundtrip", "continuousR-zero-time", "continuousR-zero-rate", "continuousR-mul-periods", "continuousR-monotone-rate", "continuousR-monotone-time", "continuousR-discount", "compounded-pos", "simple-monotone-time", "compounded-monotone-periods", "continuousR-gt-one", "continuousR-split-period"],
-      "properties_sorry": ["compoundContinuous-pos-float", "continuous-roundtrip-float", "compounded-roundtrip-float"],
       "sorry_count": 3,
-      "notes": "25 proved (14 Rat + 11 Real). 3 Float sorry remain. Run 12 added simple_monotone_time, compounded_monotone_periods, continuousR_gt_one, continuousR_split_period."
+      "notes": "25 proved (14 Rat + 11 Real). 3 Float sorry remain."
     },
     {
       "name": "Actual360",
@@ -21,7 +20,6 @@
       "phase": 5,
       "phase_name": "Fully proved + correspondence validated",
       "lean_file": "formal-verification/lean/FVSquad/Actual360.lean",
-      "properties_proved": ["formula-correctness", "non-negativity", "positivity-includeLastDay", "additivity", "additivity-breaks-includeLastDay", "same-date", "antisymmetry", "same-date-includeLastDay"],
       "sorry_count": 0,
       "correspondence": "Exact, validated by 2920 test cases",
       "notes": "All 8 theorems proved."
@@ -31,14 +29,14 @@
       "file": "ql/math/interpolations/linearinterpolation.hpp",
       "phase": 2,
       "lean_file": null,
-      "notes": "Informal spec written in run 12. Key properties: knot interpolation, piecewise affine, monotonicity preservation, second derivative zero."
+      "notes": "Informal spec written in run 12."
     },
     {
       "name": "Thirty360",
       "file": "ql/time/daycounters/thirty360.hpp, thirty360.cpp",
-      "phase": 1,
+      "phase": 2,
       "lean_file": null,
-      "notes": "Complex edge cases, high bug potential."
+      "notes": "Informal spec written in run 13. 6 conventions. Potential NASD month-overflow bug identified as open question."
     },
     {
       "name": "NormalDistribution",
@@ -51,8 +49,7 @@
   "open_issues": [3],
   "ci_status": "lean-ci.yml created",
   "bugs_found": [],
-  "mathlib_available": true,
   "total_proved": 33,
   "total_sorry": 3,
-  "notes": "Run 12: Task 5 added 4 new InterestRate proofs (monotonicity, gt_one, split_period). Task 2 wrote LinearInterpolation informal spec. Total 33 proved across 2 targets."
+  "notes": "Run 13: Task 2 wrote Thirty360 informal spec. Task 10 updated report. Total 33 proved across 2 targets."
 }
