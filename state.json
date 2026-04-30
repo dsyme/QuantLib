@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-04-30T09:43Z",
+  "last_run": "2026-04-30T10:00Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -10,10 +10,10 @@
       "phase": 5,
       "phase_name": "Proofs (partial)",
       "lean_file": "formal-verification/lean/FVSquad/InterestRate.lean",
-      "properties_proved": ["simple-roundtrip-exact", "simple-zero-time", "simple-zero-rate", "compounded-zero-periods", "compounded-zero-rate", "simple-additive-excess", "simple-monotone-rate", "compounded-one-period", "simple-pos", "compounded-mul-periods", "simple-time-scaling", "compoundContinuousR-pos", "continuousR-roundtrip", "continuousR-zero-time", "continuousR-zero-rate", "continuousR-mul-periods"],
+      "properties_proved": ["simple-roundtrip-exact", "simple-zero-time", "simple-zero-rate", "compounded-zero-periods", "compounded-zero-rate", "simple-additive-excess", "simple-monotone-rate", "compounded-one-period", "simple-pos", "compounded-mul-periods", "simple-time-scaling", "compoundContinuousR-pos", "continuousR-roundtrip", "continuousR-zero-time", "continuousR-zero-rate", "continuousR-mul-periods", "continuousR-monotone-rate", "continuousR-monotone-time", "continuousR-discount", "compounded-pos"],
       "properties_sorry": ["compoundContinuous-pos-float", "continuous-roundtrip-float", "compounded-roundtrip-float"],
       "sorry_count": 3,
-      "notes": "16 proved (11 Rat + 5 Real via Mathlib). 3 Float sorry remain. Correspondence review updated Run 10."
+      "notes": "21 proved (12 Rat + 9 Real via Mathlib). 3 Float sorry remain. Run 11 added monotonicity, discount, positivity."
     },
     {
       "name": "Actual360",
@@ -52,7 +52,7 @@
   "ci_status": "lean-ci.yml created",
   "bugs_found": [],
   "mathlib_available": true,
-  "total_proved": 24,
+  "total_proved": 29,
   "total_sorry": 3,
-  "notes": "Run 10: Updated CORRESPONDENCE.md and REPORT.md. Now reflects triple-model architecture (Rat + Real + Float) with 24 proved theorems."
+  "notes": "Run 11: Task 5 added 5 new proofs (monotonicity, discount, positivity). Task 6 updated CORRESPONDENCE.md. Total 29 proved theorems across 2 targets."
 }
