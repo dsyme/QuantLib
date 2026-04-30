@@ -3,8 +3,8 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-04-30 10:53 UTC
-- **Commit**: `6cc004b6b`
+- **Date**: 2026-04-30 11:24 UTC
+- **Commit**: `HEAD` (Run 13)
 
 ---
 
@@ -73,8 +73,12 @@ The **11 Rat-proved theorems** are fully valid:
 - `simple_additive_excess`, `simple_monotone_rate`: algebraic properties of `1 + r*t`, exact correspondence.
 - `compounded_one_period`, `simple_pos`, `compounded_mul_periods`, `simple_time_scaling`: additional structural properties of Rat model.
 
-The **1 Rat-proved theorem** added in Run 11:
+The **2 Rat-proved theorems** (Runs 11–13):
 - `compounded_pos`: positivity of `(1 + r/n)^k` when `1 + r/n > 0`, proved via `positivity`.
+- `compounded_monotone_periods`: more periods ⇒ higher factor when `1 ≤ 1 + r/n`, proved via `gcongr`.
+
+The **1 Rat-proved theorem** added in Run 13:
+- `simple_monotone_time`: longer time ⇒ higher factor for non-negative rate, proved via `Rat.mul_le_mul_of_nonneg_left`.
 
 The **5 Real-proved theorems** (from prior runs) use Mathlib and are fully valid:
 - `compoundContinuousR_pos`: `exp(r·t) > 0` — proved via `Real.exp_pos`.
@@ -82,10 +86,12 @@ The **5 Real-proved theorems** (from prior runs) use Mathlib and are fully valid
 - `continuousR_zero_time`, `continuousR_zero_rate`: identity elements — proved via `Real.exp_zero`.
 - `continuousR_mul_periods`: `exp(r·(s+t)) = exp(r·s)·exp(r·t)` — proved via `Real.exp_add`.
 
-The **4 new Real-proved theorems** added in Run 11:
+The **6 Real-proved theorems** added in Runs 11–13:
 - `continuousR_monotone_rate`: higher rate ⇒ higher compound factor for `t ≥ 0` — proved via `Real.exp_le_exp_of_le`.
 - `continuousR_monotone_time`: longer time ⇒ higher compound factor for `r ≥ 0` — proved via `Real.exp_le_exp_of_le`.
 - `continuousR_discount`: `1/exp(r·t) = exp(−r·t)` — proved via `Real.exp_neg`. This validates the `discountFactor = 1/compoundFactor` identity.
+- `continuousR_gt_one`: `exp(r·t) > 1` when `r·t > 0` — proved via `Real.one_lt_exp_iff`.
+- `continuousR_ge_simple`: `exp(r·t) ≥ 1 + r·t` for all `r, t` — proved via `Real.add_one_le_exp`. This establishes that continuous compounding always dominates simple compounding.
 
 The **3 sorry-guarded Float theorems** (`compoundContinuous_pos`, `continuous_roundtrip`, `compounded_roundtrip`) remain unproved because `Float` lacks algebraic axioms. Their Real counterparts are now proved.
 

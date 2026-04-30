@@ -332,6 +332,38 @@ theorem compounded_pos (r n : Rat) (k : Nat) (h : 0 < 1 + r / n) :
   unfold compoundCompoundedQ
   positivity
 
+/-! ### Additional Proved Properties (Run 13) -/
+
+/-- **Simple monotonicity in time**: for r ≥ 0, longer time ⇒ higher compound factor.
+    If t₁ ≤ t₂ and r ≥ 0, then compoundSimpleQ(r, t₁) ≤ compoundSimpleQ(r, t₂). -/
+theorem simple_monotone_time (r t₁ t₂ : Rat) (ht : t₁ ≤ t₂) (hr : 0 ≤ r) :
+    compoundSimpleQ r t₁ ≤ compoundSimpleQ r t₂ := by
+  unfold compoundSimpleQ
+  have h : r * t₁ ≤ r * t₂ := Rat.mul_le_mul_of_nonneg_left ht hr
+  exact (Rat.add_le_add_left (c := 1)).mpr h
+
+/-- **Compounded monotone in periods**: for 1 + r/n ≥ 1, more periods ⇒ higher factor.
+    If a ≤ b and 1 ≤ 1 + r/n, then (1+r/n)^a ≤ (1+r/n)^b. -/
+theorem compounded_monotone_periods (r n : Rat) (a b : Nat) (hab : a ≤ b)
+    (h : 1 ≤ 1 + r / n) :
+    compoundCompoundedQ r n a ≤ compoundCompoundedQ r n b := by
+  unfold compoundCompoundedQ
+  gcongr
+
+/-- **Continuous compounding > 1**: exp(r·t) > 1 when r·t > 0.
+    A positive rate applied over positive time always grows. -/
+theorem continuousR_gt_one (r t : ℝ) (h : 0 < r * t) :
+    1 < compoundContinuousR r t := by
+  unfold compoundContinuousR
+  exact Real.one_lt_exp_iff.mpr h
+
+/-- **Exponential dominates linear**: exp(r·t) ≥ 1 + r·t for all r, t.
+    This proves continuous compounding always yields at least as much as simple. -/
+theorem continuousR_ge_simple (r t : ℝ) :
+    1 + r * t ≤ compoundContinuousR r t := by
+  unfold compoundContinuousR
+  linarith [Real.add_one_le_exp (r * t)]
+
 /-! ## Sorry-guarded Properties (Float / Continuous)
 
   The Float-based continuous properties below remain sorry-guarded because
