@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-04-30T13:33Z",
+  "last_run": "2026-04-30T17:42Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -40,7 +40,7 @@
       "phase_name": "Lean Spec (fully proved)",
       "lean_file": "formal-verification/lean/FVSquad/Thirty360.lean",
       "sorry_count": 0,
-      "notes": "European convention only. 9 theorems proved. Next: add more conventions, then correspondence tests."
+      "notes": "European convention only. 11 theorems proved (added day31_eq_day30, monotone_year in run 16). Next: correspondence tests, then more conventions."
     },
     {
       "name": "NormalDistribution",
@@ -53,7 +53,7 @@
   "open_issues": [3],
   "ci_status": "lean-ci.yml exists and passing",
   "bugs_found": [],
-  "total_proved": 48,
+  "total_proved": 50,
   "total_sorry": 3,
-  "notes": "Run 15: Added Thirty360 EU spec (9 theorems) + LinearInterpolation correspondence tests (12 cases). Total: 48 proved across 4 targets."
+  "notes": "Run 16: Task 6 (Correspondence Review) — added Thirty360 + LinearInterpolation to CORRESPONDENCE.md. Task 5 — added 2 new theorems to Thirty360. Total: 50 proved across 4 targets."
 }
