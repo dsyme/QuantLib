@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-04-30T04:14Z",
+  "last_run": "2026-04-30T07:54Z",
   "fv_tool": "Lean 4 (stdlib only, Mathlib blocked by firewall)",
   "language": "C++",
   "aeneas_applicable": false,
@@ -10,11 +10,11 @@
       "phase": 5,
       "phase_name": "Proofs (partial)",
       "lean_file": "formal-verification/lean/FVSquad/InterestRate.lean",
-      "properties_proved": ["simple-roundtrip-exact", "simple-zero-time", "simple-zero-rate", "compounded-zero-periods", "compounded-zero-rate", "simple-additive-excess", "simple-monotone-rate"],
+      "properties_proved": ["simple-roundtrip-exact", "simple-zero-time", "simple-zero-rate", "compounded-zero-periods", "compounded-zero-rate", "simple-additive-excess", "simple-monotone-rate", "compounded-one-period", "simple-pos", "compounded-mul-periods", "simple-time-scaling"],
       "properties_sorry": ["compoundContinuous-pos", "continuous-roundtrip", "compounded-roundtrip"],
       "sorry_count": 3,
-      "correspondence": "Reviewed: Rat exact for Simple, abstraction for Compounded (Nat exponent). No tests yet.",
-      "notes": "Dual Rat/Float model. Rat Compounded restricts to Nat exponent vs C++ real-valued."
+      "correspondence": "Reviewed. No runnable tests yet.",
+      "notes": "11 proved theorems. 3 sorry need Mathlib Real/Float axioms."
     },
     {
       "name": "Actual360",
@@ -39,7 +39,6 @@
       "name": "Thirty360",
       "file": "ql/time/daycounters/thirty360.hpp, thirty360.cpp",
       "phase": 1,
-      "phase_name": "Research complete",
       "lean_file": null,
       "notes": "Complex edge cases, high bug potential."
     },
@@ -47,18 +46,18 @@
       "name": "NormalDistribution",
       "file": "ql/math/distributions/normaldistribution.hpp, .cpp",
       "phase": 1,
-      "phase_name": "Research complete",
       "lean_file": null,
       "notes": "Hard to verify; focus on abstract properties."
     }
   ],
   "open_issues": [3],
-  "ci_status": "lean-ci.yml created (PR submitted)",
+  "ci_status": "lean-ci.yml created",
   "bugs_found": [],
   "correspondence_tests": ["actual360"],
   "lean_version": "4.30.0-rc2",
   "mathlib_available": false,
-  "total_proved": 14,
+  "total_proved": 18,
   "total_sorry": 3,
-  "notes": "Run 7: Task 9 - lean-ci.yml created. Task 6 - CORRESPONDENCE.md thoroughly updated with line-level C++ refs, Rat/Float model separation, Nat exponent divergence documented. Next: critique, InterestRate correspondence tests, LinearInterpolation informal spec."
+  "has_critique": true,
+  "notes": "Run 8: Task 5 - 4 new InterestRate proofs (compounded_one_period, simple_pos, compounded_mul_periods, simple_time_scaling). Task 7 - CRITIQUE.md created. Next priorities: InterestRate correspondence tests, LinearInterpolation informal spec, compounded monotonicity theorem."
 }
