@@ -3,8 +3,8 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-04-30 09:43 UTC
-- **Commit**: `5c48a7043`
+- **Date**: 2026-04-30 10:00 UTC
+- **Commit**: `baace29d8`
 
 ---
 
@@ -73,11 +73,19 @@ The **11 Rat-proved theorems** are fully valid:
 - `simple_additive_excess`, `simple_monotone_rate`: algebraic properties of `1 + r*t`, exact correspondence.
 - `compounded_one_period`, `simple_pos`, `compounded_mul_periods`, `simple_time_scaling`: additional structural properties of Rat model.
 
-The **5 Real-proved theorems** use Mathlib and are fully valid:
+The **1 Rat-proved theorem** added in Run 11:
+- `compounded_pos`: positivity of `(1 + r/n)^k` when `1 + r/n > 0`, proved via `positivity`.
+
+The **5 Real-proved theorems** (from prior runs) use Mathlib and are fully valid:
 - `compoundContinuousR_pos`: `exp(r·t) > 0` — proved via `Real.exp_pos`.
 - `continuousR_roundtrip`: `log(exp(r·t))/t = r` — proved via `Real.log_exp`.
 - `continuousR_zero_time`, `continuousR_zero_rate`: identity elements — proved via `Real.exp_zero`.
 - `continuousR_mul_periods`: `exp(r·(s+t)) = exp(r·s)·exp(r·t)` — proved via `Real.exp_add`.
+
+The **4 new Real-proved theorems** added in Run 11:
+- `continuousR_monotone_rate`: higher rate ⇒ higher compound factor for `t ≥ 0` — proved via `Real.exp_le_exp_of_le`.
+- `continuousR_monotone_time`: longer time ⇒ higher compound factor for `r ≥ 0` — proved via `Real.exp_le_exp_of_le`.
+- `continuousR_discount`: `1/exp(r·t) = exp(−r·t)` — proved via `Real.exp_neg`. This validates the `discountFactor = 1/compoundFactor` identity.
 
 The **3 sorry-guarded Float theorems** (`compoundContinuous_pos`, `continuous_roundtrip`, `compounded_roundtrip`) remain unproved because `Float` lacks algebraic axioms. Their Real counterparts are now proved.
 
