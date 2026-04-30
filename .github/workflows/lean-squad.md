@@ -41,6 +41,7 @@ network:
     - "arxiv.org"
     - "leanprover-community.github.io"
     - "leanlang.org"
+    - "lakecache.blob.core.windows.net"
     - ocaml
   
 engine:
@@ -427,7 +428,7 @@ steps:
           json.dump(result, f, indent=2)
       EOF
 
-source: githubnext/agentics/workflows/lean-squad.md@dcc45f7b7a2c54d652fa242c0d3964f8b15ac4bf
+source: githubnext/agentics/workflows/lean-squad.md@04962fee474fd7b0b79533ba3db1f40e25d0ad16
 ---
 
 # Lean Squad
@@ -1019,7 +1020,7 @@ jobs:
         working-directory: formal-verification/lean
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.2
 
       - name: Install elan
         run: |
@@ -1040,7 +1041,7 @@ jobs:
         run: echo "manifest_hash=$(sha256sum lake-manifest.json | cut -c1-16)" >> "$GITHUB_OUTPUT"
 
       - name: Cache .lake build artefacts
-        uses: actions/cache@v4
+        uses: actions/cache@v5.0.5
         with:
           path: formal-verification/lean/.lake
           key: lean-lake-${{ steps.cache-key.outputs.manifest_hash }}
@@ -1062,7 +1063,7 @@ jobs:
 
       - name: Upload build log on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: lake-build-log
           path: /tmp/lake_build.log
