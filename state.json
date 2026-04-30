@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-04-30T18:28Z",
+  "last_run": "2026-04-30T18:37Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -11,7 +11,7 @@
       "phase_name": "Proofs (partial)",
       "lean_file": "formal-verification/lean/FVSquad/InterestRate.lean",
       "sorry_count": 3,
-      "notes": "27 proved (run 17: +3 rate_add, neg_cancel, compounded_one_eq_simple). 3 Float sorry remain."
+      "notes": "24 proved. 3 Float sorry remain (unprovable without Float axioms)."
     },
     {
       "name": "Actual360",
@@ -36,24 +36,25 @@
     {
       "name": "Thirty360",
       "file": "ql/time/daycounters/thirty360.hpp, thirty360.cpp",
-      "phase": 3,
+      "phase": 5,
       "phase_name": "Lean Spec (fully proved)",
       "lean_file": "formal-verification/lean/FVSquad/Thirty360.lean",
       "sorry_count": 0,
-      "notes": "European convention only. 11 theorems proved. Next: correspondence tests."
+      "notes": "European convention. 11 theorems proved. Next: correspondence tests."
     },
     {
       "name": "NormalDistribution",
       "file": "ql/math/distributions/normaldistribution.hpp, .cpp",
-      "phase": 1,
+      "phase": 2,
+      "phase_name": "Informal Spec",
       "lean_file": null,
-      "notes": "Hard to verify; focus on abstract properties."
+      "notes": "Informal spec written run 17. 10 FV-amenable properties identified. Next: Lean spec (Task 3)."
     }
   ],
   "open_issues": [3],
   "ci_status": "lean-ci.yml exists and passing",
   "bugs_found": [],
-  "total_proved": 54,
+  "total_proved": 50,
   "total_sorry": 3,
-  "notes": "Run 17: Task 5 — 3 new InterestRate theorems. Task 11 — paper updated to 54 theorems/4 targets. Total: 57 theorem decls, 54 fully proved."
+  "notes": "Run 17: Task 10 (Report update to 50 theorems) + Task 2 (NormalDistribution informal spec). All 4 informal specs now have Lean files. NormalDistribution advanced to phase 2."
 }
