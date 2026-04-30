@@ -220,6 +220,46 @@ def impliedRate (compound : Float) (comp : Compounding) (freq : Option Frequency
         else some (impliedCompounded compound t n)
     | _, none => none
 
+/-! ### Additional Proved Properties (Exact Model) -/
+
+/-- **Compounded single period**: with exactly 1 compounding period, the formula
+    reduces to 1 + r/n. -/
+theorem compounded_one_period (r n : Rat) :
+    compoundCompoundedQ r n 1 = 1 + r / n := by
+  unfold compoundCompoundedQ; rw [Rat.pow_one]
+
+/-- **Simple positivity**: compoundSimpleQ is positive when 1 + r*t > 0. -/
+theorem simple_pos (r t : Rat) (h : 0 < 1 + r * t) :
+    0 < compoundSimpleQ r t := by
+  unfold compoundSimpleQ; exact h
+
+/-- **Compounded period multiplication**: compound factors over consecutive periods
+    multiply to give the compound factor over the combined period.
+    (1+r/n)^a · (1+r/n)^b = (1+r/n)^(a+b). -/
+theorem compounded_mul_periods (r n : Rat) (a b : Nat) :
+    compoundCompoundedQ r n a * compoundCompoundedQ r n b = compoundCompoundedQ r n (a + b) := by
+  unfold compoundCompoundedQ
+  induction b with
+  | zero => simp [Rat.pow_zero, Rat.mul_one, Nat.add_zero]
+  | succ k ih =>
+    rw [Rat.pow_succ (1 + r / n) k]
+    rw [← Rat.mul_assoc]
+    rw [ih]
+    rw [Nat.add_succ]
+    rw [Rat.pow_succ]
+
+/-- **Simple time scaling**: the simple compound factor scales linearly with time.
+    compoundSimpleQ(r, c·t) = 1 + c·(compoundSimpleQ(r, t) - 1).
+    This expresses that the "excess return" r·t scales proportionally with time. -/
+theorem simple_time_scaling (r t c : Rat) :
+    compoundSimpleQ r (c * t) = 1 + c * (compoundSimpleQ r t - 1) := by
+  unfold compoundSimpleQ
+  have h1 : (1 : Rat) + r * t - 1 = r * t := by
+    rw [Rat.add_comm]; exact Rat.add_sub_cancel
+  rw [h1]
+  congr 1
+  rw [← Rat.mul_assoc, Rat.mul_comm r c, Rat.mul_assoc]
+
 /-! ## Sorry-guarded Properties (Float / Continuous)
 
   These properties require either Mathlib's `Real` type or `Float`-specific
