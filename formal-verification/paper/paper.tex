@@ -38,15 +38,17 @@
 We report on an ongoing automated formal verification effort targeting QuantLib,
 a widely-used open-source C++ library for quantitative finance.
 Using Lean~4 as a proof assistant, we model core financial primitives---day counting
-conventions and interest rate compounding algebra---as pure functional definitions
-over exact arithmetic and prove key algebraic properties including additivity,
-round-trip inversion, monotonicity, and identity laws.
-To date, 14~theorems have been fully machine-checked across two verification targets
-(Actual360 day counter and InterestRate compounding), with 3~remaining proof obligations
-requiring transcendental function support.
+conventions (Actual/360 and 30/360), interest rate compounding algebra, and linear
+interpolation---as pure functional definitions over exact arithmetic and prove key
+algebraic properties including additivity, round-trip inversion, monotonicity,
+rate composition, and identity laws.
+To date, 54~theorems have been fully machine-checked across four verification targets
+(Actual360, InterestRate, Thirty360, LinearInterpolation), with only 3~remaining
+proof obligations that require Float-level transcendental function axioms not
+available in Lean's standard library.
 Correspondence between the Lean models and the C++ source is validated through
-a combination of manual review and automated executable testing (approximately
-2,900~test cases for Actual360).
+automated executable testing (2,920~test cases for Actual360 and 12 for
+LinearInterpolation).
 We discuss the methodology, the favourable spec-to-implementation complexity ratio
 that makes financial mathematics a strong candidate for formal verification,
 and lessons learned from automating the entire verification pipeline.
@@ -110,7 +112,7 @@ as our proof assistant, we:
   \item Formalise these as Lean~4 definitions and theorem
         statements, using exact rational arithmetic to avoid
         floating-point complications (\S\ref{sec:formalisation}).
-  \item Prove 14~theorems fully and identify 3~proof obligations
+  \item Prove 54~theorems fully and identify 3~proof obligations
         requiring Mathlib's real analysis library (\S\ref{sec:results}).
   \item Validate model correspondence via ${\sim}2{,}900$ executable
         test cases comparing the Lean model against the C++
@@ -380,7 +382,7 @@ The most striking feature of this verification effort is the
 favourable \emph{spec-to-implementation complexity ratio}.
 The Actual360 specification is 7~theorem statements totalling
 roughly 15~lines of Lean, constraining a C++ implementation of
-${\sim}65$ lines.  The InterestRate specification is 10~theorem
+${\sim}65$ lines.  The InterestRate specification is 31~theorem
 statements (${\sim}30$ lines of Lean) constraining ${\sim}360$
 lines of C++ spanning five compounding modes.  In both cases,
 the algebraic laws are obviously correct on inspection, while
@@ -423,9 +425,9 @@ environment have prevented Mathlib from being fetched,
 leaving these as \texttt{sorry}-guarded.
 
 \paragraph{Scope.}
-Only two of QuantLib's many components have been verified.
-The remaining targets (LinearInterpolation, Thirty360,
-NormalDistribution) are identified but not yet formalised.
+Four of QuantLib's many components have been verified.
+The remaining candidate (NormalDistribution) is identified but not yet formalised
+due to the difficulty of reasoning about transcendental functions.
 
 \subsection{Lessons Learned}
 
@@ -450,17 +452,17 @@ NormalDistribution) are identified but not yet formalised.
 
 We have demonstrated that Lean~4 can be applied incrementally
 and automatically to formally verify core primitives of a
-production quantitative finance library.  Fourteen theorems have
-been proved across two targets, covering fundamental algebraic
+production quantitative finance library.  Fifty-four theorems have
+been proved across four targets, covering fundamental algebraic
 properties of day counting and interest rate compounding.
-Correspondence testing with ${\sim}2{,}900$ cases validates
+Correspondence testing with ${\sim}2{,}930$ cases validates
 model fidelity.  No bugs were found, providing formal assurance
 of correctness for these well-established components.
 
 Future work includes completing the transcendental-function
-proofs (requiring Mathlib), extending verification to
-LinearInterpolation and Thirty360, and establishing CI
-automation for continuous proof checking.
+proofs (requiring Float axioms), extending verification to
+NormalDistribution, and deepening correspondence validation
+across all targets.
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{paper}
