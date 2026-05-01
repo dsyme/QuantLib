@@ -99,9 +99,13 @@ theorem factorial_even_div (n : ℕ) : 2 ^ n ∣ factorial (2 * n) := by
   induction n with
   | zero => simp
   | succ k ih =>
-    rw [Nat.pow_succ, show 2 * (k + 1) = 2 * k + 1 + 1 from by ring,
-        Nat.factorial_succ, show 2 * k + 1 + 1 = 2 * k + 2 from by ring,
-        Nat.factorial_succ]
-    sorry -- Requires careful divisibility argument; future work
+    rw [Nat.pow_succ]
+    have h1 : 2 * (k + 1) = (2 * k + 1) + 1 := by ring
+    rw [h1, Nat.factorial_succ, show (2 * k + 1) + 1 = 2 * k + 2 from by ring]
+    have h2 : Nat.factorial (2 * k + 1) = (2 * k + 1) * Nat.factorial (2 * k) := Nat.factorial_succ _
+    rw [h2]
+    obtain ⟨d, hd⟩ := ih
+    rw [hd]
+    exact ⟨(k + 1) * (2 * k + 1) * d, by ring⟩
 
 end FVSquad.Factorial
