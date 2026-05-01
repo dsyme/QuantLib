@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-05-01T09:06Z",
+  "last_run": "2026-05-01T09:14Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -47,7 +47,7 @@
       "phase_name": "Proofs (partial)",
       "lean_file": "formal-verification/lean/FVSquad/NormalDistribution.lean",
       "sorry_count": 1,
-      "notes": "14/15 proved. 1 sorry: cdf_deriv_eq_pdf blocked."
+      "notes": "14/15 proved. 1 sorry: cdf_deriv_eq_pdf blocked by HasDerivAt erf."
     },
     {
       "name": "Factorial",
@@ -88,11 +88,11 @@
     {
       "name": "BlackFormula",
       "file": "ql/pricingengines/blackformula.hpp/cpp",
-      "phase": 1,
-      "phase_name": "Research",
+      "phase": 2,
+      "phase_name": "Informal Spec",
       "lean_file": null,
       "sorry_count": null,
-      "notes": "New Run 33. Put-call parity, non-negativity, ATM symmetry. Composes with NormalDistribution. High priority."
+      "notes": "Run 34: Informal spec written. 9 properties: put-call parity, non-negativity, ATM symmetry, zero-vol, monotonicity, bounds, discount linearity, zero-strike. Composes with NormalDistribution. Next: Lean spec (Task 3)."
     },
     {
       "name": "Matrix",
@@ -101,7 +101,7 @@
       "phase_name": "Research",
       "lean_file": null,
       "sorry_count": null,
-      "notes": "New Run 33. Algebraic properties (commutativity, associativity, transpose involution)."
+      "notes": "Algebraic properties (commutativity, associativity, transpose involution)."
     },
     {
       "name": "NewtonSafe",
@@ -110,7 +110,7 @@
       "phase_name": "Research",
       "lean_file": null,
       "sorry_count": null,
-      "notes": "New Run 33. Extends Bisection patterns. Bracket maintenance, convergence."
+      "notes": "Extends Bisection patterns. Bracket maintenance, convergence."
     }
   ],
   "open_issues": [3],
@@ -118,5 +118,5 @@
   "total_proved": 99,
   "total_sorry": 4,
   "paper_exists": true,
-  "notes": "Run 33: Tasks 1+11. Task 1: Added BlackFormula, Matrix, NewtonSafe targets. Task 11: Fixed paper theorem counts (99 actual, was 107). Next priorities: FloatingPointClose Lean spec (Task 3), BlackFormula informal spec (Task 2)."
+  "notes": "Run 34: Tasks 2+5. Task 2: BlackFormula informal spec (phase 1→2). Task 5: All 4 sorry remain blocked (3 Float stdlib, 1 HasDerivAt erf). Next priorities: FloatingPointClose or BlackFormula Lean spec (Task 3)."
 }
