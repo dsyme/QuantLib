@@ -3,8 +3,8 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-05-01 07:42 UTC
-- **Commit**: `5d5837d19` (Run 29)
+- **Date**: 2026-05-01 08:36 UTC
+- **Commit**: `24f82b4a5` (Run 30)
 
 ---
 
@@ -176,7 +176,7 @@ The **3 sorry-guarded Float theorems** (`compoundContinuous_pos`, `continuous_ro
 
 **Impact on proofs**: All 15 theorems/lemmas are proved with 0 sorry. The proved theorems cover step-level properties (`dx_halves_each_step`, `midpoint_in_bracket`, `midpoint_in_bracket_neg`, `orient_dx_magnitude`, `step_root_in_interval`), convergence (`dx_after_k_steps`, `abs_dx_bisectStep`, `abs_dx_after_k_steps`), termination (`bisect_terminates`, `iterateStep_succ_eq`), and accuracy guarantees (`bisect_accuracy`). All reason about structural/geometric properties of the bisection step that are identical between C++ and Lean.
 
-**Validation evidence**: No runnable correspondence tests yet. The step-level and convergence properties are verified algebraically. End-to-end correspondence testing is recommended as future work.
+**Validation evidence**: 22 runnable correspondence test cases in `formal-verification/tests/bisection/test_bisection.py`. Tests compare a Python/Fraction exact-rational solver (matching Lean `ℚ` semantics) against a Python/float solver (matching C++ `double` semantics) on linear, quadratic, cubic, edge-case, convergence-rate, and orientation test cases. All 22 pass with exact agreement between rational and float solvers. Run with: `cd formal-verification/tests/bisection && python3 test_bisection.py`.
 
 ---
 

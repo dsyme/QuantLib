@@ -3,14 +3,14 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-05-01 03:15 UTC
-- **Commit**: `09a950cd3`
+- **Date**: 2026-05-01 08:36 UTC
+- **Commit**: `24f82b4a5` (Run 30)
 
 ---
 
 ## Overall Assessment
 
-The formal verification effort has produced **82 proved theorems** across 7 targets (Actual360, InterestRate, LinearInterpolation, Thirty360, NormalDistribution, Factorial, Bisection), with only 6 `sorry` remaining. Coverage spans day counting, interest rate compounding, interpolation, probability distributions, combinatorics, and root-finding — a broad cross-section of QuantLib's mathematical core. The proofs are sound and the spec-to-implementation complexity ratios remain favourable across all targets. The project has matured from an early-stage effort to a substantive verification suite that provides real confidence in the correctness of these financial primitives.
+The formal verification effort has produced **91 proved theorems** across 8 Lean files (Actual360, InterestRate, LinearInterpolation, Thirty360, NormalDistribution, Factorial, Bisection, Basic), with **8 `sorry`** remaining across 3 files. Coverage spans day counting, interest rate compounding, interpolation, probability distributions, combinatorics, and root-finding — a broad cross-section of QuantLib's mathematical core. All 7 targets with correspondence tests now have runnable validation evidence, including the newly added Bisection tests (22 cases). The proofs are sound and the spec-to-implementation complexity ratios remain favourable across all targets.
 
 ---
 
@@ -40,7 +40,7 @@ The formal verification effort has produced **82 proved theorems** across 7 targ
 | `dx_after_k_steps` | Bisection.lean | Mid | High | High | Geometric convergence after k steps |
 | `step_root_in_interval` | Bisection.lean | Mid | High | High | Root containment invariant |
 
-*Full inventory: 82 proved theorems across 7 Lean files. See individual `.lean` files for complete listings.*
+*Full inventory: 91 proved theorems across 8 Lean files. See individual `.lean` files for complete listings.*
 
 ---
 
@@ -54,7 +54,7 @@ The formal verification effort has produced **82 proved theorems** across 7 targ
 | Thirty360 | ~90 (11 theorems, 4 defs) | ~60 (convention logic) | **High** | 11 properties capture 30/360 convention correctly despite complex day-adjustment rules. |
 | NormalDistribution | ~120 (14 theorems, structures) | ~150 (Moro's algo + Abramowitz approx) | **High** | Analytical properties (symmetry, peak, CDF) are concise; the numerical implementation is complex. |
 | Factorial | ~70 (10 theorems, 1 def) | ~30 (lookup table + recursive) | **Medium** | Properties are standard (positivity, growth, divisibility). Impl is simple but table-based — proofs confirm the table is correct. |
-| Bisection | ~80 (8 theorems, 3 defs) | ~50 (iterative solver) | **High** | Convergence rate and root containment are concise specs for an iterative algorithm. |
+| Bisection | ~80 (11 theorems, 3 defs) | ~50 (iterative solver) | **High** | Convergence rate and root containment are concise specs for an iterative algorithm. All 11 theorems proved, 22 correspondence tests. |
 
 All targets sit at favourable ratios. The strongest are InterestRate, NormalDistribution, and Bisection where clean mathematical properties constrain complex multi-branch implementations.
 
@@ -64,7 +64,7 @@ All targets sit at favourable ratios. The strongest are InterestRate, NormalDist
 
 ### High Priority
 
-1. **Bisection: `bisect_terminates` and `bisect_accuracy`** — The two remaining sorry-guarded theorems in Bisection are the most valuable: they prove the algorithm actually converges and achieves the requested accuracy. These require induction with careful bound tracking on the recursion. Proving these would complete the verification of the bisection solver.
+1. **~~Bisection: `bisect_terminates` and `bisect_accuracy`~~** — ✅ Both theorems are now fully proved (Run 26+). The bisection solver is completely verified with 11 theorems and 0 sorry. Correspondence now validated by 22 test cases (Run 30).
 
 2. **InterestRate: Compounded round-trip** — Still the most valuable unproved InterestRate property. Requires Mathlib `rpow` inverse or a reformulated Nat-only version.
 
@@ -92,7 +92,7 @@ All targets sit at favourable ratios. The strongest are InterestRate, NormalDist
 
 2. **No vacuity concerns**: All 82 proved theorems operate over exact types (`Rat`, `Int`, `ℕ`, `ℝ`) with clear correspondence to C++ formulas. The Nat exponent restriction for compounded interest and the `SimpleDate` abstraction for Thirty360 are clearly documented. No theorem relies on dubious model approximations.
 
-3. **Bisection sorry theorems are substantive**: Unlike the InterestRate Float sorrys (which are toolchain-blocked), the Bisection sorrys (`bisect_terminates`, `bisect_accuracy`) are provable in principle with sufficient proof engineering. These should be prioritized.
+3. **~~Bisection sorry theorems~~**: ✅ Resolved. Both `bisect_terminates` and `bisect_accuracy` are now fully proved. Bisection has 11 theorems, 0 sorry, and 22 correspondence test cases.
 
 4. **NormalDistribution model uses `Real` (ℝ)**: The NormalDistribution proofs operate over mathematical reals with exact `exp`, `sqrt`, etc. This is appropriate for stating analytical properties but means the proofs do not directly constrain the numerical C++ implementation (which uses `double` approximations). The correspondence is mediated by the 1082 test cases rather than by the proofs themselves. This is acceptable but should be noted: the proofs verify the *mathematical specification*, not the *numerical implementation*.
 
@@ -102,7 +102,7 @@ All targets sit at favourable ratios. The strongest are InterestRate, NormalDist
 
 ## Positive Findings
 
-- **82 theorems proved with zero bugs found**: all specified mathematical properties of QuantLib's core hold. This is a strong positive signal — the mathematical foundations are correctly implemented.
+- **91 theorems proved with zero bugs found**: all specified mathematical properties of QuantLib's core hold. This is a strong positive signal — the mathematical foundations are correctly implemented.
 
 - **The round-trip theorem** (`simple_roundtrip_exact`) proves `impliedSimpleQ` is a perfect inverse of `compoundSimpleQ` — catches formula transcription errors.
 
