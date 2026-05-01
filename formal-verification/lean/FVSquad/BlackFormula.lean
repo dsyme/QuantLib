@@ -133,12 +133,14 @@ theorem atm_symmetry (F σ : ℝ) (hσ : σ > 0) (hF : F > 0) :
 /-- P8: Linearity in discount — discount is a multiplicative scalar. -/
 theorem linear_discount (type : OptionType) (K F σ D δ : ℝ) :
     blackFormula type K F σ D δ = D * blackFormula type K F σ 1 δ := by
-  sorry
+  unfold blackFormula
+  split_ifs <;> cases type <;> simp_all <;> ring
 
 /-- P9: Zero strike call — Call(0, F, σ, D, 0) = D · F when F > 0, σ > 0. -/
 theorem zero_strike_call (F σ D : ℝ) (hσ : σ > 0) (hF : F > 0) :
     blackFormula .Call 0 F σ D 0 = D * F := by
-  sorry
+  unfold blackFormula
+  simp [ne_of_gt hσ]
 
 /-- P1: Non-negativity of the Black formula (zero-vol case). -/
 theorem nonneg_zero_vol (type : OptionType) (K F D δ : ℝ) (hD : D ≥ 0) :
@@ -148,9 +150,13 @@ theorem nonneg_zero_vol (type : OptionType) (K F D δ : ℝ) (hD : D ≥ 0) :
   exact le_max_right _ _
 
 /-- P7 (partial): Call upper bound in the zero-vol case. -/
-theorem call_upper_bound_zero_vol (K F D δ : ℝ) (hD : D ≥ 0) (hF' : F + δ ≥ 0) :
+theorem call_upper_bound_zero_vol (K F D δ : ℝ) (hD : D ≥ 0) (hF' : F + δ ≥ 0)
+    (hK' : K + δ ≥ 0) :
     blackFormula .Call K F 0 D δ ≤ D * (F + δ) := by
-  sorry
+  rw [zero_vol]
+  simp [OptionType.sign]
+  apply mul_le_mul_of_nonneg_left _ hD
+  exact max_le (by linarith) hF'
 
 /-! ## Properties requiring Φ bounds (sorry-guarded)
 
