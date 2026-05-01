@@ -8,7 +8,8 @@
 | 2 | Actual360 | `ql/time/daycounters/actual360.hpp` | 5 — Proofs | ✅ 8/8 proved + correspondence | High | High |
 | 3 | LinearInterpolation | `ql/math/interpolations/linearinterpolation.hpp` | 5 — Proofs | ✅ 7/7 proved + correspondence | Medium | Medium-High |
 | 4 | Thirty360 | `ql/time/daycounters/thirty360.hpp/cpp` | 5 — Proofs | ✅ 11/11 proved (EU convention) | Medium | Medium-High |
-| 5 | NormalDistribution | `ql/math/distributions/normaldistribution.hpp/cpp` | 1 — Research | ⬜ Not started | Low | Medium |
+| 5 | NormalDistribution | `ql/math/distributions/normaldistribution.hpp/cpp` | 5 — Proofs | 🔄 15/16 proved (1 sorry) | Low | Medium |
+| 6 | Factorial | `ql/math/factorial.hpp/cpp` | 5 — Proofs | 🔄 9/10 proved (1 sorry) | Medium | High |
 
 ## Phase Key
 
