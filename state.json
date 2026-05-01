@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-05-01T08:49Z",
+  "last_run": "2026-05-01T08:57Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -74,16 +74,16 @@
       "phase_name": "Fully proved",
       "lean_file": "formal-verification/lean/FVSquad/Actual365Fixed.lean",
       "sorry_count": 0,
-      "notes": "8/8 proved. Standard convention only."
+      "notes": "8/8 proved + 2295 correspondence tests."
     },
     {
       "name": "FloatingPointClose",
       "file": "ql/math/comparison.hpp",
-      "phase": 1,
-      "phase_name": "Research",
+      "phase": 2,
+      "phase_name": "Informal Spec",
       "lean_file": null,
       "sorry_count": null,
-      "notes": "Next target for informal spec."
+      "notes": "Informal spec written. Next: Lean spec (Task 3)."
     }
   ],
   "open_issues": [3],
@@ -91,5 +91,5 @@
   "total_proved": 107,
   "total_sorry": 4,
   "paper_exists": true,
-  "notes": "Run 31: Tasks 11+9. Task 11: Updated paper.tex (81→107 theorems, 7→8 targets, added Actual365Fixed, Bisection fully proved). LaTeX unavailable, no PDF. Task 9: CI audit passed, no changes needed. Next: FloatingPointClose informal spec."
+  "notes": "Run 32: Tasks 2+8. Task 2: FloatingPointClose informal spec (close/close_enough, Knuth relative closeness). Task 8: Actual365Fixed 2295 correspondence tests all passing. Next: FloatingPointClose Lean spec (Task 3)."
 }
