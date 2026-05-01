@@ -117,21 +117,94 @@ theorem midpoint_in_bracket_neg (s : BisectState) (hdx : s.dx < 0) :
   · linarith
   · linarith
 
-/-- P3: Termination bound — bisection terminates in at most
-    ⌈log₂(|dx₀| / accuracy)⌉ iterations when accuracy > 0 and dx₀ ≠ 0. -/
+/-- Key lemma: |dx| after one bisectStep is |s.dx|/2. -/
+theorem abs_dx_bisectStep (f : ℚ → ℚ) (s : BisectState) :
+    |(bisectStep f s).dx| = |s.dx| / 2 := by
+  rw [dx_halves_each_step]
+  rw [abs_div, abs_of_pos (by norm_num : (2 : ℚ) > 0)]
+
+/-- Key lemma: |dx| after k steps equals |s.dx| / 2^k. -/
+theorem abs_dx_after_k_steps (f : ℚ → ℚ) (s : BisectState) (k : ℕ) :
+    |(iterateStep f s k).dx| = |s.dx| / (2 ^ k : ℚ) := by
+  induction k with
+  | zero => simp [iterateStep]
+  | succ n ih =>
+    simp only [iterateStep]
+    rw [abs_dx_bisectStep]
+    rw [ih]
+    ring
+
+/-- P3: Termination bound — bisection terminates in at most fuel iterations
+    when accuracy > 0, fuel > 0, and |dx₀| / 2^fuel < accuracy.
+    (The fuel > 0 condition is necessary since bisect with fuel=0 always returns none.) -/
 theorem bisect_terminates (f : ℚ → ℚ) (s : BisectState) (acc : ℚ)
-    (hacc : 0 < acc) (hdx : |s.dx| ≠ 0) (fuel : ℕ)
+    (hacc : 0 < acc) (hdx : |s.dx| ≠ 0) (fuel : ℕ) (hfuel_pos : 0 < fuel)
     (hfuel : (|s.dx| : ℚ) / 2 ^ fuel < acc) :
     (bisect f s acc fuel).isSome = true := by
-  sorry  -- requires induction with careful bound tracking
+  induction fuel generalizing s with
+  | zero => omega
+  | succ n ih =>
+    simp only [bisect]
+    set s' := bisectStep f s with hs'_def
+    have hdx_step : |s'.dx| = |s.dx| / 2 := abs_dx_bisectStep f s
+    by_cases h1 : |s'.dx| < acc
+    · simp [h1]
+    · simp [h1]
+      by_cases h2 : f (s'.root + s'.dx) = 0
+      · simp [h2]
+      · simp [h2]
+        have h_s'_dx_pos : (0 : ℚ) < |s'.dx| := by
+          rw [hdx_step]; positivity
+        have h_s'_dx_ne : |s'.dx| ≠ 0 := ne_of_gt h_s'_dx_pos
+        have hfuel' : |s'.dx| / 2 ^ n < acc := by
+          have h := hfuel
+          rw [hdx_step]
+          convert h using 1
+          rw [pow_succ]
+          ring
+        have hn_pos : 0 < n := by
+          by_contra h_n0
+          push_neg at h_n0
+          have hn0 : n = 0 := Nat.eq_zero_of_le_zero h_n0
+          rw [hn0, pow_zero, div_one] at hfuel'
+          exact absurd hfuel' h1
+        exact ih s' h_s'_dx_ne hn_pos hfuel'
 
-/-- P4: If bisect returns some r, then r was the root value at some iteration
-    where |dx| < accuracy — so r is within accuracy of any root in the bracket.
-    (Accuracy guarantee — correctness of the returned value.) -/
+/-- Shifting lemma: iterating k+1 times from s equals iterating k times from bisectStep f s. -/
+theorem iterateStep_succ_eq (f : ℚ → ℚ) (s : BisectState) (k : ℕ) :
+    iterateStep f s (k + 1) = iterateStep f (bisectStep f s) k := by
+  induction k with
+  | zero => simp [iterateStep]
+  | succ m ih => simp only [iterateStep]; congr 1
+
+/-- P4: If bisect returns some r, then either:
+    (a) some iteration reached |dx| < accuracy (interval narrowed), or
+    (b) an exact zero of f was found during iteration.
+    This captures both termination modes of the algorithm. -/
 theorem bisect_accuracy (f : ℚ → ℚ) (s : BisectState) (acc : ℚ) (fuel : ℕ) (r : ℚ)
     (h : bisect f s acc fuel = some r) :
-    ∃ k ≤ fuel, |(iterateStep f s k).dx| / 2 < acc := by
-  sorry  -- requires unwinding the recursion
+    (∃ k, k ≥ 1 ∧ k ≤ fuel ∧ |(iterateStep f s k).dx| < acc) ∨
+    (∃ k, k ≥ 1 ∧ k ≤ fuel ∧ f ((iterateStep f s k).root + (iterateStep f s k).dx) = 0) := by
+  induction fuel generalizing s with
+  | zero => simp [bisect] at h
+  | succ n ih =>
+    simp only [bisect] at h
+    split_ifs at h with h1 h2
+    · -- Returned due to accuracy check: |(bisectStep f s).dx| < acc
+      left
+      exact ⟨1, by omega, by omega, h1⟩
+    · -- Returned due to exact zero
+      right
+      exact ⟨1, by omega, by omega, h2⟩
+    · -- Recursed: bisect f (bisectStep f s) acc n = some r
+      have ih_result := ih (bisectStep f s) h
+      rcases ih_result with ⟨k, hk1, hk2, hk3⟩ | ⟨k, hk1, hk2, hk3⟩
+      · left
+        refine ⟨k + 1, by omega, by omega, ?_⟩
+        rw [iterateStep_succ_eq]; exact hk3
+      · right
+        refine ⟨k + 1, by omega, by omega, ?_⟩
+        rw [iterateStep_succ_eq]; exact hk3
 
 /-- P5: orient produces a state where dx has the correct magnitude. -/
 theorem orient_dx_magnitude (f : ℚ → ℚ) (xMin xMax : ℚ) :
