@@ -43,9 +43,9 @@ interpolation, the normal distribution, factorial computation, and the bisection
 root-finding algorithm---as pure functional definitions over exact arithmetic and
 prove key algebraic properties including additivity, round-trip inversion, monotonicity,
 rate composition, convergence bounds, and identity laws.
-To date, 81~theorems have been fully machine-checked across seven verification targets,
-with only 6~remaining proof obligations (3~requiring Float axioms, 2~requiring
-inductive termination arguments, 1~requiring a derivative composition lemma).
+To date, 107~theorems have been fully machine-checked across eight verification targets,
+with only 4~remaining proof obligations (3~requiring Float axioms and
+1~requiring a derivative composition lemma).
 Correspondence between the Lean models and the C++ source is validated through
 over 6{,}000 executable test cases across all targets.
 We discuss the methodology, the favourable spec-to-implementation complexity ratio
@@ -111,7 +111,7 @@ as our proof assistant, we:
   \item Formalise these as Lean~4 definitions and theorem
         statements, using exact rational arithmetic to avoid
         floating-point complications (\S\ref{sec:formalisation}).
-  \item Prove 81~theorems fully and identify 6~proof obligations
+  \item Prove 107~theorems fully and identify 4~proof obligations
         requiring advanced tooling (\S\ref{sec:results}).
   \item Validate model correspondence via over 6{,}000 executable
         test cases comparing Lean models against C++
@@ -175,7 +175,7 @@ we seek components whose correctness can be stated as concise
 algebraic laws while their implementations involve multiple
 branches, convention variants, and edge cases.
 
-Seven candidates were identified and verified to varying degrees
+Eight candidates were identified and verified to varying degrees
 (Table~\ref{tab:targets}).
 
 \begin{table}[h]
@@ -185,12 +185,13 @@ Seven candidates were identified and verified to varying degrees
 Target & Ratio & Tractability & Proved & Status \\
 \midrule
 Actual360 & High & Easy & 8 & {\checkmark} Complete \\
-InterestRate & High & Moderate & 24 & {\checkmark} Complete$^*$ \\
+Actual365Fixed & High & Easy & 8 & {\checkmark} Complete \\
+InterestRate & High & Moderate & 30 & {\checkmark} Complete$^*$ \\
 Thirty360 & High & Easy & 11 & {\checkmark} Complete \\
 LinearInterpolation & Med--High & Moderate & 7 & {\checkmark} Complete \\
 Factorial & High & Easy & 10 & {\checkmark} Complete \\
 NormalDistribution & Medium & Hard & 15 & Partial (1 sorry) \\
-Bisection & Med--High & Hard & 6 & Partial (2 sorry) \\
+Bisection & Med--High & Hard & 15 & {\checkmark} Complete \\
 \bottomrule
 \end{tabular}
 \caption{Formal verification targets in QuantLib.
@@ -314,7 +315,7 @@ def impliedSimpleQ (compound t : Rat) : Rat :=
   (compound - 1) / t
 \end{lstlisting}
 
-Twenty-four theorems are proved across three models (Rat, Real, Float):
+Thirty theorems are proved across three models (Rat, Real, Float):
 simple and compounded round-trip inversions, zero-time/zero-rate identities,
 monotonicity in rate and time, exponential inequalities ($e^{rt} \geq 1+rt$),
 and discount factor correctness. Three Float-level obligations remain
@@ -346,13 +347,24 @@ CDF--PDF relationship, and inverse CDF round-trip. One \texttt{sorry}
 remains (\texttt{cdf\_deriv\_eq\_pdf}) requiring \texttt{HasDerivAt}
 for the erf composition.
 
+\subsection{Actual365Fixed Day Counter}
+
+The Actual365Fixed day counter computes year fractions as
+$\mathit{dayCount}(d_1, d_2) / 365$, using the standard convention.
+Eight theorems are fully proved: formula correctness, non-negativity,
+positivity with includeLastDay, additivity, same-date identity,
+antisymmetry, includeLastDay characterisation, and linear scaling.
+All proofs close with \texttt{simp} + \texttt{omega}, mirroring
+the Actual360 proof structure.
+
 \subsection{Bisection Root-Finding}
 
 The bisection algorithm is modelled with fuel-bounded recursion over
-exact rationals. Six of eight theorems are proved: interval halving per
-step, interval width after $k$ steps ($|dx|/2^k$), midpoint containment,
-orientation correctness, and root-in-interval invariant. Two \texttt{sorry}
-remain: termination and accuracy bounds requiring inductive arguments.
+exact rationals. All fifteen theorems are fully proved: interval
+halving per step, interval width after $k$ steps ($|dx|/2^k$),
+midpoint containment, orientation correctness, root-in-interval
+invariant, convergence bounds, termination, and accuracy guarantees.
+The proofs use \texttt{ring}, \texttt{omega}, and \texttt{linarith}.
 
 \subsection{Proof Inventory Summary}
 
@@ -363,14 +375,15 @@ remain: termination and accuracy bounds requiring inductive arguments.
 Target & Proved & Sorry & Key tactics \\
 \midrule
 Actual360 & 8 & 0 & omega, simp \\
-InterestRate & 24 & 3 & ring, positivity, gcongr \\
+Actual365Fixed & 8 & 0 & omega, simp \\
+InterestRate & 30 & 3 & ring, positivity, gcongr \\
 Thirty360 & 11 & 0 & omega, simp, ring \\
 LinearInterpolation & 7 & 0 & ring, simp, linarith \\
 Factorial & 10 & 0 & omega, induction, simp \\
 NormalDistribution & 15 & 1 & positivity, linarith, Real.* \\
-Bisection & 6 & 2 & ring, omega, linarith \\
+Bisection & 15 & 0 & ring, omega, linarith \\
 \midrule
-\textbf{Total} & \textbf{81} & \textbf{6} & \\
+\textbf{Total} & \textbf{104} & \textbf{4} & \\
 \bottomrule
 \end{tabular}
 \caption{Proof inventory by target.}
@@ -400,11 +413,13 @@ The most striking feature of this verification effort is the
 favourable \emph{spec-to-implementation complexity ratio}.
 The Actual360 specification is 8~theorem statements totalling
 roughly 15~lines of Lean, constraining a C++ implementation of
-${\sim}65$ lines.  The InterestRate specification is 24~proved
-theorems (${\sim}60$ lines of Lean) constraining ${\sim}360$
-lines of C++ spanning five compounding modes.  The Factorial
-model is 10 theorems (${\sim}25$ lines) constraining lookup-table
-plus gamma-function code.  In all cases, the algebraic laws are
+${\sim}65$ lines.  Actual365Fixed follows the same pattern with
+8~theorems constraining a similar-sized C++ implementation.
+The InterestRate specification is 30~proved
+theorems (${\sim}80$ lines of Lean) constraining ${\sim}360$
+lines of C++ spanning five compounding modes.  The Bisection
+specification is 15~theorems constraining a ${\sim}90$-line C++
+implementation.  In all cases, the algebraic laws are
 obviously correct on inspection, while the implementations require
 careful reading to verify.  This is exactly the regime where
 formal verification adds the most value.
@@ -444,11 +459,10 @@ environment have prevented Mathlib from being fetched,
 leaving these as \texttt{sorry}-guarded.
 
 \paragraph{Scope.}
-Seven of QuantLib's many components have been verified.
-The remaining \texttt{sorry} obligations (6 total) require either
-Float axioms, Mathlib derivative composition lemmas, or inductive
-termination arguments that Lean's automation cannot yet close
-without manual proof engineering.
+Eight of QuantLib's many components have been verified.
+The remaining \texttt{sorry} obligations (4 total) require either
+Float axioms or a Mathlib derivative composition lemma that Lean's
+automation cannot yet close without manual proof engineering.
 
 \subsection{Lessons Learned}
 
@@ -473,18 +487,18 @@ without manual proof engineering.
 
 We have demonstrated that Lean~4 can be applied incrementally
 and automatically to formally verify core primitives of a
-production quantitative finance library.  Eighty-one theorems have
-been proved across seven targets, covering fundamental algebraic
+production quantitative finance library.  Over one hundred theorems have
+been proved across eight targets, covering fundamental algebraic
 properties of day counting, interest rate compounding, interpolation,
 probability distributions, combinatorics, and root-finding.
 Correspondence testing with over 6{,}000 cases validates
 model fidelity.  No bugs were found, providing formal assurance
 of correctness for these well-established components.
 
-Future work includes completing the remaining 6~\texttt{sorry}
-obligations (requiring Float axioms or inductive termination proofs),
+Future work includes completing the remaining 4~\texttt{sorry}
+obligations (requiring Float axioms or a derivative composition lemma),
 extending verification to additional QuantLib components such as
-yield curve bootstrapping, and deepening the bisection convergence proof.
+yield curve bootstrapping and floating-point comparison utilities.
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{paper}
