@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-04-30T23:40Z",
+  "last_run": "2026-05-01T00:51Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -52,13 +52,23 @@
       "lean_file": "formal-verification/lean/FVSquad/NormalDistribution.lean",
       "sorry_count": 1,
       "correspondence": "1082 test cases (Route B, Python)",
-      "notes": "Run 19: Added CDF via erf, PDF derivative, 6 new theorems (5 proved). 1 sorry: cdf_deriv_eq_pdf (needs HasDerivAt for erf). 16 theorems total (15 proved). Next: Task 5 proof of remaining sorry or Task 4 deeper implementation."
+      "notes": "16 theorems total (15 proved). 1 sorry: cdf_deriv_eq_pdf (needs HasDerivAt for erf)."
+    },
+    {
+      "name": "Factorial",
+      "file": "ql/math/factorial.hpp, ql/math/factorial.cpp",
+      "phase": 5,
+      "phase_name": "Proofs (partial)",
+      "lean_file": "formal-verification/lean/FVSquad/Factorial.lean",
+      "sorry_count": 1,
+      "correspondence": "None yet",
+      "notes": "Run 20: New target. 10 theorems (9 proved). 1 sorry: factorial_even_div (2^n | (2n)!)."
     }
   ],
   "open_issues": [3],
   "ci_status": "lean-ci.yml exists and passing",
   "bugs_found": [],
-  "total_proved": 65,
-  "total_sorry": 4,
-  "notes": "Run 19: Task 4 (NormalDistribution impl: CDF via erf, PDF deriv, 5 new proofs) + Task 8 (1082 correspondence tests). 65 proved total across 5 targets."
+  "total_proved": 74,
+  "total_sorry": 5,
+  "notes": "Run 20: Added Factorial target end-to-end (spec + impl + 9 proofs). 74 proved total across 6 targets. Next: correspondence tests for Factorial, or prove remaining sorry items."
 }
