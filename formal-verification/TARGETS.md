@@ -11,7 +11,7 @@
 | 5 | NormalDistribution | `ql/math/distributions/normaldistribution.hpp/cpp` | 5 — Proofs | 🔄 15/16 proved (1 sorry) | Low | Medium |
 | 6 | Factorial | `ql/math/factorial.hpp/cpp` | 5 — Proofs | ✅ 10/10 proved | Medium | High |
 | 7 | Bisection | `ql/math/solvers1d/bisection.hpp` | 5 — Proofs | ✅ 15/15 proved | Medium | High |
-| 8 | Actual365Fixed | `ql/time/daycounters/actual365fixed.hpp` | 1 — Research | ⬜ Identified | Medium | High |
+| 8 | Actual365Fixed | `ql/time/daycounters/actual365fixed.hpp` | 5 — Proofs | ✅ 8/8 proved | Medium | High |
 | 9 | FloatingPointClose | `ql/math/comparison.hpp` | 1 — Research | ⬜ Identified | Medium-High | High |
 
 ## Phase Key
