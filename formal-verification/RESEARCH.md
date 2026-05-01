@@ -74,6 +74,34 @@ Our strategy:
   uses polynomial approximations
 - **Proof tractability**: Hard for full correctness; feasible for abstract properties
 
+### 8. Actual365Fixed (Standard) — **QUICK WIN**
+
+- **File**: `ql/time/daycounters/actual365fixed.hpp` (~84 lines)
+- **What it does**: Computes year fraction as `daysBetween(d1,d2) / 365.0` (Standard convention). Also has Canadian Bond and No Leap variants.
+- **Properties**:
+  - Formula correctness: `yearFraction(d1, d2) = dayCount(d1, d2) / 365`
+  - Non-negativity: result ≥ 0 when d2 ≥ d1
+  - Additivity: `yearFraction(d1,d2) + yearFraction(d2,d3) = yearFraction(d1,d3)`
+  - Scaling relationship to Actual360: `yearFraction_365(d1,d2) = yearFraction_360(d1,d2) * 360/365`
+- **Spec-to-impl ratio**: **High** — trivial mathematical spec, similar to Actual360
+- **Proof tractability**: Very easy. Reuse Actual360 proof patterns.
+- **Approximations**: Same as Actual360 — dates modelled as Int offsets.
+
+### 9. Floating-Point Closeness (`close` / `close_enough`) — **HIGH VALUE**
+
+- **File**: `ql/math/comparison.hpp` (~145 lines)
+- **What it does**: Implements Knuth's floating-point comparison: `close(x,y)` checks `|x-y| ≤ ε|x| ∧ |x-y| ≤ ε|y|`; `close_enough(x,y)` uses `∨` instead. Used pervasively throughout QuantLib for numerical equality.
+- **Properties to verify**:
+  - Reflexivity: `close(x, x) = true` for all finite x
+  - Symmetry: `close(x, y) = close(y, x)` (both functions)
+  - `close` implies `close_enough`: `close(x, y) → close_enough(x, y)`
+  - Non-transitivity: exhibit concrete counterexample for `close`
+  - Zero special case: `close(0, 0) = true`, and the `tolerance²` threshold for near-zero comparisons
+  - Identity of indiscernibles (partial): `close(x, y) ∧ close(y, z) → close_enough(x, z)` (or refute)
+- **Spec-to-impl ratio**: **High** — the spec is a few algebraic laws; the implementation has 4 branches (equality shortcut, zero case, both-sided vs one-sided tolerance)
+- **Proof tractability**: Moderate. Requires reasoning about absolute values and real inequalities. `linarith` and `norm_num` should handle most cases. The non-transitivity proof is interesting.
+- **Approximations**: Model over `ℝ` with rational ε. The C++ uses `QL_EPSILON` (machine epsilon); Lean can axiomatise this as a positive real constant.
+
 ## Tool Choice Rationale
 
 Lean 4 + Mathlib is chosen because:

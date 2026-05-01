@@ -3,8 +3,8 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-05-01 03:07 UTC
-- **Commit**: `a5431eadf` (Run 24)
+- **Date**: 2026-05-01 07:42 UTC
+- **Commit**: `5d5837d19` (Run 29)
 
 ---
 
@@ -174,9 +174,9 @@ The **3 sorry-guarded Float theorems** (`compoundContinuous_pos`, `continuous_ro
 4. **Termination**: C++ can throw `QL_FAIL`; Lean returns `none` when fuel is exhausted.
 5. **Solver1D base class**: C++ inherits from `Solver1D<Bisection>` which provides bracket validation (`xMin_`, `xMax_`, `fxMin_`, `fxMax_`). Lean takes these as explicit parameters.
 
-**Impact on proofs**: 6 of 8 theorems are proved. The proved theorems (`dx_halves_each_step`, `dx_after_k_steps`, `midpoint_in_bracket`, `midpoint_in_bracket_neg`, `orient_dx_magnitude`, `step_root_in_interval`) reason about structural/geometric properties of the bisection step that are identical between C++ and Lean. The 2 `sorry` theorems (`bisect_terminates`, `bisect_accuracy`) require inductive arguments over the recursion depth.
+**Impact on proofs**: All 15 theorems/lemmas are proved with 0 sorry. The proved theorems cover step-level properties (`dx_halves_each_step`, `midpoint_in_bracket`, `midpoint_in_bracket_neg`, `orient_dx_magnitude`, `step_root_in_interval`), convergence (`dx_after_k_steps`, `abs_dx_bisectStep`, `abs_dx_after_k_steps`), termination (`bisect_terminates`, `iterateStep_succ_eq`), and accuracy guarantees (`bisect_accuracy`). All reason about structural/geometric properties of the bisection step that are identical between C++ and Lean.
 
-**Validation evidence**: No runnable correspondence tests yet. The target was recently added (Run 22). The step-level properties are verified algebraically; end-to-end correspondence testing is recommended as future work.
+**Validation evidence**: No runnable correspondence tests yet. The step-level and convergence properties are verified algebraically. End-to-end correspondence testing is recommended as future work.
 
 ---
 
