@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-05-01T04:34Z",
+  "last_run": "2026-05-01T07:32Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -12,7 +12,7 @@
       "lean_file": "formal-verification/lean/FVSquad/InterestRate.lean",
       "sorry_count": 3,
       "correspondence": "1394 test cases (Route B, C++)",
-      "notes": "27/30 proved. 3 Float sorry remain (unprovable without Float axioms)."
+      "notes": "27/30 proved. 3 Float sorry remain (fundamentally unprovable without Float axioms)."
     },
     {
       "name": "Actual360",
@@ -47,12 +47,12 @@
     {
       "name": "NormalDistribution",
       "file": "ql/math/distributions/normaldistribution.hpp, .cpp",
-      "phase": 4,
+      "phase": 5,
       "phase_name": "Implementation + correspondence (partial)",
       "lean_file": "formal-verification/lean/FVSquad/NormalDistribution.lean",
       "sorry_count": 1,
       "correspondence": "1082 test cases (Route B, Python)",
-      "notes": "14 theorems total (13 proved). 1 sorry: cdf_deriv_eq_pdf (needs HasDerivAt for erf)."
+      "notes": "13/14 proved. 1 sorry: cdf_deriv_eq_pdf (needs HasDerivAt for erf)."
     },
     {
       "name": "Factorial",
@@ -72,16 +72,16 @@
       "lean_file": "formal-verification/lean/FVSquad/Bisection.lean",
       "sorry_count": 0,
       "correspondence": null,
-      "notes": "12 theorems, 0 sorry. Run 27: proved bisect_terminates and bisect_accuracy. Fixed theorem statements (fuel>0, disjunction). Added helper lemmas."
+      "notes": "11 theorems, 0 sorry. Convergence and termination proved."
     }
   ],
   "open_issues": [3, 32],
   "ci_status": "lean-ci.yml exists, actions upgraded to v6/v5/v7",
   "bugs_found": [],
-  "total_proved": 92,
-  "total_sorry": 3,
+  "total_proved": 87,
+  "total_sorry": 4,
   "correspondence_complete": true,
   "paper_exists": true,
-  "paper_status": "Updated Run 24. PDF not recompiled (no LaTeX in env).",
-  "notes": "Run 27: Tasks 5+4 selected. Task 5 SUCCESS: proved bisect_terminates and bisect_accuracy. Mathlib cache worked this run (reservoir.leancache.cloud accessible). Bisection now fully verified. Next priorities: Bisection correspondence tests, or new target identification."
+  "paper_status": "Last updated Run 24.",
+  "notes": "Run 28: Tasks 10+5. Task 10: Updated REPORT.md from 50 to 87 theorems, added all 7 targets. Task 5: Assessed remaining 4 sorry — all fundamentally blocked. Next priorities: new target identification, Bisection correspondence tests, or paper update."
 }
