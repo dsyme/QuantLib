@@ -9,7 +9,8 @@
 | 3 | LinearInterpolation | `ql/math/interpolations/linearinterpolation.hpp` | 5 — Proofs | ✅ 7/7 proved + correspondence | Medium | Medium-High |
 | 4 | Thirty360 | `ql/time/daycounters/thirty360.hpp/cpp` | 5 — Proofs | ✅ 11/11 proved (EU convention) | Medium | Medium-High |
 | 5 | NormalDistribution | `ql/math/distributions/normaldistribution.hpp/cpp` | 5 — Proofs | 🔄 15/16 proved (1 sorry) | Low | Medium |
-| 6 | Factorial | `ql/math/factorial.hpp/cpp` | 5 — Proofs | 🔄 9/10 proved (1 sorry) | Medium | High |
+| 6 | Factorial | `ql/math/factorial.hpp/cpp` | 5 — Proofs | ✅ 10/10 proved | Medium | High |
+| 7 | Bisection | `ql/math/solvers1d/bisection.hpp` | 2 — Informal Spec | 🔄 Spec written | Medium | High |
 
 ## Phase Key
 
