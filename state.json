@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-05-01T08:57Z",
+  "last_run": "2026-05-01T09:06Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -11,7 +11,7 @@
       "phase_name": "Proofs (partial)",
       "lean_file": "formal-verification/lean/FVSquad/InterestRate.lean",
       "sorry_count": 3,
-      "notes": "30/33 proved. 3 Float sorry fundamentally blocked."
+      "notes": "30 theorems, 3 Float sorry fundamentally blocked."
     },
     {
       "name": "Actual360",
@@ -20,7 +20,7 @@
       "phase_name": "Fully proved",
       "lean_file": "formal-verification/lean/FVSquad/Actual360.lean",
       "sorry_count": 0,
-      "notes": "8/8 proved + 2920 correspondence tests."
+      "notes": "8/8 proved + correspondence tests."
     },
     {
       "name": "LinearInterpolation",
@@ -47,7 +47,7 @@
       "phase_name": "Proofs (partial)",
       "lean_file": "formal-verification/lean/FVSquad/NormalDistribution.lean",
       "sorry_count": 1,
-      "notes": "15/16 proved. 1 sorry: cdf_deriv_eq_pdf blocked."
+      "notes": "14/15 proved. 1 sorry: cdf_deriv_eq_pdf blocked."
     },
     {
       "name": "Factorial",
@@ -65,7 +65,7 @@
       "phase_name": "Fully proved",
       "lean_file": "formal-verification/lean/FVSquad/Bisection.lean",
       "sorry_count": 0,
-      "notes": "15/15 proved."
+      "notes": "11/11 proved."
     },
     {
       "name": "Actual365Fixed",
@@ -74,7 +74,7 @@
       "phase_name": "Fully proved",
       "lean_file": "formal-verification/lean/FVSquad/Actual365Fixed.lean",
       "sorry_count": 0,
-      "notes": "8/8 proved + 2295 correspondence tests."
+      "notes": "8/8 proved + correspondence tests."
     },
     {
       "name": "FloatingPointClose",
@@ -84,12 +84,39 @@
       "lean_file": null,
       "sorry_count": null,
       "notes": "Informal spec written. Next: Lean spec (Task 3)."
+    },
+    {
+      "name": "BlackFormula",
+      "file": "ql/pricingengines/blackformula.hpp/cpp",
+      "phase": 1,
+      "phase_name": "Research",
+      "lean_file": null,
+      "sorry_count": null,
+      "notes": "New Run 33. Put-call parity, non-negativity, ATM symmetry. Composes with NormalDistribution. High priority."
+    },
+    {
+      "name": "Matrix",
+      "file": "ql/math/matrix.hpp/cpp",
+      "phase": 1,
+      "phase_name": "Research",
+      "lean_file": null,
+      "sorry_count": null,
+      "notes": "New Run 33. Algebraic properties (commutativity, associativity, transpose involution)."
+    },
+    {
+      "name": "NewtonSafe",
+      "file": "ql/math/solvers1d/newtonsafe.hpp",
+      "phase": 1,
+      "phase_name": "Research",
+      "lean_file": null,
+      "sorry_count": null,
+      "notes": "New Run 33. Extends Bisection patterns. Bracket maintenance, convergence."
     }
   ],
   "open_issues": [3],
   "ci_status": "lean-ci.yml exists and healthy",
-  "total_proved": 107,
+  "total_proved": 99,
   "total_sorry": 4,
   "paper_exists": true,
-  "notes": "Run 32: Tasks 2+8. Task 2: FloatingPointClose informal spec (close/close_enough, Knuth relative closeness). Task 8: Actual365Fixed 2295 correspondence tests all passing. Next: FloatingPointClose Lean spec (Task 3)."
+  "notes": "Run 33: Tasks 1+11. Task 1: Added BlackFormula, Matrix, NewtonSafe targets. Task 11: Fixed paper theorem counts (99 actual, was 107). Next priorities: FloatingPointClose Lean spec (Task 3), BlackFormula informal spec (Task 2)."
 }
