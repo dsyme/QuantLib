@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-05-01T17:19Z",
+  "last_run": "2026-05-01T18:49Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -91,8 +91,8 @@
       "phase": 5,
       "phase_name": "Proofs (partial)",
       "lean_file": "formal-verification/lean/FVSquad/BlackFormula.lean",
-      "sorry_count": 5,
-      "notes": "Run 37: 8/13 proved (put-call parity, zero_vol, atm_symmetry, nonneg_zero_vol, d2_eq, linear_discount, zero_strike_call, call_upper_bound_zero_vol). 5 sorry need deeper Phi analysis (nonneg_general, call_mono_forward, mono_stddev, call_upper_bound, put_upper_bound)."
+      "sorry_count": 3,
+      "notes": "Run 38: 10/13 proved. call_upper_bound + put_upper_bound proved using Phi bounds. 3 sorry remain (nonneg_general, call_mono_forward, mono_stddev) — need log-normal distribution property relating Phi(d1)/Phi(d2) to F'/K'."
     },
     {
       "name": "Matrix",
@@ -115,8 +115,8 @@
   ],
   "open_issues": [3],
   "ci_status": "lean-ci.yml exists and healthy",
-  "total_proved": 119,
-  "total_sorry": 9,
+  "total_proved": 121,
+  "total_sorry": 7,
   "paper_exists": true,
-  "notes": "Run 37: Task 5 proved 3 BlackFormula theorems (linear_discount, zero_strike_call, call_upper_bound_zero_vol). Task 11 skipped — paper recent. Next: BlackFormula remaining sorry need Phi monotonicity/bounds analysis, or Matrix/NewtonSafe Task 2."
+  "notes": "Run 38: Task 5 proved 2 BlackFormula theorems (call_upper_bound, put_upper_bound). Remaining 3 BlackFormula sorry need additional Phi axioms (log-normal property). Next: Matrix/NewtonSafe Task 2, or add Phi log-normal axiom to unlock remaining proofs."
 }
