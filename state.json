@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-05-01T01:13Z",
+  "last_run": "2026-05-01T02:10Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -58,27 +58,27 @@
       "name": "Factorial",
       "file": "ql/math/factorial.hpp, ql/math/factorial.cpp",
       "phase": 5,
-      "phase_name": "Fully proved",
+      "phase_name": "Fully proved + correspondence validated",
       "lean_file": "formal-verification/lean/FVSquad/Factorial.lean",
       "sorry_count": 0,
-      "correspondence": "None yet",
-      "notes": "Run 21: Proved factorial_even_div. All 10 theorems proved, 0 sorry."
+      "correspondence": "28 test cases (Route B, Python, n=0..27)",
+      "notes": "All 10 theorems proved. Correspondence validated run 22."
     },
     {
       "name": "Bisection",
       "file": "ql/math/solvers1d/bisection.hpp",
-      "phase": 2,
-      "phase_name": "Informal Spec",
-      "lean_file": null,
-      "sorry_count": 0,
+      "phase": 3,
+      "phase_name": "Lean Spec (partial proofs)",
+      "lean_file": "formal-verification/lean/FVSquad/Bisection.lean",
+      "sorry_count": 2,
       "correspondence": null,
-      "notes": "Run 21: Informal spec written. 5 FV properties: convergence rate, bracket invariant, termination bound, accuracy guarantee, root update. High spec-to-impl ratio."
+      "notes": "Run 22: Lean spec created. 8 theorems (6 proved, 2 sorry). Models bisection over Q with fuel. Sorry: bisect_terminates, bisect_accuracy (need induction with bounds)."
     }
   ],
   "open_issues": [3],
   "ci_status": "lean-ci.yml exists and passing",
   "bugs_found": [],
-  "total_proved": 75,
-  "total_sorry": 4,
-  "notes": "Run 21: Proved factorial_even_div (Factorial now 10/10). Added Bisection target with informal spec. 75 proved total across 7 targets. Next: Lean spec for Bisection, or correspondence tests for Factorial."
+  "total_proved": 81,
+  "total_sorry": 6,
+  "notes": "Run 22: Bisection Lean spec (6/8 proved). Factorial correspondence validated (28 cases). 81 proved total across 7 targets. Next: prove bisect_terminates, or impl extraction for Bisection."
 }
