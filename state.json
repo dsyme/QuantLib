@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-05-01T03:15Z",
+  "last_run": "2026-05-01T03:24Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -72,10 +72,10 @@
       "lean_file": "formal-verification/lean/FVSquad/Bisection.lean",
       "sorry_count": 2,
       "correspondence": null,
-      "notes": "8 theorems (6 proved, 2 sorry). Sorry: bisect_terminates, bisect_accuracy (need induction with bounds)."
+      "notes": "8 theorems (6 proved, 2 sorry). Sorry: bisect_terminates, bisect_accuracy (need induction with bounds). Run 26: attempted proof but Mathlib build blocked by firewall (reservoir.leancache.cloud)."
     }
   ],
-  "open_issues": [3],
+  "open_issues": [3, 32],
   "ci_status": "lean-ci.yml exists, actions upgraded to v6/v5/v7",
   "bugs_found": [],
   "total_proved": 82,
@@ -83,5 +83,5 @@
   "correspondence_complete": true,
   "paper_exists": true,
   "paper_status": "Updated Run 24. PDF not recompiled (no LaTeX in env).",
-  "notes": "Run 25: Task 7 (critique updated to 82 theorems/7 targets) + Task 9 (CI actions upgraded). Next priority: prove bisect_terminates/bisect_accuracy, add Bisection correspondence tests, or attempt cross-target composition theorems."
+  "notes": "Run 26: Tasks 5+6 selected. Task 5 (Bisection proofs) blocked — Mathlib cannot build from source within time limit because reservoir.leancache.cloud is firewalled. CORRESPONDENCE.md already current. Next priority: prove bisect_terminates/bisect_accuracy when Mathlib cache is available, or add Bisection correspondence tests."
 }
