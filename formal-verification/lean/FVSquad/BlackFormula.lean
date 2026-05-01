@@ -194,13 +194,43 @@ theorem mono_stddev (type : OptionType) (K F σ₁ σ₂ D δ : ℝ)
 theorem call_upper_bound (K F σ D δ : ℝ)
     (hσ : σ ≥ 0) (hD : D ≥ 0) (hK' : K + δ ≥ 0) (hF' : F + δ > 0) :
     blackFormula .Call K F σ D δ ≤ D * (F + δ) := by
-  sorry
+  unfold blackFormula
+  simp only [OptionType.sign]
+  split_ifs with h0 hK0
+  · -- σ = 0: D * max(F-K, 0) ≤ D * (F+δ)
+    apply mul_le_mul_of_nonneg_left _ hD
+    apply max_le <;> linarith
+  · -- σ ≠ 0, K' = 0: D * (F+δ) ≤ D * (F+δ)
+    linarith
+  · -- General: D * (F'·Φ(d₁) - K'·Φ(d₂)) ≤ D * F'
+    apply mul_le_mul_of_nonneg_left _ hD
+    have hΦd1 := Φ_mem_Icc (d1 (F + δ) (K + δ) σ)
+    have hΦd2 := Φ_mem_Icc (d2 (F + δ) (K + δ) σ)
+    nlinarith [hΦd1.2, hΦd2.1]
 
 /-- P7 (general): Put is bounded above by D · (K + δ). -/
 theorem put_upper_bound (K F σ D δ : ℝ)
     (hσ : σ ≥ 0) (hD : D ≥ 0) (hK' : K + δ > 0) (hF' : F + δ > 0) :
     blackFormula .Put K F σ D δ ≤ D * (K + δ) := by
-  sorry
+  unfold blackFormula
+  simp only [OptionType.sign]
+  split_ifs with h0 hK0
+  · -- σ = 0: D * max(-(F-K), 0) = D * max(K-F, 0) ≤ D * (K+δ)
+    apply mul_le_mul_of_nonneg_left _ hD
+    apply max_le
+    · linarith
+    · linarith
+  · -- K' = 0: contradicts hK' > 0
+    linarith
+  · -- General: D * (K'·Φ(-d₂) - F'·Φ(-d₁)) ≤ D * K'
+    apply mul_le_mul_of_nonneg_left _ hD
+    have hΦnd2 := Φ_mem_Icc (-d2 (F + δ) (K + δ) σ)
+    have hΦnd1 := Φ_mem_Icc (-d1 (F + δ) (K + δ) σ)
+    have h1 : (K + δ) * Φ (-d2 (F + δ) (K + δ) σ) ≤ K + δ := by
+      nlinarith [hΦnd2.2]
+    have h2 : (F + δ) * Φ (-d1 (F + δ) (K + δ) σ) ≥ 0 :=
+      mul_nonneg (le_of_lt hF') hΦnd1.1
+    linarith
 
 /-! ## Composition note
 
