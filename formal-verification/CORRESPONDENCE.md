@@ -3,8 +3,8 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-05-01 08:36 UTC
-- **Commit**: `24f82b4a5` (Run 30)
+- **Date**: 2026-05-01 08:57 UTC
+- **Commit**: `24f82b4a5` (Run 32)
 
 ---
 
@@ -198,6 +198,23 @@ The **3 sorry-guarded Float theorems** (`compoundContinuous_pos`, `continuous_ro
 **Impact on proofs**: All 7 proved theorems (`second_derivative_zero`, `knot_interpolation`, `derivative_eq_slope`, `constant_function`, `linear_function`, `monotone_preservation`, `value_bounded`) reason over the exact same pointwise formula as C++. The proofs are sound for valid inputs within a correctly identified segment.
 
 **Validation evidence**: Runnable correspondence tests at `formal-verification/tests/linearinterpolation/` — 12 test cases covering knot interpolation, midpoint interpolation, and derivative computation. See the test harness for details.
+
+---
+
+## Actual365Fixed (Standard Convention)
+
+| Lean Definition | C++ Source | File / Line | Correspondence | Justification |
+|----------------|-----------|-------------|----------------|---------------|
+| `dayCount` | `Actual365Fixed::Impl::dayCount` | `ql/time/daycounters/actual365fixed.hpp` | **Exact** | Both compute `d2 - d1`. Lean uses `Int`, C++ uses `Date::serial_type` (long). |
+| `yearFraction` | `Actual365Fixed::Impl::yearFraction` | `ql/time/daycounters/actual365fixed.hpp` | **Exact** | Both compute `dayCount / 365.0`. Lean uses `Float`, C++ uses `double`. |
+
+**Divergences**: None for Standard convention. The Lean model abstracts dates as `Int` (day offsets), exactly matching the `d2 - d1` integer subtraction in C++. Division by 365.0 is identical.
+
+**What is NOT modelled**: Canadian Bond convention (reference period logic), No Leap convention (Feb 29 exclusion). Only the Standard convention is modelled.
+
+**Impact on proofs**: All 8 proved theorems (`yearFraction_eq_dayCount_div_365`, `dayCount_nonneg`, `dayCount_additive`, `dayCount_self`, `dayCount_antisymm`, `dayCount_strict_mono`, `dayCount_translate`, `dayCount_full_year`) reason about the `Int` day-count formula, which is semantically identical to the C++. The proofs are sound.
+
+**Validation evidence**: Runnable correspondence tests at `formal-verification/tests/actual365fixed/` — 11 point cases + 2,273 sweep cases (additivity, antisymmetry, translation invariance, full year, strict monotonicity), all 2,295 passing. See `formal-verification/tests/actual365fixed/README.md`.
 
 ---
 
