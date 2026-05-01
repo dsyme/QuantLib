@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-05-01T03:07Z",
+  "last_run": "2026-05-01T03:15Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -12,7 +12,7 @@
       "lean_file": "formal-verification/lean/FVSquad/InterestRate.lean",
       "sorry_count": 3,
       "correspondence": "1394 test cases (Route B, C++)",
-      "notes": "24 proved. 3 Float sorry remain (unprovable without Float axioms)."
+      "notes": "27/30 proved. 3 Float sorry remain (unprovable without Float axioms)."
     },
     {
       "name": "Actual360",
@@ -52,7 +52,7 @@
       "lean_file": "formal-verification/lean/FVSquad/NormalDistribution.lean",
       "sorry_count": 1,
       "correspondence": "1082 test cases (Route B, Python)",
-      "notes": "16 theorems total (15 proved). 1 sorry: cdf_deriv_eq_pdf (needs HasDerivAt for erf)."
+      "notes": "14 theorems total (13 proved). 1 sorry: cdf_deriv_eq_pdf (needs HasDerivAt for erf)."
     },
     {
       "name": "Factorial",
@@ -62,7 +62,7 @@
       "lean_file": "formal-verification/lean/FVSquad/Factorial.lean",
       "sorry_count": 0,
       "correspondence": "28 test cases (Route B, Python, n=0..27)",
-      "notes": "All 10 theorems proved. Correspondence validated run 22."
+      "notes": "All 10 theorems proved."
     },
     {
       "name": "Bisection",
@@ -76,12 +76,12 @@
     }
   ],
   "open_issues": [3],
-  "ci_status": "lean-ci.yml exists and passing",
+  "ci_status": "lean-ci.yml exists, actions upgraded to v6/v5/v7",
   "bugs_found": [],
-  "total_proved": 81,
+  "total_proved": 82,
   "total_sorry": 6,
   "correspondence_complete": true,
   "paper_exists": true,
-  "paper_status": "Updated Run 24 — 81 theorems, 7 targets. PDF not recompiled (no LaTeX in env).",
-  "notes": "Run 24: Task 11 (paper updated to 81 theorems/7 targets) + Task 6 (correspondence timestamp refreshed). Next priority: prove bisect_terminates/bisect_accuracy, or add Bisection correspondence tests, or recompile paper PDF."
+  "paper_status": "Updated Run 24. PDF not recompiled (no LaTeX in env).",
+  "notes": "Run 25: Task 7 (critique updated to 82 theorems/7 targets) + Task 9 (CI actions upgraded). Next priority: prove bisect_terminates/bisect_accuracy, add Bisection correspondence tests, or attempt cross-target composition theorems."
 }
