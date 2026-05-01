@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-05-01T02:49Z",
+  "last_run": "2026-05-01T03:07Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -81,5 +81,7 @@
   "total_proved": 81,
   "total_sorry": 6,
   "correspondence_complete": true,
-  "notes": "Run 23: Task 6 completed — CORRESPONDENCE.md now covers all 7 targets (Factorial, NormalDistribution, Bisection added). Task 3 not applicable (all informal specs have Lean files). Task 5 deferred — Mathlib download timed out. Next priority: prove bisect_terminates/bisect_accuracy, or add Bisection correspondence tests."
+  "paper_exists": true,
+  "paper_status": "Updated Run 24 — 81 theorems, 7 targets. PDF not recompiled (no LaTeX in env).",
+  "notes": "Run 24: Task 11 (paper updated to 81 theorems/7 targets) + Task 6 (correspondence timestamp refreshed). Next priority: prove bisect_terminates/bisect_accuracy, or add Bisection correspondence tests, or recompile paper PDF."
 }
