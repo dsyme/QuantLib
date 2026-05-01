@@ -43,11 +43,13 @@ interpolation, the normal distribution, factorial computation, and the bisection
 root-finding algorithm---as pure functional definitions over exact arithmetic and
 prove key algebraic properties including additivity, round-trip inversion, monotonicity,
 rate composition, convergence bounds, and identity laws.
-To date, 107~theorems have been fully machine-checked across eight verification targets,
-with only 4~remaining proof obligations (3~requiring Float axioms and
+To date, 99~theorems have been fully machine-checked across eight verification targets
+with 9~Lean files, and only 4~remaining proof obligations (3~requiring Float axioms and
 1~requiring a derivative composition lemma).
 Correspondence between the Lean models and the C++ source is validated through
-over 6{,}000 executable test cases across all targets.
+executable test harnesses across all targets.
+Three new high-value targets have been identified for future work:
+the Black option pricing formula, matrix algebra, and Newton's method.
 We discuss the methodology, the favourable spec-to-implementation complexity ratio
 that makes financial mathematics a strong candidate for formal verification,
 and lessons learned from automating the entire verification pipeline.
@@ -341,7 +343,7 @@ divisibility properties, and spot-check agreement with the C++ table.
 
 The normal distribution model uses Mathlib's \texttt{Real.exp},
 \texttt{Real.sqrt}, and \texttt{Real.erf} to define the PDF, CDF,
-and their derivatives. Fifteen theorems are proved: PDF positivity,
+and their derivatives. Fourteen theorems are proved: PDF positivity,
 symmetry, normalisation bound, CDF monotonicity, CDF range $[0,1]$,
 CDF--PDF relationship, and inverse CDF round-trip. One \texttt{sorry}
 remains (\texttt{cdf\_deriv\_eq\_pdf}) requiring \texttt{HasDerivAt}
@@ -360,7 +362,7 @@ the Actual360 proof structure.
 \subsection{Bisection Root-Finding}
 
 The bisection algorithm is modelled with fuel-bounded recursion over
-exact rationals. All fifteen theorems are fully proved: interval
+exact rationals. Eleven theorems are fully proved: interval
 halving per step, interval width after $k$ steps ($|dx|/2^k$),
 midpoint containment, orientation correctness, root-in-interval
 invariant, convergence bounds, termination, and accuracy guarantees.
@@ -380,10 +382,10 @@ InterestRate & 30 & 3 & ring, positivity, gcongr \\
 Thirty360 & 11 & 0 & omega, simp, ring \\
 LinearInterpolation & 7 & 0 & ring, simp, linarith \\
 Factorial & 10 & 0 & omega, induction, simp \\
-NormalDistribution & 15 & 1 & positivity, linarith, Real.* \\
-Bisection & 15 & 0 & ring, omega, linarith \\
+NormalDistribution & 14 & 1 & positivity, linarith, Real.* \\
+Bisection & 11 & 0 & ring, omega, linarith \\
 \midrule
-\textbf{Total} & \textbf{104} & \textbf{4} & \\
+\textbf{Total} & \textbf{99} & \textbf{4} & \\
 \bottomrule
 \end{tabular}
 \caption{Proof inventory by target.}
@@ -487,7 +489,7 @@ automation cannot yet close without manual proof engineering.
 
 We have demonstrated that Lean~4 can be applied incrementally
 and automatically to formally verify core primitives of a
-production quantitative finance library.  Over one hundred theorems have
+production quantitative finance library.  Ninety-nine theorems have
 been proved across eight targets, covering fundamental algebraic
 properties of day counting, interest rate compounding, interpolation,
 probability distributions, combinatorics, and root-finding.
@@ -496,9 +498,16 @@ model fidelity.  No bugs were found, providing formal assurance
 of correctness for these well-established components.
 
 Future work includes completing the remaining 4~\texttt{sorry}
-obligations (requiring Float axioms or a derivative composition lemma),
-extending verification to additional QuantLib components such as
-yield curve bootstrapping and floating-point comparison utilities.
+obligations (requiring Float axioms or a derivative composition lemma)
+and extending verification to three newly identified high-value targets:
+(1)~the \emph{Black option pricing formula}, which composes with the
+already-verified NormalDistribution and offers canonical put-call parity
+proofs; (2)~\emph{matrix operations}, with rich algebraic properties
+(commutativity, associativity, transpose involution); and
+(3)~\emph{NewtonSafe}, a hybrid Newton/bisection solver that extends
+the successfully verified Bisection proof patterns.
+A floating-point closeness comparison utility (\texttt{close}/\texttt{close\_enough})
+is also in progress at the informal specification stage.
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{paper}

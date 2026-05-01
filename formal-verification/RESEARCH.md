@@ -102,6 +102,57 @@ Our strategy:
 - **Proof tractability**: Moderate. Requires reasoning about absolute values and real inequalities. `linarith` and `norm_num` should handle most cases. The non-transitivity proof is interesting.
 - **Approximations**: Model over `ℝ` with rational ε. The C++ uses `QL_EPSILON` (machine epsilon); Lean can axiomatise this as a positive real constant.
 
+### 10. Black Formula (Option Pricing) — **HIGH VALUE, COMPOSES WITH EXISTING**
+
+- **Files**: `ql/pricingengines/blackformula.hpp` (~424 lines), `ql/pricingengines/blackformula.cpp` (~972 lines)
+- **Core function**: `blackFormula(Option::Type, strike, forward, stdDev, discount, displacement)` (~30 lines of core logic)
+- **What it does**: Implements the Black 1976 closed-form option pricing formula using the cumulative normal distribution
+- **Properties to verify**:
+  - Put-call parity: `blackFormula(Call,...) - blackFormula(Put,...) = discount * (forward - strike)`
+  - Non-negativity: result ≥ 0 for all valid inputs
+  - Boundary at stdDev=0: `max(sign*(forward-strike), 0) * discount`
+  - Monotonicity in stdDev: price increases with volatility (positive strike)
+  - ATM symmetry: call = put when strike = forward (displacement=0)
+- **Spec-to-impl ratio**: **High** — the mathematical spec is a single equation; the implementation adds displacement handling, edge cases, CDF calls
+- **Proof tractability**: High — pure function, no state, no loops. Composes directly with already-verified `NormalDistribution`. Put-call parity is algebraically provable from the definition
+- **Approximations**: Model over ℝ with Mathlib CDF. The C++ uses Abramowitz–Stegun polynomial approximation for CDF.
+- **Why excellent**: Canonical finance FV target. Highest financial importance. Small core (~30 LOC), closed-form spec, rich algebraic properties.
+
+### 11. Matrix Operations (Linear Algebra) — **ALGEBRAIC PROPERTIES**
+
+- **Files**: `ql/math/matrix.hpp` (~755 lines), `ql/math/matrix.cpp` (~103 lines)
+- **Key operations**: `operator+`, `operator-`, `operator*` (matrix×matrix, matrix×vector), `transpose`
+- **Properties to verify**:
+  - Commutativity of addition: `A + B = B + A`
+  - Associativity of multiplication: `(A * B) * C = A * (B * C)`
+  - Transpose involution: `transpose(transpose(A)) = A`
+  - Distributivity: `A * (B + C) = A*B + A*C`
+  - Identity matrix: `I * A = A`
+- **Spec-to-impl ratio**: **High** — algebraic laws are trivial to state; implementation involves iterator arithmetic, move semantics, step iterators
+- **Proof tractability**: Medium — requires induction over matrix dimensions. Bounded-size verification tractable
+- **Approximations**: Model as `Array (Array ℚ)` or Mathlib `Matrix`
+
+### 12. NewtonSafe (Bracketed Newton Solver) — **EXTENDS BISECTION**
+
+- **File**: `ql/math/solvers1d/newtonsafe.hpp` (~114 lines, single file)
+- **Core function**: `solveImpl(f, xAccuracy)` (~50 lines)
+- **Properties to verify**:
+  - Bracket maintenance: `xl ≤ root ≤ xh` loop invariant
+  - Sign invariant: `f(xl) < 0` and `f(xh) > 0` throughout
+  - Convergence criterion: on return, `|dx| < xAccuracy`
+  - Bracket narrowing: `(xh - xl)` non-increasing each iteration
+  - Bisection fallback correctness: when Newton step exits bracket, reverts to bisection
+- **Spec-to-impl ratio**: **Medium-High** — the spec (root within tolerance, bracket maintained) is simpler than the hybrid Newton/bisection logic
+- **Proof tractability**: High — single self-contained file, 50 LOC core. Directly analogous to already-verified `Bisection`; proof infrastructure reusable
+- **Approximations**: Model with fuel-bounded recursion over ℚ, same as Bisection
+
+## Critique-Driven Adjustments (Run 33)
+
+Based on the latest critique (Run 30), we incorporated the following:
+- **Cross-target composition**: The critique flagged the absence of cross-target theorems as a high-priority gap. The Black Formula target naturally addresses this — it composes InterestRate discounting with NormalDistribution CDF.
+- **NewtonSafe**: Extends the successful Bisection verification to a more complex hybrid algorithm with richer proof obligations.
+- **Deprioritised**: Schedule generation — while bug-prone, the spec is nearly as complex as the implementation (low ratio), making it a weaker FV target than Black Formula or NewtonSafe.
+
 ## Tool Choice Rationale
 
 Lean 4 + Mathlib is chosen because:
