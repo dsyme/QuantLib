@@ -1,122 +1,28 @@
 {
-  "last_run": "2026-05-01T09:14Z",
+  "last_run": "2026-05-01T10:01Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
   "targets": [
-    {
-      "name": "InterestRate",
-      "file": "ql/interestrate.hpp, ql/interestrate.cpp",
-      "phase": 5,
-      "phase_name": "Proofs (partial)",
-      "lean_file": "formal-verification/lean/FVSquad/InterestRate.lean",
-      "sorry_count": 3,
-      "notes": "30 theorems, 3 Float sorry fundamentally blocked."
-    },
-    {
-      "name": "Actual360",
-      "file": "ql/time/daycounters/actual360.hpp",
-      "phase": 5,
-      "phase_name": "Fully proved",
-      "lean_file": "formal-verification/lean/FVSquad/Actual360.lean",
-      "sorry_count": 0,
-      "notes": "8/8 proved + correspondence tests."
-    },
-    {
-      "name": "LinearInterpolation",
-      "file": "ql/math/interpolations/linearinterpolation.hpp",
-      "phase": 5,
-      "phase_name": "Fully proved",
-      "lean_file": "formal-verification/lean/FVSquad/LinearInterpolation.lean",
-      "sorry_count": 0,
-      "notes": "7/7 proved + 12 correspondence tests."
-    },
-    {
-      "name": "Thirty360",
-      "file": "ql/time/daycounters/thirty360.hpp",
-      "phase": 5,
-      "phase_name": "Fully proved",
-      "lean_file": "formal-verification/lean/FVSquad/Thirty360.lean",
-      "sorry_count": 0,
-      "notes": "11/11 proved + 575 correspondence tests."
-    },
-    {
-      "name": "NormalDistribution",
-      "file": "ql/math/distributions/normaldistribution.hpp",
-      "phase": 5,
-      "phase_name": "Proofs (partial)",
-      "lean_file": "formal-verification/lean/FVSquad/NormalDistribution.lean",
-      "sorry_count": 1,
-      "notes": "14/15 proved. 1 sorry: cdf_deriv_eq_pdf blocked by HasDerivAt erf."
-    },
-    {
-      "name": "Factorial",
-      "file": "ql/math/factorial.hpp",
-      "phase": 5,
-      "phase_name": "Fully proved",
-      "lean_file": "formal-verification/lean/FVSquad/Factorial.lean",
-      "sorry_count": 0,
-      "notes": "10/10 proved + 28 correspondence tests."
-    },
-    {
-      "name": "Bisection",
-      "file": "ql/math/solvers1d/bisection.hpp",
-      "phase": 5,
-      "phase_name": "Fully proved",
-      "lean_file": "formal-verification/lean/FVSquad/Bisection.lean",
-      "sorry_count": 0,
-      "notes": "11/11 proved."
-    },
-    {
-      "name": "Actual365Fixed",
-      "file": "ql/time/daycounters/actual365fixed.hpp",
-      "phase": 5,
-      "phase_name": "Fully proved",
-      "lean_file": "formal-verification/lean/FVSquad/Actual365Fixed.lean",
-      "sorry_count": 0,
-      "notes": "8/8 proved + correspondence tests."
-    },
-    {
-      "name": "FloatingPointClose",
-      "file": "ql/math/comparison.hpp",
-      "phase": 2,
-      "phase_name": "Informal Spec",
-      "lean_file": null,
-      "sorry_count": null,
-      "notes": "Informal spec written. Next: Lean spec (Task 3)."
-    },
-    {
-      "name": "BlackFormula",
-      "file": "ql/pricingengines/blackformula.hpp/cpp",
-      "phase": 2,
-      "phase_name": "Informal Spec",
-      "lean_file": null,
-      "sorry_count": null,
-      "notes": "Run 34: Informal spec written. 9 properties: put-call parity, non-negativity, ATM symmetry, zero-vol, monotonicity, bounds, discount linearity, zero-strike. Composes with NormalDistribution. Next: Lean spec (Task 3)."
-    },
-    {
-      "name": "Matrix",
-      "file": "ql/math/matrix.hpp/cpp",
-      "phase": 1,
-      "phase_name": "Research",
-      "lean_file": null,
-      "sorry_count": null,
-      "notes": "Algebraic properties (commutativity, associativity, transpose involution)."
-    },
-    {
-      "name": "NewtonSafe",
-      "file": "ql/math/solvers1d/newtonsafe.hpp",
-      "phase": 1,
-      "phase_name": "Research",
-      "lean_file": null,
-      "sorry_count": null,
-      "notes": "Extends Bisection patterns. Bracket maintenance, convergence."
-    }
+    {"name": "InterestRate", "file": "ql/interestrate.hpp, ql/interestrate.cpp", "phase": 5, "phase_name": "Proofs (partial)", "lean_file": "formal-verification/lean/FVSquad/InterestRate.lean", "sorry_count": 3, "notes": "30 theorems, 3 Float sorry fundamentally blocked."},
+    {"name": "Actual360", "file": "ql/time/daycounters/actual360.hpp", "phase": 5, "phase_name": "Fully proved", "lean_file": "formal-verification/lean/FVSquad/Actual360.lean", "sorry_count": 0, "notes": "8/8 proved + correspondence tests."},
+    {"name": "LinearInterpolation", "file": "ql/math/interpolations/linearinterpolation.hpp", "phase": 5, "phase_name": "Fully proved", "lean_file": "formal-verification/lean/FVSquad/LinearInterpolation.lean", "sorry_count": 0, "notes": "7/7 proved + 12 correspondence tests."},
+    {"name": "Thirty360", "file": "ql/time/daycounters/thirty360.hpp", "phase": 5, "phase_name": "Fully proved", "lean_file": "formal-verification/lean/FVSquad/Thirty360.lean", "sorry_count": 0, "notes": "11/11 proved + 575 correspondence tests."},
+    {"name": "NormalDistribution", "file": "ql/math/distributions/normaldistribution.hpp", "phase": 5, "phase_name": "Proofs (partial)", "lean_file": "formal-verification/lean/FVSquad/NormalDistribution.lean", "sorry_count": 1, "notes": "14 theorems (13 proved, 1 sorry: cdf_deriv_eq_pdf blocked by HasDerivAt erf)."},
+    {"name": "Factorial", "file": "ql/math/factorial.hpp", "phase": 5, "phase_name": "Fully proved", "lean_file": "formal-verification/lean/FVSquad/Factorial.lean", "sorry_count": 0, "notes": "10/10 proved + 28 correspondence tests."},
+    {"name": "Bisection", "file": "ql/math/solvers1d/bisection.hpp", "phase": 5, "phase_name": "Fully proved", "lean_file": "formal-verification/lean/FVSquad/Bisection.lean", "sorry_count": 0, "notes": "11/11 proved + 22 correspondence tests."},
+    {"name": "Actual365Fixed", "file": "ql/time/daycounters/actual365fixed.hpp", "phase": 5, "phase_name": "Fully proved", "lean_file": "formal-verification/lean/FVSquad/Actual365Fixed.lean", "sorry_count": 0, "notes": "8/8 proved + 2295 correspondence tests."},
+    {"name": "FloatingPointClose", "file": "ql/math/comparison.hpp", "phase": 2, "phase_name": "Informal Spec", "lean_file": null, "sorry_count": null, "notes": "Informal spec written. Next: Lean spec (Task 3)."},
+    {"name": "BlackFormula", "file": "ql/pricingengines/blackformula.hpp/cpp", "phase": 2, "phase_name": "Informal Spec", "lean_file": null, "sorry_count": null, "notes": "Informal spec written. 9 properties. Next: Lean spec (Task 3)."},
+    {"name": "Matrix", "file": "ql/math/matrix.hpp/cpp", "phase": 1, "phase_name": "Research", "lean_file": null, "sorry_count": null, "notes": "Algebraic properties identified."},
+    {"name": "NewtonSafe", "file": "ql/math/solvers1d/newtonsafe.hpp", "phase": 1, "phase_name": "Research", "lean_file": null, "sorry_count": null, "notes": "Extends Bisection patterns."}
   ],
   "open_issues": [3],
   "ci_status": "lean-ci.yml exists and healthy",
-  "total_proved": 99,
+  "total_proved": 95,
   "total_sorry": 4,
+  "total_theorems": 99,
   "paper_exists": true,
-  "notes": "Run 34: Tasks 2+5. Task 2: BlackFormula informal spec (phase 1→2). Task 5: All 4 sorry remain blocked (3 Float stdlib, 1 HasDerivAt erf). Next priorities: FloatingPointClose or BlackFormula Lean spec (Task 3)."
+  "correspondence_tests": 8328,
+  "notes": "Run 35: Tasks 6+10. Correspondence review verified all 8 targets current. Report updated to 99 theorems, 8 targets, 8300+ tests. Next priorities: FloatingPointClose or BlackFormula Lean spec (Task 3)."
 }
