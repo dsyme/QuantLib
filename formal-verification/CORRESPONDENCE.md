@@ -3,8 +3,8 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-04-30 17:42 UTC
-- **Commit**: `6d91eb404` (Run 16)
+- **Date**: 2026-05-01 02:49 UTC
+- **Commit**: `8de5af991` (Run 23)
 
 ---
 
@@ -114,7 +114,69 @@ The **3 sorry-guarded Float theorems** (`compoundContinuous_pos`, `continuous_ro
 
 **Impact on proofs**: All 9 proved theorems (`same_date_zero`, `yearfrac_eq_daycount_div_360`, `antisymmetry`, `full_year`, `full_month`, `adjust_idempotent`, `adjust_le_30`, `bounded_same_month`, `additivity_normal_days`) reason over the exact same formula as the C++. The proofs are sound for valid date inputs.
 
-**Validation evidence**: No runnable correspondence tests yet. The formula is simple enough that manual inspection confirms exact correspondence for the European convention.
+**Validation evidence**: Runnable correspondence tests at `formal-verification/tests/thirty360/` — 575 test cases (Route B, Python reference implementation), all passing. See `formal-verification/tests/thirty360/README.md` for details.
+
+---
+
+## Factorial
+
+| Lean Definition | C++ Source | File / Line | Correspondence | Justification |
+|----------------|-----------|-------------|----------------|---------------|
+| `factorial` | `Factorial::get(n)` | `ql/math/factorial.cpp` L49–53 | **Abstraction** | Both compute n!. C++ uses a lookup table for n ≤ 27, then `exp(GammaFunction::logValue(n+1))` for larger n. Lean uses `Nat.factorial n` (exact natural number arithmetic). For n ≤ 27 the values are identical. For n > 27 the C++ uses floating-point gamma approximation; the Lean model gives the exact integer. |
+
+**Divergences**:
+1. **Numeric type**: Lean uses exact `ℕ` (arbitrary-precision natural numbers). C++ returns `Real` (double). For n ≤ 27, the double can represent factorials exactly (all values < 2^53). For n > 27, C++ uses the gamma function approximation which introduces floating-point error; the Lean model gives exact values.
+2. **Gamma fallback not modelled**: The C++ path `std::exp(GammaFunction().logValue(i+1))` for n > 27 is not modelled. The Lean model uses the recursive mathematical definition for all n.
+3. **`ln` function not modelled**: `Factorial::ln(n)` is not present in the Lean model.
+
+**Impact on proofs**: All 10 proved theorems (`factorial_zero`, `factorial_one`, `factorial_succ`, `factorial_pos`, `factorial_mono`, `factorial_strict_mono`, `factorial_growth`, `factorial_table_spot_check`, `factorial_sum_ge_mul`, `factorial_even_div`) reason about the exact mathematical factorial. These properties hold for the C++ implementation on its valid domain (n ≤ 27 for exact table lookup). For n > 27, the algebraic properties still hold for the mathematical function, but floating-point rounding in the C++ may cause tiny deviations from exact integer values.
+
+**Validation evidence**: Runnable correspondence tests at `formal-verification/tests/factorial/` — 28 test cases (n=0..27, Route B, Python reference), all passing. See `formal-verification/tests/factorial/README.md` for details.
+
+---
+
+## NormalDistribution
+
+| Lean Definition | C++ Source | File / Line | Correspondence | Justification |
+|----------------|-----------|-------------|----------------|---------------|
+| `gaussianPDF` | `NormalDistribution::operator()` | `ql/math/distributions/normaldistribution.hpp` | **Exact** | Both compute `(1/(σ√(2π))) · exp(-(x-μ)²/(2σ²))`. Lean uses Mathlib's `Real.exp` and `Real.sqrt`; C++ uses `std::exp` and `std::sqrt`. Over exact reals, semantics are identical. |
+| `gaussianPDF_deriv` | `NormalDistribution::derivative` | `ql/math/distributions/normaldistribution.hpp` | **Exact** | Both compute `-(x-μ)/σ² · f(x)`. Same formula. |
+| `gaussianCDF` | `CumulativeNormalDistribution::operator()` | `ql/math/distributions/normaldistribution.hpp` | **Abstraction** | Both compute `0.5 · (1 + erf((x-μ)/(σ√2)))`. Lean uses Mathlib's `Real.erf`; C++ uses `ErrorFunction::operator()` which is a polynomial approximation. |
+| `GaussianCDF` (structure) | `CumulativeNormalDistribution` | N/A | **Abstraction** | Lean axiomatises the CDF via its mathematical properties (monotonicity, range [0,1], symmetry). The C++ class computes values numerically. |
+| `GaussianInvCDF` (structure) | `InverseCumulativeNormal` | `ql/math/distributions/normaldistribution.hpp` | **Abstraction** | Lean axiomatises the inverse CDF. C++ uses the Acklam rational approximation with Halley refinement. |
+
+**Divergences**:
+1. **CDF numerical approximation**: The C++ `ErrorFunction` uses a polynomial approximation (Abramowitz & Stegun or similar). The Lean model uses exact `Real.erf`. For typical inputs they agree to ~15 digits; for extreme tail values (|x| > 37) the C++ uses an asymptotic expansion not modelled in Lean.
+2. **InverseCDF not implemented**: Lean only axiomatises the inverse CDF properties; it does not model the Acklam coefficients or Halley refinement step.
+3. **Floating-point vs exact reals**: All Lean definitions use Mathlib's `ℝ`. C++ uses `double`.
+4. **Error handling**: C++ has `σ ≤ 0` guards via `QL_REQUIRE`. Lean definitions assume `σ > 0` as a hypothesis.
+5. **Tail cutoff**: C++ uses `exp(-690)` as a floor for very small PDF values. Not modelled.
+
+**Impact on proofs**: All 15 proved theorems reason over exact real-valued mathematics. They are valid for the mathematical function that the C++ approximates. The 1 `sorry` (`cdf_deriv_eq_pdf`) requires Mathlib's `HasDerivAt` for the erf composition — it is a correct statement awaiting tactic support.
+
+**Validation evidence**: Runnable correspondence tests at `formal-verification/tests/normaldistribution/` — 1082 test cases (Route B, Python/scipy reference), all passing. See `formal-verification/tests/normaldistribution/README.md` for details.
+
+---
+
+## Bisection
+
+| Lean Definition | C++ Source | File / Line | Correspondence | Justification |
+|----------------|-----------|-------------|----------------|---------------|
+| `orient` | Orientation block in `solveImpl` | `ql/math/solvers1d/bisection.hpp` L55–60 | **Exact** | Both check `fxMin < 0` and set `dx = xMax - xMin, root = xMin` or `dx = xMin - xMax, root = xMax`. Lean uses `ℚ`, C++ uses `Real` (double). |
+| `bisectStep` | Loop body in `solveImpl` | `ql/math/solvers1d/bisection.hpp` L61–67 | **Exact** | Both halve dx, compute midpoint, evaluate f, update root if `fMid ≤ 0`. Lean uses `≤ 0` matching C++'s `<= 0.0`. |
+| `bisect` | While loop in `solveImpl` | `ql/math/solvers1d/bisection.hpp` L60–72 | **Abstraction** | Lean uses fuel-bounded recursion; C++ uses `evaluationNumber_ <= maxEvaluations_` loop. Lean termination check is `|dx| < accuracy`; C++ also checks `close(fMid, 0.0)` (modelled as exact zero check `f xMid = 0`). |
+| `solve` | `Bisection::solveImpl` (full) | `ql/math/solvers1d/bisection.hpp` | **Abstraction** | Lean composes `orient` then `bisect`. Matches C++ control flow. |
+
+**Divergences**:
+1. **Numeric type**: Lean uses exact `ℚ` (rationals); C++ uses `double`. For rational inputs, the bisection semantics are identical. For irrational roots, C++ rounds at each step while Lean computes exactly.
+2. **`close(fMid, 0.0)` modelling**: C++ uses a closeness function with relative/absolute tolerance. Lean models this as exact `fMid = 0` (more restrictive). This means the Lean model may iterate longer than C++ on inputs where C++ would accept a near-zero as zero.
+3. **Evaluation counting**: C++ tracks `evaluationNumber_` and the final redundant `f(root_)` call. Lean ignores this bookkeeping.
+4. **Termination**: C++ can throw `QL_FAIL`; Lean returns `none` when fuel is exhausted.
+5. **Solver1D base class**: C++ inherits from `Solver1D<Bisection>` which provides bracket validation (`xMin_`, `xMax_`, `fxMin_`, `fxMax_`). Lean takes these as explicit parameters.
+
+**Impact on proofs**: 6 of 8 theorems are proved. The proved theorems (`dx_halves_each_step`, `dx_after_k_steps`, `midpoint_in_bracket`, `midpoint_in_bracket_neg`, `orient_dx_magnitude`, `step_root_in_interval`) reason about structural/geometric properties of the bisection step that are identical between C++ and Lean. The 2 `sorry` theorems (`bisect_terminates`, `bisect_accuracy`) require inductive arguments over the recursion depth.
+
+**Validation evidence**: No runnable correspondence tests yet. The target was recently added (Run 22). The step-level properties are verified algebraically; end-to-end correspondence testing is recommended as future work.
 
 ---
 
