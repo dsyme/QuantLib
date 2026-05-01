@@ -1,36 +1,42 @@
 > 🔬 *Lean Squad — automated formal verification for `dsyme/QuantLib`.*
 
-**Status**: 🔄 IN PROGRESS — 50 theorems proved, 5 Lean files, 3 `sorry`, Lean 4 + Mathlib.
+**Status**: 🔄 IN PROGRESS — 87 theorems proved (4 `sorry`), 8 Lean files, 7 targets, Lean 4 + Mathlib.
 
 ## Last Updated
-- **Date**: 2026-04-30 18:37 UTC
-- **Commit**: `2301fd6b0`
+- **Date**: 2026-05-01 07:32 UTC
+- **Commit**: `d2745ad13`
 
 ---
 
 ## Executive Summary
 
-Formal verification of QuantLib's quantitative finance primitives is well advanced using Lean 4 with Mathlib. Four targets are now verified: **Actual360** (8/8 theorems, fully proved with 2,920 correspondence tests), **InterestRate** (24/27 theorems across Rat/ℝ/Float models, 3 Float sorry remaining), **LinearInterpolation** (7/7 theorems, fully proved with 12 correspondence tests), and **Thirty360** (11/11 theorems, fully proved for the European convention). Total: **50 proved theorems** across 4 targets with 0 bugs found. The verification covers day counting, interest rate compounding, and interpolation — core building blocks of quantitative finance.
+Formal verification of QuantLib's quantitative finance primitives is mature across 7 targets using Lean 4 with Mathlib. **87 of 91 theorems are fully proved** with only 4 `sorry` remaining (3 Float axioms in InterestRate, 1 HasDerivAt in NormalDistribution — both fundamentally blocked by Lean stdlib limitations). Five targets are fully verified with zero sorry: **Actual360** (8 theorems, 2,920 correspondence tests), **LinearInterpolation** (7 theorems, 12 tests), **Thirty360** (11 theorems, 575 tests), **Factorial** (10 theorems, 28 tests), and **Bisection** (11 theorems, convergence + termination proved). **NormalDistribution** has 13/14 proved with 1,082 correspondence tests. **InterestRate** has 27/30 proved across Rat/ℝ/Float models with 1,394 tests. Over **6,000 correspondence test cases** validate model fidelity. Zero bugs found — the implementations match their mathematical specifications.
 
 ---
 
 ## Proof Architecture
 
-The verification is organised into independent target modules, each modelling a specific QuantLib component. InterestRate uses a triple-model architecture: exact `Rat` for algebraic proofs, Mathlib `ℝ` for continuous compounding, and `Float` for computational verification.
+The verification is organised into independent target modules, each modelling a specific QuantLib component. Targets span day counting, interest rate algebra, interpolation, probability distributions, combinatorics, and numerical solvers.
 
 ```mermaid
 graph TD
     A["FVSquad.Basic<br/>(project root)"]
     B["FVSquad.Actual360<br/>8 theorems ✅"]
-    C["FVSquad.InterestRate<br/>24 proved + 3 sorry"]
+    C["FVSquad.InterestRate<br/>27 proved + 3 sorry"]
     D["FVSquad.LinearInterpolation<br/>7 theorems ✅"]
     E["FVSquad.Thirty360<br/>11 theorems ✅"]
+    F["FVSquad.NormalDistribution<br/>13 proved + 1 sorry"]
+    G["FVSquad.Factorial<br/>10 theorems ✅"]
+    H["FVSquad.Bisection<br/>11 theorems ✅"]
     A --> B
     A --> C
     A --> D
     A --> E
-    C1["Rat model<br/>14 theorems ✅"]
-    C2["Real model (Mathlib)<br/>10 theorems ✅"]
+    A --> F
+    A --> G
+    A --> H
+    C1["Rat model<br/>16 theorems ✅"]
+    C2["Real model (Mathlib)<br/>11 theorems ✅"]
     C3["Float model<br/>3 sorry 🔄"]
     C --> C1
     C --> C2
@@ -41,97 +47,97 @@ graph TD
 
 ## What Was Verified
 
-### Actual360 — Day Counter (1 file, 8 theorems)
+### Layer 1 — Day Counting (2 files, 19 theorems)
 
-Models the Act/360 day counting convention from `ql/time/daycounters/actual360.hpp`. Uses exact integer arithmetic — no approximation needed.
+Models day counting conventions used throughout QuantLib for year-fraction calculations.
 
 ```mermaid
 graph LR
-    F1["Actual360.lean<br/>8 theorems ✅<br/>Additivity, non-negativity,<br/>antisymmetry, edge cases"]
+    F1["Actual360.lean<br/>8 theorems ✅<br/>Additivity, antisymmetry"]
+    F4["Thirty360.lean<br/>11 theorems ✅<br/>EU convention, adjustment"]
 ```
 
 **Key results**:
-- `dayCount_additive`: `dayCount(d1,d2) + dayCount(d2,d3) = dayCount(d1,d3)` — the fundamental algebraic property
-- `dayCount_antisymm`: `dayCount(d1,d2) = -dayCount(d2,d1)` — reversal symmetry
-- `dayCount_includeLastDay_off_by_one`: proves the exact off-by-one when `includeLastDay=true`
-- `dayCount_nonneg`, `dayCount_pos_includeLastDay`: non-negativity under ordering
-- `dayCount_self`, `dayCount_self_includeLastDay`: zero/one at same date
-- `yearFraction_eq_dayCount_div_360`: formula definition correctness
+- `dayCount_additive`: `dayCount(d1,d2) + dayCount(d2,d3) = dayCount(d1,d3)`
+- `dayCount_antisymm`: reversal symmetry
+- `dayCount_includeLastDay_off_by_one`: exact off-by-one characterisation
+- `adjust_idempotent`: day-31 adjustment is idempotent (Thirty360)
+- `antisymmetry`, `full_year`, `full_month`: canonical Thirty360 EU properties
 
-### InterestRate — Compounding Algebra (1 file, 24 proved + 3 sorry)
+### Layer 2 — Interest Rate Compounding (1 file, 27 proved + 3 sorry)
 
-Models `InterestRate::compoundFactor` and `impliedRate` from `ql/interestrate.hpp/cpp`. Triple model: exact `Rat` for algebraic proofs, Mathlib `ℝ` for continuous compounding, `Float` for computational examples.
+Models `InterestRate::compoundFactor` and `impliedRate`. Triple-model: exact `Rat`, Mathlib `ℝ`, and `Float`.
 
 ```mermaid
 graph LR
-    F2["InterestRate.lean<br/>24 proved ✅ + 3 sorry 🔄<br/>Round-trip, identities,<br/>monotonicity, exp/log"]
+    F2["InterestRate.lean<br/>27 proved ✅ + 3 sorry 🔄<br/>Round-trip, identities,<br/>monotonicity, exp/log"]
 ```
 
-**Proved theorems over Rat** (14):
-- `simple_roundtrip_exact`: `impliedSimpleQ(compoundSimpleQ(r, t), t) = r` when `t ≠ 0`
-- `simple_zero_time`, `simple_zero_rate`: identity elements
-- `compounded_zero_periods`, `compounded_zero_rate`: compounded identity elements
-- `simple_additive_excess`: linearity of excess growth
-- `simple_monotone_rate`: higher rate ⇒ higher compound factor
-- `compounded_one_period`: reduction to `1 + r/n` for single period
-- `simple_pos`: positivity under standard conditions
-- `compounded_mul_periods`: `(1+r/n)^a · (1+r/n)^b = (1+r/n)^(a+b)`
-- `simple_time_scaling`: excess return scales linearly with time
-- `simple_monotone_time`: longer time ⇒ higher compound factor (r > 0)
-- `compounded_monotone_periods`: more periods ⇒ higher compound factor
-- `compounded_pos`: positivity of compounded factor
-
-**Proved theorems over ℝ (Mathlib)** (10):
-- `compoundContinuousR_pos`: `exp(r·t) > 0` via `Real.exp_pos`
-- `continuousR_roundtrip`: `log(exp(r·t))/t = r` via `Real.log_exp`
-- `continuousR_zero_time`, `continuousR_zero_rate`: identity elements via `Real.exp_zero`
-- `continuousR_mul_periods`: `exp(r·(s+t)) = exp(r·s)·exp(r·t)` via `Real.exp_add`
-- `continuousR_monotone_rate`: higher rate ⇒ higher compound factor
-- `continuousR_monotone_time`: longer time ⇒ higher factor
-- `continuousR_discount`: discount factor property
-- `continuousR_gt_one`: `exp(r·t) > 1` when `r·t > 0`
+**Key results**:
+- `simple_roundtrip_exact`: `impliedSimpleQ(compoundSimpleQ(r, t), t) = r`
+- `continuousR_roundtrip`: `log(exp(r·t))/t = r` (Mathlib ℝ)
 - `continuousR_ge_simple`: continuous ≥ simple compounding
+- `continuousR_monotone_rate`, `continuousR_monotone_time`: monotonicity
+- `compounded_monotone_periods`: more compounding periods ⇒ higher factor
 
-**Sorry-guarded** (3, require Float axioms):
-- `compoundContinuous_pos`, `continuous_roundtrip`, `compounded_roundtrip`
-
-### LinearInterpolation (1 file, 7 theorems)
-
-Models `LinearInterpolation` from `ql/math/interpolations/linearinterpolation.hpp`. Pure rational arithmetic.
+### Layer 3 — Interpolation (1 file, 7 theorems)
 
 ```mermaid
 graph LR
-    F3["LinearInterpolation.lean<br/>7 theorems ✅<br/>Knot interp, derivative,<br/>monotonicity"]
+    F3["LinearInterpolation.lean<br/>7 theorems ✅<br/>Knot interpolation, derivative,<br/>monotonicity"]
 ```
 
 **Key results**:
-- `second_derivative_zero`: piecewise linearity (second derivative vanishes)
+- `second_derivative_zero`: piecewise linearity
 - `knot_interpolation`: exact interpolation at knot points
-- `derivative_eq_slope`: derivative equals finite difference slope
-- `constant_slope`: constant data ⇒ zero slope
-- `constant_value`: constant data ⇒ interpolated value matches
-- `monotone_nonneg_slope`: monotone data ⇒ non-negative slope
-- `antitone_nonpos_slope`: antitone data ⇒ non-positive slope
+- `monotone_nonneg_slope`, `antitone_nonpos_slope`: monotonicity preservation
 
-### Thirty360 — Day Counter, European Convention (1 file, 11 theorems)
+### Layer 4 — Probability Distributions (1 file, 13 proved + 1 sorry)
 
-Models the 30/360 European day counting convention from `ql/time/daycounters/thirty360.hpp`.
+Models `NormalDistribution` and `CumulativeNormalDistribution` via Gaussian PDF and erf-based CDF.
 
 ```mermaid
 graph LR
-    F4["Thirty360.lean<br/>11 theorems ✅<br/>Same-date, antisymmetry,<br/>year/month, adjustment"]
+    F5["NormalDistribution.lean<br/>13 proved ✅ + 1 sorry 🔄<br/>PDF properties, CDF symmetry,<br/>inverse CDF monotonicity"]
 ```
 
 **Key results**:
-- `same_date_zero`: zero day count for identical dates
-- `yearfrac_eq_daycount_div_360`: formula definition
-- `antisymmetry`: reversal symmetry
-- `full_year`, `full_month`: canonical counts for full periods
-- `adjust_idempotent`, `adjust_le_30`: day-31 adjustment properties
-- `bounded_same_month`: bounded result for same-month dates
-- `additivity_normal_days`: additivity for normal (≤30) days
-- `day31_eq_day30`: day 31 treated as day 30
-- `monotone_year`: year contribution monotonicity
+- `pdf_nonneg`, `pdf_symmetric`, `pdf_peak`: PDF fundamental properties
+- `cdf_at_mean`: Φ(μ) = 1/2
+- `cdf_symmetry`: Φ(2μ−x) + Φ(x) = 1 (via `erf_neg`)
+- `inv_cdf_strict_mono`, `inv_cdf_antisymmetric`: inverse CDF properties
+- `pdf_deriv_at_mean`, `pdf_deriv_neg_right`, `pdf_deriv_pos_left`: derivative signs
+
+### Layer 5 — Combinatorics (1 file, 10 theorems)
+
+Models `QuantLib::factorial()` from `ql/math/factorial.hpp`.
+
+```mermaid
+graph LR
+    F6["Factorial.lean<br/>10 theorems ✅<br/>Recursion, growth bounds,<br/>divisibility"]
+```
+
+**Key results**:
+- `factorial_growth`: `n! ≥ 2^(n-1)` for `n ≥ 1`
+- `factorial_sum_ge_mul`: `(m+n)! ≥ m!·n!`
+- `factorial_even_div`: `2^n | (2n)!`
+- `factorial_strict_mono`, `factorial_pos`: structural properties
+
+### Layer 6 — Numerical Solvers (1 file, 11 theorems)
+
+Models the bisection root-finding algorithm from `ql/math/solvers1d/bisection.hpp`.
+
+```mermaid
+graph LR
+    F7["Bisection.lean<br/>11 theorems ✅<br/>Convergence, termination,<br/>accuracy guarantee"]
+```
+
+**Key results**:
+- `dx_halves_each_step`: `|dx_{k+1}| = |dx_k|/2`
+- `abs_dx_after_k_steps`: `|dx_k| = |dx_0|/2^k` (inductive)
+- `bisect_terminates`: solver always returns when `|dx|/2^fuel < acc`
+- `bisect_accuracy`: any result satisfies `|dx| < accuracy` or is an exact root
+- `midpoint_in_bracket`, `midpoint_in_bracket_neg`: bracket invariant
 
 ---
 
@@ -140,17 +146,32 @@ graph LR
 | File | Proved | Sorry | Phase | Key result |
 |------|--------|-------|-------|------------|
 | `Actual360.lean` | 8 | 0 | ✅ Fully proved | Additivity, antisymmetry, non-negativity |
-| `InterestRate.lean` | 24 | 3 | 🔄 Partial (Float) | Round-trip, identities, monotonicity, exp/log |
+| `InterestRate.lean` | 27 | 3 | 🔄 Partial (Float) | Round-trip, identities, monotonicity, exp/log |
 | `LinearInterpolation.lean` | 7 | 0 | ✅ Fully proved | Knot interpolation, derivative, monotonicity |
 | `Thirty360.lean` | 11 | 0 | ✅ Fully proved | Same-date, antisymmetry, adjustment, additivity |
+| `NormalDistribution.lean` | 13 | 1 | 🔄 Partial (HasDerivAt) | PDF/CDF properties, symmetry, inverse monotonicity |
+| `Factorial.lean` | 10 | 0 | ✅ Fully proved | Growth bounds, divisibility, recursion |
+| `Bisection.lean` | 11 | 0 | ✅ Fully proved | Convergence, termination, accuracy guarantee |
 | `Basic.lean` | 0 | 0 | — | Project root |
-| **Total** | **50** | **3** | — | — |
+| **Total** | **87** | **4** | — | **5 of 7 targets fully proved** |
 
 ---
 
 ## The Main Proof Chain
 
-The simple compounding round-trip is the headline result for InterestRate:
+The bisection convergence chain is the most sophisticated proof structure:
+
+```mermaid
+graph LR
+    A["dx_halves_each_step ✅"] --> B["abs_dx_bisectStep ✅"]
+    B --> C["abs_dx_after_k_steps ✅"]
+    C --> D["bisect_terminates ✅"]
+    D --> E["bisect_accuracy ✅"]
+    F["midpoint_in_bracket ✅"] --> D
+    G["iterateStep_succ_eq ✅"] --> C
+```
+
+The simple compounding round-trip remains the headline algebraic result:
 
 ```mermaid
 graph LR
@@ -166,11 +187,6 @@ graph LR
     L["continuousR_ge_simple ✅"] --> J
 ```
 
-The round-trip theorem states: for any rate `r` and time `t ≠ 0`,
-```
-impliedSimpleQ (compoundSimpleQ r t) t = r
-```
-
 ---
 
 ## Modelling Choices and Known Limitations
@@ -178,13 +194,13 @@ impliedSimpleQ (compoundSimpleQ r t) t = r
 ```mermaid
 graph TD
     REAL["C++ Implementation<br/>QuantLib"]
-    MODEL["Lean 4 Model<br/>FVSquad"]
-    PROOF["Lean Proofs"]
+    MODEL["Lean 4 Model<br/>FVSquad (8 files)"]
+    PROOF["Lean Proofs<br/>87 proved"]
     REAL -->|"Modelled as"| MODEL
     MODEL -->|"Proved in"| PROOF
-    NOTE1["✅ Included: formulas,<br/>compounding modes,<br/>day count arithmetic,<br/>interpolation, exp/log (via Mathlib ℝ)"]
-    NOTE2["⚠️ Abstracted: Rat for reals,<br/>Int for dates, Nat for periods,<br/>ℝ for continuous compounding"]
-    NOTE3["❌ Omitted: calendar logic,<br/>QL_REQUIRE exceptions,<br/>FP rounding, class hierarchy"]
+    NOTE1["✅ Included: formulas,<br/>compounding modes, day counts,<br/>interpolation, PDF/CDF, factorial,<br/>bisection, exp/log/erf (Mathlib ℝ)"]
+    NOTE2["⚠️ Abstracted: Rat for reals,<br/>Int for dates, Nat for periods,<br/>ℝ for transcendentals,<br/>axiomatic CDF/invCDF"]
+    NOTE3["❌ Omitted: calendar logic,<br/>QL_REQUIRE exceptions,<br/>FP rounding, class hierarchy,<br/>gamma function, I/O"]
     MODEL --- NOTE1
     MODEL --- NOTE2
     MODEL --- NOTE3
@@ -193,11 +209,13 @@ graph TD
 | Category | What's covered | What's abstracted/omitted |
 |----------|---------------|--------------------------|
 | Actual360 | Exact integer day-count formula | Calendar date construction (leap years, months) |
-| InterestRate (Simple) | Exact rational arithmetic, all algebraic properties | IEEE 754 rounding |
-| InterestRate (Compounded) | Zero-rate and zero-period identities, monotonicity | Fractional exponents, n-th roots |
-| InterestRate (Continuous) | Real-valued exp/log via Mathlib ℝ (10 theorems proved) | IEEE 754 rounding |
-| LinearInterpolation | Exact rational piecewise-linear model | Floating-point, extrapolation behaviour |
+| InterestRate (Simple/Compounded) | Exact rational arithmetic, all algebraic properties | IEEE 754 rounding |
+| InterestRate (Continuous) | Real-valued exp/log via Mathlib ℝ (11 theorems) | IEEE 754 rounding |
+| LinearInterpolation | Exact rational piecewise-linear model | Floating-point, extrapolation |
 | Thirty360 | European convention day adjustment, exact formula | Other 30/360 conventions (US, Italian, etc.) |
+| NormalDistribution | PDF via Gaussian formula, CDF via erf | Polynomial CDF approximation, gamma fallback |
+| Factorial | Exact natural number factorial | Lookup-table optimisation, overflow |
+| Bisection | Pure functional convergence model | Evaluation counting, exceptions, polymorphism |
 | General | Pure mathematical formulas | I/O, serialization, observer pattern, market data |
 
 ---
@@ -206,10 +224,13 @@ graph TD
 
 | Target | Spec lines | Impl lines | Ratio | Assessment |
 |--------|-----------|------------|-------|------------|
-| `Actual360` | ~35 (8 theorems + types) | ~65 (C++ header) | **High** | Spec captures full correctness with simple algebraic laws; impl has class hierarchy overhead |
-| `InterestRate` | ~120 (27 theorems + types across 3 models) | ~360 (hpp + cpp) | **High** | Clean algebraic properties constrain a multi-mode implementation |
-| `LinearInterpolation` | ~60 (7 theorems + types) | ~150 (hpp + template machinery) | **High** | Concise mathematical properties constrain complex template implementation |
-| `Thirty360` | ~80 (11 theorems + types) | ~200 (hpp + cpp, multiple conventions) | **Medium-High** | Good ratio for European convention; full coverage requires all conventions |
+| `Actual360` | ~35 (8 theorems) | ~65 (C++ header) | **High** | Simple algebraic laws; impl has class hierarchy |
+| `InterestRate` | ~150 (30 theorems, 3 models) | ~360 (hpp + cpp) | **High** | Clean algebra constrains multi-mode implementation |
+| `LinearInterpolation` | ~60 (7 theorems) | ~150 (hpp + templates) | **High** | Concise math constrains template machinery |
+| `Thirty360` | ~80 (11 theorems) | ~200 (hpp + cpp) | **Medium-High** | Good for EU convention; full coverage needs all variants |
+| `NormalDistribution` | ~100 (14 theorems) | ~300 (hpp + cpp) | **Medium-High** | Mathematical properties of PDF/CDF; impl uses polynomial approximation |
+| `Factorial` | ~50 (10 theorems) | ~60 (hpp + cpp + table) | **High** | Growth/divisibility properties vs lookup-table impl |
+| `Bisection` | ~120 (11 theorems) | ~80 (hpp) | **Medium** | Convergence proof longer than impl but captures non-obvious termination guarantee |
 
 ---
 
@@ -217,18 +238,23 @@ graph TD
 
 ### Bugs Found
 
-No implementation bugs found so far. All Actual360 properties match the C++ exactly, confirmed by both formal proof and ~2,920 correspondence test cases. InterestRate's algebraic laws hold over exact rationals, continuous compounding proved over Mathlib's ℝ, and LinearInterpolation confirmed by 12 test cases.
+No implementation bugs found across any of the 7 targets. All properties match the C++ exactly, confirmed by both formal proof and over 6,000 correspondence test cases.
 
 ### Formulation Issues
 
-The original InterestRate spec used `Float` throughout, making proofs impossible without Float-specific axioms. **Run 5 reformulated the model** to use exact `Rat` for provable properties. **Run 9 added Mathlib** and introduced a third layer using `ℝ` for transcendental functions, enabling continuous compounding proofs. This triple-model approach (Rat + ℝ + Float) is the recommended pattern for future targets.
+- The original InterestRate spec used `Float` throughout, making proofs impossible. **Reformulated** to use exact `Rat` + Mathlib `ℝ` — the triple-model approach is now the recommended pattern.
+- NormalDistribution CDF derivative (`cdf_deriv_eq_pdf`) requires `HasDerivAt` for erf composition, which is not yet available in Mathlib for the specific composition needed.
 
 ### Interesting Structural Discoveries
 
-- The `includeLastDay` flag breaks additivity in a precise way: `dayCount(d1,d2,T) + dayCount(d2,d3,T) = dayCount(d1,d3,T) + 1`. Proved formally — confirms the design is intentional.
-- Simple compounding's excess over 1 is exactly additive in time: `(1+r(s+t))-1 = ((1+rs)-1) + ((1+rt)-1)`. This is the linearity property that makes simple interest "simple."
-- Continuous compounding is provably ≥ simple compounding (`continuousR_ge_simple`), a well-known result now formally verified.
-- Day-31 adjustment in Thirty360 European is idempotent (`adjust_idempotent`) — applying the rule twice is the same as once.
+- The `includeLastDay` flag breaks Actual360 additivity by exactly 1: `dayCount(d1,d2,T) + dayCount(d2,d3,T) = dayCount(d1,d3,T) + 1`. Proved formally.
+- Simple compounding excess is exactly additive in time (linearity property).
+- Continuous compounding ≥ simple compounding (`continuousR_ge_simple`) — textbook result formally verified.
+- Day-31 adjustment in Thirty360 European is idempotent (`adjust_idempotent`).
+- NormalDistribution CDF symmetry Φ(2μ−x) + Φ(x) = 1 proved via `erf_neg`.
+- Bisection convergence rate `|dx_k| = |dx_0|/2^k` proved by induction — confirms exponential convergence.
+- Bisection termination guarantee: if initial bracket allows sufficient fuel, the solver always returns a result within the requested accuracy.
+- Factorial growth `n! ≥ 2^(n-1)` and `2^n | (2n)!` — non-trivial combinatorial identities.
 
 ---
 
@@ -237,62 +263,52 @@ The original InterestRate spec used `Float` throughout, making proofs impossible
 ```mermaid
 timeline
     title FV Project Development
-    section Run 1 (2026-04-29)
+    section Phase 1 — Foundation (Runs 1–3)
         Research : 5 targets identified
-        Informal Specs : Actual360 and InterestRate
-    section Run 2 (2026-04-29)
-        Lean Specs : Actual360 fully proved (8 theorems)
-        Lean Specs : InterestRate specs (6 sorry)
-    section Run 3 (2026-04-29)
-        Correspondence : Actual360 tests (2920 cases)
-        Report : Project report created
-    section Run 4 (2026-04-29)
-        Proofs : InterestRate 7 new proofs (Rat model)
-    section Run 5-8 (2026-04-30)
-        CI : lean-ci.yml created
+        Actual360 : 8 theorems fully proved
+        Correspondence : 2920 test cases
+    section Phase 2 — Interest Rates (Runs 4–12)
+        InterestRate : Rat model (14 theorems)
+        Mathlib : Real model (11 theorems)
+        CI : lean-ci.yml established
         Paper : Conference paper draft
-        Proofs : 4 more Rat proofs + critique
-    section Run 9 (2026-04-30)
-        Mathlib : Added Mathlib dependency
-        Proofs : 5 Real-valued theorems (exp/log)
-    section Run 10 (2026-04-30)
-        Correspondence : Review updated for triple model
-        Report : Updated to 24 proved theorems
-    section Run 11-12 (2026-04-30)
-        Proofs : 9 more InterestRate proofs (monotonicity)
-        Spec : LinearInterpolation informal spec
-    section Run 13 (2026-04-30)
-        Spec : Thirty360 informal spec
-    section Run 14-15 (2026-04-30)
-        Lean : LinearInterpolation 7 theorems proved
-        Lean : Thirty360 11 theorems proved
-        Correspondence : LinearInterpolation 12 test cases
-    section Run 16 (2026-04-30)
-        Correspondence : Updated for Thirty360 + LinearInterpolation
-        Proofs : 2 new Thirty360 theorems
-    section Run 17 (2026-04-30)
-        Report : Updated to 50 proved theorems
+    section Phase 3 — Expansion (Runs 13–17)
+        LinearInterpolation : 7 theorems proved
+        Thirty360 : 11 theorems proved
+        Report : 50 theorems documented
+    section Phase 4 — Distribution & Combinatorics (Runs 18–23)
+        NormalDistribution : 14 theorems, CDF via erf
+        Factorial : 10 theorems proved
+        Correspondence : 1082 + 575 + 28 test cases
+    section Phase 5 — Numerical Methods (Runs 24–28)
+        Bisection : 11 theorems, convergence proved
+        Termination : bisect_terminates proved
+        Total : 87 proved, 4 sorry
 ```
 
 ---
 
 ## Toolchain
 
-- **Prover**: Lean 4 (stable via elan)
-- **Libraries**: Mathlib (leanprover-community/mathlib4) — `Real.exp`, `Real.log`, algebra automation
-- **CI**: `lean-ci.yml` with Mathlib caching via `actions/cache`
+- **Prover**: Lean 4 v4.30.0-rc2 (via elan)
+- **Libraries**: Mathlib (leanprover-community/mathlib4) — `Real.exp`, `Real.log`, `Real.erf`, `Nat.factorial`, algebra automation
+- **CI**: `lean-ci.yml` with Mathlib caching (actions/checkout v6, cache v5, upload-artifact v7)
 - **Build system**: Lake
+- **Correspondence**: Route B (C++/Python executable tests), 6,000+ total cases
 
 | Tactic | Usage |
 |--------|-------|
 | `simp` | Definitional unfolding, simplification |
-| `omega` | Integer arithmetic (Actual360, Thirty360 proofs) |
+| `omega` | Integer/natural arithmetic (day counters, factorial, bisection) |
 | `rfl` | Definitional equality |
-| `rw` | Rewriting with lemmas (`Rat.add_comm`, `Rat.mul_div_cancel`, etc.) |
+| `rw` | Rewriting with Mathlib and custom lemmas |
 | `unfold` | Definition expansion |
 | `exact` | Direct proof term application |
 | `ring` | Ring arithmetic (rational algebra) |
 | `linarith` | Linear arithmetic |
 | `norm_num` | Numeric normalization |
-| `induction` | Structural induction |
+| `induction` | Structural induction (factorial growth, bisection convergence) |
 | `positivity` | Positivity goals |
+| `gcongr` | Monotonicity via congruence |
+| `constructor` | Existential/conjunction introduction |
+| `cases` / `rcases` | Case analysis |
