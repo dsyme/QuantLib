@@ -112,4 +112,99 @@ theorem inv_cdf_antisymmetric (invCDF : GaussianInvCDF 0 1)
   have h := invCDF.symmetry p hp0 hp1
   linarith
 
+/-! ## Implementation Model
+
+  Models the C++ `NormalDistribution`, `CumulativeNormalDistribution`, and
+  `InverseCumulativeNormal` classes as pure ℝ-valued functions.
+
+  ### What IS modelled
+  - The exact mathematical formula for PDF: (1/(σ√(2π))) · exp(-(x-μ)²/(2σ²))
+  - The derivative of the PDF: -(x-μ)/σ² · f(x)
+  - The CDF via error function: 0.5 · (1 + erf((x-μ)/(σ√2)))
+  - The relationship CDF'(x) = PDF(x)
+
+  ### What is NOT modelled
+  - Floating-point arithmetic, rounding, or the exp(-690) cutoff
+  - The asymptotic tail expansion for small CDF values
+  - The Acklam rational approximation coefficients for InverseCDF
+  - Error handling (σ ≤ 0 guards)
+  - The Halley refinement step
+  - MoroInverseCumulativeNormal alternative
+-/
+
+/-! ### PDF implementation model -/
+
+/-- PDF derivative: f'(x) = -(x-μ)/σ² · f(x).
+    Models `NormalDistribution::derivative`. -/
+noncomputable def gaussianPDF_deriv (μ σ : ℝ) (x : ℝ) : ℝ :=
+  -(x - μ) / σ ^ 2 * gaussianPDF μ σ x
+
+/-! ### CDF implementation model -/
+
+/-- CDF via error function: Φ(x) = 0.5 · (1 + erf((x-μ)/(σ√2))).
+    Models `CumulativeNormalDistribution::operator()`. -/
+noncomputable def gaussianCDF (μ σ : ℝ) (x : ℝ) : ℝ :=
+  1 / 2 * (1 + Real.erf ((x - μ) / (σ * Real.sqrt 2)))
+
+/-- Standard CDF (μ=0, σ=1). -/
+noncomputable def stdGaussianCDF (x : ℝ) : ℝ :=
+  gaussianCDF 0 1 x
+
+/-! ### Implementation properties -/
+
+/-- The PDF derivative is zero at the mean (peak has zero slope). -/
+theorem pdf_deriv_at_mean (μ σ : ℝ) (hσ : σ > 0) :
+    gaussianPDF_deriv μ σ μ = 0 := by
+  unfold gaussianPDF_deriv
+  simp [sub_self]
+
+/-- The CDF derivative equals the PDF (fundamental theorem of calculus relationship).
+    This models `CumulativeNormalDistribution::derivative(x)` returning `f(x)`. -/
+theorem cdf_deriv_eq_pdf (μ σ x : ℝ) (hσ : σ > 0) :
+    HasDerivAt (gaussianCDF μ σ) (gaussianPDF μ σ x) x := by
+  sorry -- requires Mathlib HasDerivAt for erf composition
+
+/-- CDF at the mean equals 1/2: Φ(μ) = 0.5.
+    Models the property that `CumulativeNormalDistribution(μ)` returns 0.5. -/
+theorem cdf_at_mean (μ σ : ℝ) (hσ : σ > 0) :
+    gaussianCDF μ σ μ = 1 / 2 := by
+  unfold gaussianCDF
+  simp [sub_self, zero_div, Real.erf_zero]
+
+/-- CDF symmetry about the mean: Φ(2μ - x) + Φ(x) = 1. -/
+theorem cdf_symmetry (μ σ x : ℝ) (hσ : σ > 0) :
+    gaussianCDF μ σ (2 * μ - x) + gaussianCDF μ σ x = 1 := by
+  unfold gaussianCDF
+  have hσ2 : σ * Real.sqrt 2 ≠ 0 := by positivity
+  ring_nf
+  rw [show (2 * μ - x - μ) / (σ * Real.sqrt 2) = -((x - μ) / (σ * Real.sqrt 2)) by ring]
+  rw [Real.erf_neg]
+  ring
+
+/-- PDF derivative negative for x > μ (PDF is decreasing right of peak). -/
+theorem pdf_deriv_neg_right (μ σ x : ℝ) (hσ : σ > 0) (hx : x > μ) :
+    gaussianPDF_deriv μ σ x < 0 := by
+  unfold gaussianPDF_deriv
+  apply mul_neg_of_neg_of_pos
+  · apply div_neg_of_neg_of_pos
+    · linarith
+    · positivity
+  · unfold gaussianPDF
+    apply mul_pos
+    · positivity
+    · exact Real.exp_pos _
+
+/-- PDF derivative positive for x < μ (PDF is increasing left of peak). -/
+theorem pdf_deriv_pos_left (μ σ x : ℝ) (hσ : σ > 0) (hx : x < μ) :
+    gaussianPDF_deriv μ σ x > 0 := by
+  unfold gaussianPDF_deriv
+  apply mul_pos
+  · apply div_pos
+    · linarith
+    · positivity
+  · unfold gaussianPDF
+    apply mul_pos
+    · positivity
+    · exact Real.exp_pos _
+
 end FVSquad.NormalDistribution
