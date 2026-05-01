@@ -3,50 +3,60 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-04-30 07:54 UTC
-- **Commit**: `c8504b8ec`
+- **Date**: 2026-05-01 03:15 UTC
+- **Commit**: `09a950cd3`
 
 ---
 
 ## Overall Assessment
 
-The formal verification effort has produced **18 proved theorems** across 2 targets (Actual360 and InterestRate), covering fundamental algebraic properties of day counting and interest rate compounding. The proofs are sound and meaningful — they verify the mathematical correctness of core financial formulas that, if broken, would cause widespread calculation errors. The project is in a healthy early state with strong foundations, though the highest-value remaining work lies in extending coverage to more complex compounding modes and additional targets.
+The formal verification effort has produced **82 proved theorems** across 7 targets (Actual360, InterestRate, LinearInterpolation, Thirty360, NormalDistribution, Factorial, Bisection), with only 6 `sorry` remaining. Coverage spans day counting, interest rate compounding, interpolation, probability distributions, combinatorics, and root-finding — a broad cross-section of QuantLib's mathematical core. The proofs are sound and the spec-to-implementation complexity ratios remain favourable across all targets. The project has matured from an early-stage effort to a substantive verification suite that provides real confidence in the correctness of these financial primitives.
 
 ---
 
-## Proved Theorems
+## Proved Theorems (Selected Highlights)
 
 | Theorem | File | Level | Bug-catching | Spec:Impl Ratio | Notes |
 |---------|------|-------|-------------|-----------------|-------|
-| `dayCount_nonneg` | Actual360.lean | Mid | Medium | High | Catches sign errors in subtraction |
-| `dayCount_additive` | Actual360.lean | Mid | High | High | Fundamental composability — catches off-by-one in date arithmetic |
-| `dayCount_antisymm` | Actual360.lean | Mid | Medium | High | Directional consistency |
-| `dayCount_pos_includeLastDay` | Actual360.lean | Mid | Medium | High | Boundary condition coverage |
-| `dayCount_includeLastDay_off_by_one` | Actual360.lean | Mid | High | High | Documents the non-additivity of includeLastDay — high bug potential |
-| `dayCount_self` | Actual360.lean | Low | Low | High | Trivial but good sanity check |
-| `dayCount_self_includeLastDay` | Actual360.lean | Low | Low | High | Edge case coverage |
-| `simple_roundtrip_exact` | InterestRate.lean | High | High | High | Inverse relationship — catches formula errors in either direction |
-| `simple_zero_time` | InterestRate.lean | Low | Low | High | Identity element — trivial |
-| `simple_zero_rate` | InterestRate.lean | Low | Low | High | Identity element — trivial |
-| `compounded_zero_periods` | InterestRate.lean | Low | Low | High | Identity element |
-| `compounded_zero_rate` | InterestRate.lean | Low | Medium | High | Zero-rate invariant across all period counts |
-| `simple_additive_excess` | InterestRate.lean | Mid | High | High | Linearity — catches subtle formula drift |
-| `simple_monotone_rate` | InterestRate.lean | Mid | High | High | Monotonicity — catches sign/comparison bugs |
-| `compounded_one_period` | InterestRate.lean | Low | Medium | High | Reduction to simple form |
-| `simple_pos` | InterestRate.lean | Mid | Medium | High | Positivity precondition |
+| `dayCount_additive` | Actual360.lean | Mid | High | High | Composability — catches off-by-one in date arithmetic |
+| `dayCount_includeLastDay_off_by_one` | Actual360.lean | Mid | High | High | Documents non-additivity of includeLastDay |
+| `simple_roundtrip_exact` | InterestRate.lean | High | High | High | Inverse relationship — catches formula errors |
 | `compounded_mul_periods` | InterestRate.lean | High | High | High | Multiplicative structure — key algebraic law |
-| `simple_time_scaling` | InterestRate.lean | Mid | High | High | Linearity of excess return in time |
+| `simple_monotone_rate` | InterestRate.lean | Mid | High | High | Monotonicity — catches sign bugs |
+| `knot_interpolation` | LinearInterpolation.lean | Mid | High | High | Interpolant passes through data points |
+| `monotone_nonneg_slope` | LinearInterpolation.lean | Mid | High | High | Monotonicity preservation |
+| `same_date_zero` | Thirty360.lean | Low | Medium | High | Zero-interval identity |
+| `antisymmetry` | Thirty360.lean | Mid | High | High | Sign consistency |
+| `additivity_normal_days` | Thirty360.lean | Mid | High | High | Composability for standard dates |
+| `day31_eq_day30` | Thirty360.lean | Mid | High | High | Adjustment rule — key convention spec |
+| `pdf_nonneg` | NormalDistribution.lean | Mid | Medium | High | Non-negativity of probability density |
+| `pdf_symmetric` | NormalDistribution.lean | Mid | Medium | High | Bell curve symmetry about mean |
+| `pdf_peak` | NormalDistribution.lean | Mid | Medium | High | Maximum at mean |
+| `cdf_symmetry` | NormalDistribution.lean | Mid | Medium | High | CDF reflection about mean |
+| `factorial_pos` | Factorial.lean | Low | Medium | High | Positivity invariant |
+| `factorial_growth` | Factorial.lean | Mid | Medium | High | Exponential lower bound 2^(n-1) |
+| `factorial_even_div` | Factorial.lean | Mid | Medium | High | Divisibility property |
+| `dx_halves_each_step` | Bisection.lean | Mid | High | High | Convergence rate — key correctness property |
+| `dx_after_k_steps` | Bisection.lean | Mid | High | High | Geometric convergence after k steps |
+| `step_root_in_interval` | Bisection.lean | Mid | High | High | Root containment invariant |
+
+*Full inventory: 82 proved theorems across 7 Lean files. See individual `.lean` files for complete listings.*
 
 ---
 
 ## Spec-to-Implementation Complexity Assessment
 
-| Target | Spec Lines (theorems + types) | Impl Lines (C++) | Ratio | Assessment |
-|--------|------------------------------|------------------|-------|------------|
-| Actual360 | ~40 (7 theorems, 2 defs) | ~15 (dayCount + yearFraction) | **High** | Spec captures 7 algebraic laws; impl is simple but the *correctness criteria* are non-trivial to state. The proofs give high confidence. |
-| InterestRate | ~80 (11 theorems, 3 defs) | ~120 (compoundFactor + impliedRate, 5 modes) | **High** | Clean algebraic properties constrain a multi-mode implementation. The spec is obviously correct by inspection; the impl has branching complexity. |
+| Target | Spec Lines | Impl Lines (C++) | Ratio | Assessment |
+|--------|-----------|------------------|-------|------------|
+| Actual360 | ~45 (8 theorems, 2 defs) | ~15 | **High** | 8 algebraic laws; impl is simple but correctness criteria are non-trivial. |
+| InterestRate | ~180 (30 theorems, 6+ defs) | ~120 (5 modes) | **High** | Clean algebraic properties constrain a multi-mode implementation with branching. |
+| LinearInterpolation | ~60 (7 theorems, 3 defs) | ~80 (index search + interpolation) | **High** | 7 properties (knot, monotonicity, derivative) capture correct interpolation concisely. |
+| Thirty360 | ~90 (11 theorems, 4 defs) | ~60 (convention logic) | **High** | 11 properties capture 30/360 convention correctly despite complex day-adjustment rules. |
+| NormalDistribution | ~120 (14 theorems, structures) | ~150 (Moro's algo + Abramowitz approx) | **High** | Analytical properties (symmetry, peak, CDF) are concise; the numerical implementation is complex. |
+| Factorial | ~70 (10 theorems, 1 def) | ~30 (lookup table + recursive) | **Medium** | Properties are standard (positivity, growth, divisibility). Impl is simple but table-based — proofs confirm the table is correct. |
+| Bisection | ~80 (8 theorems, 3 defs) | ~50 (iterative solver) | **High** | Convergence rate and root containment are concise specs for an iterative algorithm. |
 
-Both targets are in the FV sweet spot: simple, inspectable specs constraining non-trivial implementations. The proved properties would catch real formula errors (wrong signs, missed terms, incorrect exponents).
+All targets sit at favourable ratios. The strongest are InterestRate, NormalDistribution, and Bisection where clean mathematical properties constrain complex multi-branch implementations.
 
 ---
 
@@ -54,41 +64,54 @@ Both targets are in the FV sweet spot: simple, inspectable specs constraining no
 
 ### High Priority
 
-1. **InterestRate: Compounded round-trip** — The most valuable unproved theorem. Would require either Mathlib (for `Real` and `rpow` inverse) or a reformulation restricted to Nat exponents with a custom n-th root definition. Consider adding a Rat-only formulation: `impliedCompoundedQ` that inverts `compoundCompoundedQ` for `Nat` periods.
+1. **Bisection: `bisect_terminates` and `bisect_accuracy`** — The two remaining sorry-guarded theorems in Bisection are the most valuable: they prove the algorithm actually converges and achieves the requested accuracy. These require induction with careful bound tracking on the recursion. Proving these would complete the verification of the bisection solver.
 
-2. **LinearInterpolation** (new target) — High spec-to-impl ratio. Core properties: boundary values match data points, monotonicity preservation, continuity. Implementation is ~80 lines of C++ with index searching; spec would be ~10 lines of algebraic conditions.
+2. **InterestRate: Compounded round-trip** — Still the most valuable unproved InterestRate property. Requires Mathlib `rpow` inverse or a reformulated Nat-only version.
 
-3. **InterestRate: Compounded monotonicity** — Prove that for fixed positive n, t, and rate r₁ ≤ r₂ ≥ 0, we have `compoundCompoundedQ r₁ n p ≤ compoundCompoundedQ r₂ n p`. This is a high-value property but requires induction over Nat powers with an ordering argument.
+3. **NormalDistribution: `cdf_deriv_eq_pdf`** — The only sorry in this file. Needs `HasDerivAt` for the erf composition. This is a deep Mathlib dependency — may require waiting for better Mathlib availability in CI.
+
+4. **Cross-target composition theorems** — No theorems yet relate targets to each other (e.g., proving that yearFraction from Actual360 composed with compoundFactor from InterestRate produces the correct discount factor). These composition properties would be highly valuable for financial applications.
 
 ### Medium Priority
 
-4. **Thirty360** (new target) — Complex case analysis with known industry bugs. High bug-catching potential but spec would be complex (many date conventions).
+5. **New target: Schedule generation** — QuantLib's schedule generation (`ql/time/schedule.hpp`) is complex, bug-prone, and has clear correctness criteria (dates in order, correct frequency, boundary handling). High spec-to-impl ratio.
 
-5. **InterestRate correspondence tests** — No runnable correspondence tests exist for InterestRate. Adding tests like Actual360's would validate the Rat model against C++ outputs.
+6. **New target: CashFlow NPV** — Present value calculations compose InterestRate with cash flow timing. Would exercise the proven properties of InterestRate in a higher-level context.
+
+7. **InterestRate correspondence tests** — Still no runnable correspondence tests (1394 was noted in memory but path not found). Adding executable tests like Actual360's would validate the Rat model against C++ outputs.
+
+### Lower Priority
+
+8. **Factorial: connection to Mathlib `Nat.factorial`** — The custom `factorial` definition could be proved equivalent to Mathlib's, providing a bridge to Mathlib's extensive factorial lemma library.
 
 ---
 
 ## Concerns
 
-1. **Float theorems are unprovable without Mathlib**: The 3 sorry-guarded theorems (`compoundContinuous_pos`, `continuous_roundtrip`, `compounded_roundtrip`) operate over `Float` and genuinely cannot be proved in Lean stdlib. They require either:
-   - Mathlib's `Real.exp_pos`, `Real.log_exp` (network-blocked in CI)
-   - Custom axioms (would be unsound)
-   - Reformulation over `Rat` (impossible for transcendentals)
-   
-   **Recommendation**: Leave these as documented aspirational goals. They are not vacuous — the *statements* are correct and serve as documentation. If Mathlib becomes available, they are straightforward to prove.
+1. **Float theorems remain unprovable without Mathlib**: The 3 sorry-guarded InterestRate theorems (`compoundContinuous_pos`, `continuous_roundtrip`, `compounded_roundtrip`) operate over `Float` and cannot be proved in Lean stdlib. These are correctly documented as aspirational. **Status: unchanged, acceptable.**
 
-2. **No vacuity concerns**: All proved theorems are over exact `Rat` arithmetic with clear correspondence to C++ formulas. None rely on dubious model approximations. The Nat exponent restriction for `compoundCompoundedQ` is clearly documented and does not invalidate the proofs for their stated domain.
+2. **No vacuity concerns**: All 82 proved theorems operate over exact types (`Rat`, `Int`, `ℕ`, `ℝ`) with clear correspondence to C++ formulas. The Nat exponent restriction for compounded interest and the `SimpleDate` abstraction for Thirty360 are clearly documented. No theorem relies on dubious model approximations.
 
-3. **Correspondence gap for InterestRate**: While Actual360 has 2920 validated test cases, InterestRate has no runnable correspondence tests. The Rat model's correctness is argued by inspection (formulas are identical), but executable evidence would strengthen confidence.
+3. **Bisection sorry theorems are substantive**: Unlike the InterestRate Float sorrys (which are toolchain-blocked), the Bisection sorrys (`bisect_terminates`, `bisect_accuracy`) are provable in principle with sufficient proof engineering. These should be prioritized.
+
+4. **NormalDistribution model uses `Real` (ℝ)**: The NormalDistribution proofs operate over mathematical reals with exact `exp`, `sqrt`, etc. This is appropriate for stating analytical properties but means the proofs do not directly constrain the numerical C++ implementation (which uses `double` approximations). The correspondence is mediated by the 1082 test cases rather than by the proofs themselves. This is acceptable but should be noted: the proofs verify the *mathematical specification*, not the *numerical implementation*.
+
+5. **No composition theorems**: The 7 targets are verified independently. Real financial calculations chain these components (e.g., day count → year fraction → compound factor → NPV). Cross-target theorems would provide end-to-end assurance.
 
 ---
 
 ## Positive Findings
 
-- **The round-trip theorem** (`simple_roundtrip_exact`) proves that `impliedSimpleQ` is a perfect inverse of `compoundSimpleQ`. This is exactly the kind of property that catches formula transcription errors — if either formula had a sign error or missing term, the round-trip would fail.
+- **82 theorems proved with zero bugs found**: all specified mathematical properties of QuantLib's core hold. This is a strong positive signal — the mathematical foundations are correctly implemented.
 
-- **The additivity theorem** for Actual360 (`dayCount_additive`) formally confirms that day counting composes correctly over intervals. Off-by-one errors in date arithmetic are a notorious source of financial calculation bugs.
+- **The round-trip theorem** (`simple_roundtrip_exact`) proves `impliedSimpleQ` is a perfect inverse of `compoundSimpleQ` — catches formula transcription errors.
 
-- **The new `compounded_mul_periods` theorem** (added this run) proves the fundamental multiplicative structure of compound interest: compounding over a+b periods equals compounding over a periods times compounding over b periods. This is a high-value structural property.
+- **Bisection convergence rate** (`dx_halves_each_step`, `dx_after_k_steps`): formally proves the geometric convergence that is only informally asserted in textbooks and comments.
 
-- **No bugs found** — all specified properties hold. This is itself a positive finding: the mathematical core of QuantLib's interest rate and day counting is correctly implemented (within the modelled domain).
+- **Normal distribution symmetry and peak properties**: the analytical properties (pdf_symmetric, pdf_peak, cdf_symmetry) constitute a mathematical specification that any correct Gaussian implementation must satisfy. These are useful as regression tests against future refactoring.
+
+- **Factorial growth bound** (`factorial_growth`): proves `n! ≥ 2^(n-1)` — a non-trivial property used in convergence analysis of series.
+
+- **Thirty360 `day31_eq_day30`**: formally captures the 30/360 convention rule that day 31 is treated as day 30, which is a frequent source of industry confusion and bugs.
+
+- **Broad coverage achieved**: 7 targets across day counting, interest rates, interpolation, distributions, combinatorics, and root-finding demonstrates FV applicability across QuantLib's mathematical core.
