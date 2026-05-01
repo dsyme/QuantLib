@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-05-01T07:42Z",
+  "last_run": "2026-05-01T08:36Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -68,11 +68,11 @@
       "name": "Bisection",
       "file": "ql/math/solvers1d/bisection.hpp",
       "phase": 5,
-      "phase_name": "Fully proved",
+      "phase_name": "Fully proved + correspondence validated",
       "lean_file": "formal-verification/lean/FVSquad/Bisection.lean",
       "sorry_count": 0,
-      "correspondence": null,
-      "notes": "15 theorems, 0 sorry. Convergence, termination, accuracy proved."
+      "correspondence": "22 test cases (Route B, Python exact-rational + float)",
+      "notes": "11 theorems, 0 sorry. Convergence, termination, accuracy proved. Correspondence validated Run 30."
     },
     {
       "name": "Actual365Fixed",
@@ -98,10 +98,10 @@
   "open_issues": [3, 32],
   "ci_status": "lean-ci.yml exists, actions upgraded to v6/v5/v7",
   "bugs_found": [],
-  "total_proved": 99,
-  "total_sorry": 4,
+  "total_proved": 91,
+  "total_sorry": 8,
   "correspondence_complete": true,
   "paper_exists": true,
   "paper_status": "Last updated Run 24.",
-  "notes": "Run 29: Tasks 1+6. Task 1: Added Actual365Fixed and FloatingPointClose as new targets. Task 6: Updated CORRESPONDENCE.md (Bisection now 15/15). All existing sorry fundamentally blocked. Next: informal spec for Actual365Fixed or FloatingPointClose."
+  "notes": "Run 30: Tasks 7+8. Task 8: Added 22 Bisection correspondence tests (Route B, Python). Task 7: Updated CRITIQUE.md (91 theorems, 8 sorry, Bisection sorrys marked resolved). Next: informal spec for Actual365Fixed or FloatingPointClose."
 }
