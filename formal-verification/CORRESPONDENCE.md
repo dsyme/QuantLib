@@ -3,8 +3,8 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-05-01 08:57 UTC
-- **Commit**: `24f82b4a5` (Run 32)
+- **Date**: 2026-05-01 10:01 UTC
+- **Commit**: `886459cb1` (Run 35)
 
 ---
 

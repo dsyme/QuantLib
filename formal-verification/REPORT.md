@@ -1,16 +1,16 @@
 > 🔬 *Lean Squad — automated formal verification for `dsyme/QuantLib`.*
 
-**Status**: 🔄 IN PROGRESS — 87 theorems proved (4 `sorry`), 8 Lean files, 7 targets, Lean 4 + Mathlib.
+**Status**: 🔄 IN PROGRESS — 99 theorems (95 proved, 4 `sorry`), 9 Lean files, 8 targets, Lean 4 + Mathlib.
 
 ## Last Updated
-- **Date**: 2026-05-01 07:32 UTC
-- **Commit**: `d2745ad13`
+- **Date**: 2026-05-01 10:01 UTC
+- **Commit**: `886459cb1`
 
 ---
 
 ## Executive Summary
 
-Formal verification of QuantLib's quantitative finance primitives is mature across 7 targets using Lean 4 with Mathlib. **87 of 91 theorems are fully proved** with only 4 `sorry` remaining (3 Float axioms in InterestRate, 1 HasDerivAt in NormalDistribution — both fundamentally blocked by Lean stdlib limitations). Five targets are fully verified with zero sorry: **Actual360** (8 theorems, 2,920 correspondence tests), **LinearInterpolation** (7 theorems, 12 tests), **Thirty360** (11 theorems, 575 tests), **Factorial** (10 theorems, 28 tests), and **Bisection** (11 theorems, convergence + termination proved). **NormalDistribution** has 13/14 proved with 1,082 correspondence tests. **InterestRate** has 27/30 proved across Rat/ℝ/Float models with 1,394 tests. Over **6,000 correspondence test cases** validate model fidelity. Zero bugs found — the implementations match their mathematical specifications.
+Formal verification of QuantLib's quantitative finance primitives is mature across 8 targets using Lean 4 with Mathlib. **95 of 99 theorems are fully proved** with only 4 `sorry` remaining (3 Float axioms in InterestRate, 1 HasDerivAt in NormalDistribution — both fundamentally blocked by Lean stdlib limitations). Six targets are fully verified with zero sorry: **Actual360** (8 theorems, ~2,920 correspondence tests), **Actual365Fixed** (8 theorems, 2,295 tests), **LinearInterpolation** (7 theorems, 12 tests), **Thirty360** (11 theorems, 575 tests), **Factorial** (10 theorems, 28 tests), and **Bisection** (11 theorems, 22 tests). **NormalDistribution** has 14 theorems (13 proved, 1 sorry) with 1,082 correspondence tests. **InterestRate** has 30 theorems (27 proved, 3 sorry) across Rat/ℝ/Float models with 1,394 tests. Over **8,300 correspondence test cases** validate model fidelity across all 8 targets. Zero bugs found — the implementations match their mathematical specifications. Two new targets (FloatingPointClose, BlackFormula) have informal specs; Matrix and NewtonSafe are in research phase.
 
 ---
 
@@ -22,6 +22,7 @@ The verification is organised into independent target modules, each modelling a 
 graph TD
     A["FVSquad.Basic<br/>(project root)"]
     B["FVSquad.Actual360<br/>8 theorems ✅"]
+    B2["FVSquad.Actual365Fixed<br/>8 theorems ✅"]
     C["FVSquad.InterestRate<br/>27 proved + 3 sorry"]
     D["FVSquad.LinearInterpolation<br/>7 theorems ✅"]
     E["FVSquad.Thirty360<br/>11 theorems ✅"]
@@ -29,6 +30,7 @@ graph TD
     G["FVSquad.Factorial<br/>10 theorems ✅"]
     H["FVSquad.Bisection<br/>11 theorems ✅"]
     A --> B
+    A --> B2
     A --> C
     A --> D
     A --> E
@@ -47,20 +49,23 @@ graph TD
 
 ## What Was Verified
 
-### Layer 1 — Day Counting (2 files, 19 theorems)
+### Layer 1 — Day Counting (3 files, 27 theorems)
 
 Models day counting conventions used throughout QuantLib for year-fraction calculations.
 
 ```mermaid
 graph LR
     F1["Actual360.lean<br/>8 theorems ✅<br/>Additivity, antisymmetry"]
+    F2["Actual365Fixed.lean<br/>8 theorems ✅<br/>Additivity, translation invariance"]
     F4["Thirty360.lean<br/>11 theorems ✅<br/>EU convention, adjustment"]
 ```
 
 **Key results**:
-- `dayCount_additive`: `dayCount(d1,d2) + dayCount(d2,d3) = dayCount(d1,d3)`
+- `dayCount_additive`: `dayCount(d1,d2) + dayCount(d2,d3) = dayCount(d1,d3)` (both Actual360 and Actual365Fixed)
 - `dayCount_antisymm`: reversal symmetry
-- `dayCount_includeLastDay_off_by_one`: exact off-by-one characterisation
+- `dayCount_includeLastDay_off_by_one`: exact off-by-one characterisation (Actual360)
+- `dayCount_translate`: translation invariance `dayCount(d1+k, d2+k) = dayCount(d1, d2)` (Actual365Fixed)
+- `dayCount_full_year`: `dayCount(d, d+365) = 365` (Actual365Fixed)
 - `adjust_idempotent`: day-31 adjustment is idempotent (Thirty360)
 - `antisymmetry`, `full_year`, `full_month`: canonical Thirty360 EU properties
 
@@ -146,6 +151,7 @@ graph LR
 | File | Proved | Sorry | Phase | Key result |
 |------|--------|-------|-------|------------|
 | `Actual360.lean` | 8 | 0 | ✅ Fully proved | Additivity, antisymmetry, non-negativity |
+| `Actual365Fixed.lean` | 8 | 0 | ✅ Fully proved | Additivity, translation invariance, full year |
 | `InterestRate.lean` | 27 | 3 | 🔄 Partial (Float) | Round-trip, identities, monotonicity, exp/log |
 | `LinearInterpolation.lean` | 7 | 0 | ✅ Fully proved | Knot interpolation, derivative, monotonicity |
 | `Thirty360.lean` | 11 | 0 | ✅ Fully proved | Same-date, antisymmetry, adjustment, additivity |
@@ -153,7 +159,7 @@ graph LR
 | `Factorial.lean` | 10 | 0 | ✅ Fully proved | Growth bounds, divisibility, recursion |
 | `Bisection.lean` | 11 | 0 | ✅ Fully proved | Convergence, termination, accuracy guarantee |
 | `Basic.lean` | 0 | 0 | — | Project root |
-| **Total** | **87** | **4** | — | **5 of 7 targets fully proved** |
+| **Total** | **95** | **4** | — | **6 of 8 targets fully proved** |
 
 ---
 
@@ -209,6 +215,7 @@ graph TD
 | Category | What's covered | What's abstracted/omitted |
 |----------|---------------|--------------------------|
 | Actual360 | Exact integer day-count formula | Calendar date construction (leap years, months) |
+| Actual365Fixed | Exact integer day-count / 365.0 formula | Canadian Bond and No Leap variants, calendar logic |
 | InterestRate (Simple/Compounded) | Exact rational arithmetic, all algebraic properties | IEEE 754 rounding |
 | InterestRate (Continuous) | Real-valued exp/log via Mathlib ℝ (11 theorems) | IEEE 754 rounding |
 | LinearInterpolation | Exact rational piecewise-linear model | Floating-point, extrapolation |
@@ -225,6 +232,7 @@ graph TD
 | Target | Spec lines | Impl lines | Ratio | Assessment |
 |--------|-----------|------------|-------|------------|
 | `Actual360` | ~35 (8 theorems) | ~65 (C++ header) | **High** | Simple algebraic laws; impl has class hierarchy |
+| `Actual365Fixed` | ~35 (8 theorems) | ~84 (C++ header) | **High** | Same algebraic structure as Actual360; Standard convention only |
 | `InterestRate` | ~150 (30 theorems, 3 models) | ~360 (hpp + cpp) | **High** | Clean algebra constrains multi-mode implementation |
 | `LinearInterpolation` | ~60 (7 theorems) | ~150 (hpp + templates) | **High** | Concise math constrains template machinery |
 | `Thirty360` | ~80 (11 theorems) | ~200 (hpp + cpp) | **Medium-High** | Good for EU convention; full coverage needs all variants |
@@ -238,7 +246,7 @@ graph TD
 
 ### Bugs Found
 
-No implementation bugs found across any of the 7 targets. All properties match the C++ exactly, confirmed by both formal proof and over 6,000 correspondence test cases.
+No implementation bugs found across any of the 8 targets. All properties match the C++ exactly, confirmed by both formal proof and over 8,300 correspondence test cases.
 
 ### Formulation Issues
 
@@ -253,6 +261,7 @@ No implementation bugs found across any of the 7 targets. All properties match t
 - Day-31 adjustment in Thirty360 European is idempotent (`adjust_idempotent`).
 - NormalDistribution CDF symmetry Φ(2μ−x) + Φ(x) = 1 proved via `erf_neg`.
 - Bisection convergence rate `|dx_k| = |dx_0|/2^k` proved by induction — confirms exponential convergence.
+- Actual365Fixed: translation invariance and full-year property (`dayCount(d, d+365) = 365`) proved — complements Actual360 day counter coverage.
 - Bisection termination guarantee: if initial bracket allows sufficient fuel, the solver always returns a result within the requested accuracy.
 - Factorial growth `n! ≥ 2^(n-1)` and `2^n | (2n)!` — non-trivial combinatorial identities.
 
@@ -284,6 +293,12 @@ timeline
         Bisection : 11 theorems, convergence proved
         Termination : bisect_terminates proved
         Total : 87 proved, 4 sorry
+    section Phase 6 — Expansion & Consolidation (Runs 29–35)
+        Actual365Fixed : 8 theorems fully proved
+        FloatingPointClose : Informal spec written
+        BlackFormula : Informal spec written
+        Correspondence : 8300+ test cases across 8 targets
+        Total : 99 theorems, 4 sorry
 ```
 
 ---
@@ -294,7 +309,7 @@ timeline
 - **Libraries**: Mathlib (leanprover-community/mathlib4) — `Real.exp`, `Real.log`, `Real.erf`, `Nat.factorial`, algebra automation
 - **CI**: `lean-ci.yml` with Mathlib caching (actions/checkout v6, cache v5, upload-artifact v7)
 - **Build system**: Lake
-- **Correspondence**: Route B (C++/Python executable tests), 6,000+ total cases
+- **Correspondence**: Route B (C++/Python executable tests), 8,300+ total cases
 
 | Tactic | Usage |
 |--------|-------|
