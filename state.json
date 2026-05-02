@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-05-02T09:37Z",
+  "last_run": "2026-05-02T17:12Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -99,9 +99,9 @@
       "phase_name": "Fully proved",
       "lean_file": "formal-verification/lean/FVSquad/FloatingPointClose.lean",
       "sorry_count": 0,
-      "notes": "12/12 proved. Correspondence reviewed Run 40 (approximation-level).",
+      "notes": "12/12 proved. Correspondence reviewed.",
       "correspondence": "reviewed",
-      "tests": "none (Q-based model not directly executable)"
+      "tests": "none (Q-based model)"
     },
     {
       "name": "BlackFormula",
@@ -110,9 +110,18 @@
       "phase_name": "Fully proved",
       "lean_file": "formal-verification/lean/FVSquad/BlackFormula.lean",
       "sorry_count": 0,
-      "notes": "13/13 proved. Correspondence reviewed Run 40 (abstraction-level, 5 axioms). 312 correspondence tests added.",
+      "notes": "13/13 proved. 312 correspondence tests.",
       "correspondence": "reviewed",
       "tests": "312 cases passing"
+    },
+    {
+      "name": "NewtonSafe",
+      "file": "ql/math/solvers1d/newtonsafe.hpp",
+      "phase": 2,
+      "phase_name": "Informal Spec",
+      "lean_file": null,
+      "sorry_count": null,
+      "notes": "Informal spec written Run 41. Bracketed Newton-Raphson. High spec-to-impl ratio. Next: Lean formalization."
     },
     {
       "name": "Matrix",
@@ -122,15 +131,6 @@
       "lean_file": null,
       "sorry_count": null,
       "notes": "Algebraic properties."
-    },
-    {
-      "name": "NewtonSafe",
-      "file": "ql/math/solvers1d/newtonsafe.hpp",
-      "phase": 1,
-      "phase_name": "Research",
-      "lean_file": null,
-      "sorry_count": null,
-      "notes": "Bracketed Newton-Raphson. High spec-to-impl ratio."
     }
   ],
   "open_issues": [3],
@@ -138,5 +138,5 @@
   "total_proved": 124,
   "total_sorry": 4,
   "paper_exists": true,
-  "notes": "Run 40: Task 6 added correspondence for BlackFormula + FloatingPointClose. Task 8 added 312 BlackFormula correspondence tests (Route B). All targets now have correspondence reviews. Next: NewtonSafe or Matrix informal spec."
+  "notes": "Run 41: Task 2 wrote NewtonSafe informal spec. Task 5 assessed remaining sorry — all blocked. Next: NewtonSafe Lean formalization (Task 3)."
 }
