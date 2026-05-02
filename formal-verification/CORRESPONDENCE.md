@@ -3,8 +3,8 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-05-01 10:01 UTC
-- **Commit**: `886459cb1` (Run 35)
+- **Date**: 2026-05-02 09:37 UTC
+- **Commit**: `4843b0805` (Run 40)
 
 ---
 
@@ -215,6 +215,68 @@ The **3 sorry-guarded Float theorems** (`compoundContinuous_pos`, `continuous_ro
 **Impact on proofs**: All 8 proved theorems (`yearFraction_eq_dayCount_div_365`, `dayCount_nonneg`, `dayCount_additive`, `dayCount_self`, `dayCount_antisymm`, `dayCount_strict_mono`, `dayCount_translate`, `dayCount_full_year`) reason about the `Int` day-count formula, which is semantically identical to the C++. The proofs are sound.
 
 **Validation evidence**: Runnable correspondence tests at `formal-verification/tests/actual365fixed/` — 11 point cases + 2,273 sweep cases (additivity, antisymmetry, translation invariance, full year, strict monotonicity), all 2,295 passing. See `formal-verification/tests/actual365fixed/README.md`.
+
+---
+
+## BlackFormula
+
+| Lean Definition | C++ Source | File / Line | Correspondence | Justification |
+|----------------|-----------|-------------|----------------|---------------|
+| `OptionType` | `Option::Type` | `ql/option.hpp` | **Exact** | Lean `Call`/`Put` maps to C++ `Call=1`/`Put=-1`. The `sign` function returns `±1` matching C++'s `Integer(optionType)`. |
+| `d1` | local `d1` | `ql/pricingengines/blackformula.cpp` L98 | **Exact** | Both compute `log(F'/K') / σ + σ/2`. Lean uses `Real.log`, C++ uses `std::log`. Mathematically identical over exact reals. |
+| `d2` | local `d2` | `ql/pricingengines/blackformula.cpp` L99 | **Exact** | Both compute `d1 - σ`. |
+| `blackFormula` | `blackFormula` | `ql/pricingengines/blackformula.cpp` L68–107 | **Abstraction** | Lean models the same three-branch structure: (1) σ=0 → intrinsic value, (2) K'=0 → forward×discount, (3) general → D·(F'·Φ(d₁) − K'·Φ(d₂)) for calls. The C++ uses `sign * (forward*nd1 - strike*nd2)` with `phi(sign*d1)` which is algebraically equivalent to separate Call/Put branches via `Φ(-x) = 1 - Φ(x)`. |
+| `Φ` (abstract CDF) | `CumulativeNormalDistribution` | `ql/math/distributions/normaldistribution.hpp` | **Abstraction** | Lean axiomatises Φ properties (range [0,1], symmetry, monotonicity). C++ uses `CumulativeNormalDistribution` (Abramowitz-Stegun polynomial approximation). The axioms are consistent with the constructive `gaussianCDF` proved in `NormalDistribution.lean`. |
+
+**Divergences**:
+1. **Φ is axiomatised, not constructive**: The Lean model declares `Φ : ℝ → ℝ := sorry` and axiomatises its properties. This is sound (the properties are mathematically true of the standard normal CDF) but means the proofs depend on axioms rather than constructive definitions. The `NormalDistribution.lean` file proves equivalent properties for `gaussianCDF`; a future bridge theorem could eliminate these axioms.
+2. **Sign convention**: C++ uses `sign * (F'*Φ(sign*d₁) - K'*Φ(sign*d₂))` which collapses Call and Put into one expression. Lean uses separate `match type` branches. These are algebraically equivalent via `Φ(-x) = 1 - Φ(x)`.
+3. **Error handling**: C++ uses `QL_REQUIRE` for preconditions (stdDev ≥ 0, discount > 0, displacement ≥ 0, strike+displacement ≥ 0, forward+displacement > 0) and `QL_ENSURE` to assert result ≥ 0. Lean models these as theorem preconditions. No error path is modelled.
+4. **Numeric type**: C++ uses `double`; Lean uses exact `ℝ` (Mathlib reals). Floating-point rounding is not captured.
+5. **Additional axioms**: 4 axioms (`Φ_black_call_nonneg`, `Φ_black_put_nonneg`, `black_call_mono_forward`, `black_call_mono_vol`) capture measure-theoretic properties of the Black formula that require integration theory to prove. These are standard results in mathematical finance.
+
+**Impact on proofs**: All 13 proved theorems are sound:
+- `d2_eq`: purely algebraic, no correspondence concern.
+- `put_call_parity`: uses `Φ_symm` axiom (standard symmetry of normal CDF). Valid.
+- `zero_vol`, `zero_strike_call`: match C++ zero-vol and zero-strike branches exactly.
+- `atm_symmetry`: algebraic consequence of put-call parity. Valid.
+- `linear_discount`: structural property of the formula. Valid.
+- `nonneg_zero_vol`, `call_upper_bound_zero_vol`: zero-vol specialisations, exact.
+- `nonneg_general`: depends on `Φ_black_call_nonneg` / `Φ_black_put_nonneg` axioms. Sound given standard Black-Scholes theory.
+- `call_mono_forward`: depends on `black_call_mono_forward` axiom. Sound (delta ≥ 0).
+- `mono_stddev`: depends on `black_call_mono_vol` axiom. Sound (vega ≥ 0).
+- `call_upper_bound`, `put_upper_bound`: use `Φ_mem_Icc` axiom (Φ ∈ [0,1]). Sound.
+
+**Validation evidence**: Runnable correspondence tests at `formal-verification/tests/blackformula/` — point cases covering put-call parity, zero-vol limit, ATM symmetry, monotonicity in forward and volatility, non-negativity, and upper bounds.
+
+---
+
+## FloatingPointClose
+
+| Lean Definition | C++ Source | File / Line | Correspondence | Justification |
+|----------------|-----------|-------------|----------------|---------------|
+| `close` | `close(Real, Real, Size)` | `ql/math/comparison.hpp` L63–78 | **Approximation** | Both test `|x-y| ≤ ε·|x| ∧ |x-y| ≤ ε·|y|` for non-zero operands, and a separate zero-case threshold. Lean uses `ε²` for zero case with `≤`; C++ uses `tolerance²` with `<` (strict). Also, C++ has an `x == y` short-circuit (handles ±∞) not modelled in Lean. |
+| `close_enough` | `close_enough(Real, Real, Size)` | `ql/math/comparison.hpp` L80–95 | **Approximation** | Both test `|x-y| ≤ ε·|x| ∨ |x-y| ≤ ε·|y|`. Same zero-case and strict-vs-non-strict divergence as `close`. |
+
+**Divergences**:
+1. **Zero-case inequality**: C++ uses strict `<` for the zero case (`diff < (tolerance * tolerance)`). Lean uses non-strict `≤`. This means Lean's `close` is slightly more permissive at the boundary `|x-y| = ε²`. This is documented in the Lean file header.
+2. **Short-circuit for exact equality**: C++ returns `true` immediately if `x == y` (bitwise), which handles `+∞ == +∞`, `-∞ == -∞`, and signed zeros. Lean does not model IEEE specials.
+3. **Tolerance computation**: C++ computes `ε = n * QL_EPSILON` where `QL_EPSILON` is machine epsilon. Lean uses an abstract `ε ≥ 0`. The parametrisation is equivalent — Lean's proofs hold for any non-negative tolerance.
+4. **Numeric type**: C++ uses `double`; Lean uses `ℚ` (exact rationals).
+
+**Impact on proofs**: All 12 proved theorems are valid for the Lean model:
+- `close_refl`, `close_enough_refl`: reflexivity, sound for both `≤` and `<` variants.
+- `close_symm`, `close_enough_symm`: symmetry, exact match.
+- `close_implies_close_enough`: `∧ → ∨`, purely logical.
+- `close_mono_tol`, `close_enough_mono_tol`: monotonicity in tolerance, sound (non-zero case).
+- `close_zero_tol`, `close_enough_zero_tol`: zero tolerance ↔ equality, sound.
+- `close_not_transitive`: counterexample (x=10, y=11, z=12.1, ε=0.1). Also valid for C++ with appropriate n.
+- `close_mono_tol_zero`: zero-case monotonicity, sound for `≤` (slightly more permissive than C++ `<`, but the monotonicity property itself holds for both).
+- `close_enough_strictly_weaker`: witness that `∨` is strictly weaker than `∧`. Valid.
+
+The `≤` vs `<` divergence is cosmetic — it affects only the exact boundary value `|x-y| = ε²`, which is a measure-zero set in practice. All structural properties (reflexivity, symmetry, non-transitivity, monotonicity) hold regardless.
+
+**Validation evidence**: No runnable correspondence tests yet. The `ℚ`-based model is not directly executable against C++ `double` computations, but the algebraic properties proved are universal (they hold for any ordered field).
 
 ---
 
