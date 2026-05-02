@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-05-02T03:56Z",
+  "last_run": "2026-05-02T09:37Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -11,7 +11,9 @@
       "phase_name": "Proofs (partial)",
       "lean_file": "formal-verification/lean/FVSquad/InterestRate.lean",
       "sorry_count": 3,
-      "notes": "30 theorems, 3 Float sorry fundamentally blocked."
+      "notes": "30 theorems, 3 Float sorry fundamentally blocked.",
+      "correspondence": "reviewed",
+      "tests": "1394 cases passing"
     },
     {
       "name": "Actual360",
@@ -20,7 +22,9 @@
       "phase_name": "Fully proved",
       "lean_file": "formal-verification/lean/FVSquad/Actual360.lean",
       "sorry_count": 0,
-      "notes": "8/8 proved + correspondence tests."
+      "notes": "8/8 proved + correspondence tests.",
+      "correspondence": "reviewed",
+      "tests": "~2919 cases passing"
     },
     {
       "name": "LinearInterpolation",
@@ -29,7 +33,9 @@
       "phase_name": "Fully proved",
       "lean_file": "formal-verification/lean/FVSquad/LinearInterpolation.lean",
       "sorry_count": 0,
-      "notes": "7/7 proved + 12 correspondence tests."
+      "notes": "7/7 proved + 12 correspondence tests.",
+      "correspondence": "reviewed",
+      "tests": "12 cases passing"
     },
     {
       "name": "Thirty360",
@@ -38,7 +44,9 @@
       "phase_name": "Fully proved",
       "lean_file": "formal-verification/lean/FVSquad/Thirty360.lean",
       "sorry_count": 0,
-      "notes": "11/11 proved + 575 correspondence tests."
+      "notes": "11/11 proved + 575 correspondence tests.",
+      "correspondence": "reviewed",
+      "tests": "575 cases passing"
     },
     {
       "name": "NormalDistribution",
@@ -47,7 +55,9 @@
       "phase_name": "Proofs (partial)",
       "lean_file": "formal-verification/lean/FVSquad/NormalDistribution.lean",
       "sorry_count": 1,
-      "notes": "14/15 proved. 1 sorry: cdf_deriv_eq_pdf blocked by HasDerivAt erf."
+      "notes": "14/15 proved. 1 sorry: cdf_deriv_eq_pdf blocked by HasDerivAt erf.",
+      "correspondence": "reviewed",
+      "tests": "cases passing"
     },
     {
       "name": "Factorial",
@@ -56,7 +66,9 @@
       "phase_name": "Fully proved",
       "lean_file": "formal-verification/lean/FVSquad/Factorial.lean",
       "sorry_count": 0,
-      "notes": "10/10 proved + 28 correspondence tests."
+      "notes": "10/10 proved + 28 correspondence tests.",
+      "correspondence": "reviewed",
+      "tests": "28 cases passing"
     },
     {
       "name": "Bisection",
@@ -65,7 +77,9 @@
       "phase_name": "Fully proved",
       "lean_file": "formal-verification/lean/FVSquad/Bisection.lean",
       "sorry_count": 0,
-      "notes": "11/11 proved."
+      "notes": "11/11 proved.",
+      "correspondence": "reviewed",
+      "tests": "cases passing"
     },
     {
       "name": "Actual365Fixed",
@@ -74,7 +88,9 @@
       "phase_name": "Fully proved",
       "lean_file": "formal-verification/lean/FVSquad/Actual365Fixed.lean",
       "sorry_count": 0,
-      "notes": "8/8 proved + correspondence tests."
+      "notes": "8/8 proved + correspondence tests.",
+      "correspondence": "reviewed",
+      "tests": "2295 cases passing"
     },
     {
       "name": "FloatingPointClose",
@@ -83,7 +99,9 @@
       "phase_name": "Fully proved",
       "lean_file": "formal-verification/lean/FVSquad/FloatingPointClose.lean",
       "sorry_count": 0,
-      "notes": "12/12 proved."
+      "notes": "12/12 proved. Correspondence reviewed Run 40 (approximation-level).",
+      "correspondence": "reviewed",
+      "tests": "none (Q-based model not directly executable)"
     },
     {
       "name": "BlackFormula",
@@ -92,7 +110,9 @@
       "phase_name": "Fully proved",
       "lean_file": "formal-verification/lean/FVSquad/BlackFormula.lean",
       "sorry_count": 0,
-      "notes": "Run 39: All 13/13 proved. Added axioms for Φ non-negativity (call/put) and monotonicity (forward/vol). nonneg_general, call_mono_forward, mono_stddev now proved."
+      "notes": "13/13 proved. Correspondence reviewed Run 40 (abstraction-level, 5 axioms). 312 correspondence tests added.",
+      "correspondence": "reviewed",
+      "tests": "312 cases passing"
     },
     {
       "name": "Matrix",
@@ -110,7 +130,7 @@
       "phase_name": "Research",
       "lean_file": null,
       "sorry_count": null,
-      "notes": "Bracketed Newton-Raphson. Key properties: bracket invariant (f(xl)<0, f(xh)>=0), bracket shrinkage, root stays in bracket, convergence. Extends Bisection patterns. High spec-to-impl ratio: simple bracket invariant constrains complex fallback logic."
+      "notes": "Bracketed Newton-Raphson. High spec-to-impl ratio."
     }
   ],
   "open_issues": [3],
@@ -118,5 +138,5 @@
   "total_proved": 124,
   "total_sorry": 4,
   "paper_exists": true,
-  "notes": "Run 39: Task 5 proved all 3 BlackFormula sorry. BlackFormula now fully proved (13/13). Total sorry reduced from 7 to 4 (3 InterestRate Float-blocked, 1 NormalDistribution HasDerivAt-blocked). Next: NewtonSafe Task 2 (informal spec), or Matrix Task 2."
+  "notes": "Run 40: Task 6 added correspondence for BlackFormula + FloatingPointClose. Task 8 added 312 BlackFormula correspondence tests (Route B). All targets now have correspondence reviews. Next: NewtonSafe or Matrix informal spec."
 }
