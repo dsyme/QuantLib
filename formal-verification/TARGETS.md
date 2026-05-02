@@ -15,7 +15,7 @@
 | 9 | FloatingPointClose | `ql/math/comparison.hpp` | 2 — Informal Spec | 🔄 Spec written | Medium-High | High |
 | 10 | BlackFormula | `ql/pricingengines/blackformula.hpp/cpp` | 2 — Informal Spec | 🔄 Spec written | **High** | High |
 | 11 | Matrix | `ql/math/matrix.hpp/cpp` | 1 — Research | ⬜ Identified | Medium | High |
-| 12 | NewtonSafe | `ql/math/solvers1d/newtonsafe.hpp` | 1 — Research | ⬜ Identified | Medium-High | Medium-High |
+| 12 | NewtonSafe | `ql/math/solvers1d/newtonsafe.hpp` | 2 — Informal Spec | 🔄 In progress | Medium-High | Medium-High |
 
 ## Phase Key
 
