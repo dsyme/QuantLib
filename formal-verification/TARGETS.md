@@ -14,7 +14,7 @@
 | 8 | Actual365Fixed | `ql/time/daycounters/actual365fixed.hpp` | 5 — Proofs | ✅ 8/8 proved | Medium | High |
 | 9 | FloatingPointClose | `ql/math/comparison.hpp` | 2 — Informal Spec | 🔄 Spec written | Medium-High | High |
 | 10 | BlackFormula | `ql/pricingengines/blackformula.hpp/cpp` | 2 — Informal Spec | 🔄 Spec written | **High** | High |
-| 11 | Matrix | `ql/math/matrix.hpp/cpp` | 1 — Research | ⬜ Identified | Medium | High |
+| 11 | Matrix | `ql/math/matrix.hpp/cpp` | 5 — Proofs | ✅ 23/23 proved | Medium | High |
 | 12 | NewtonSafe | `ql/math/solvers1d/newtonsafe.hpp` | 5 — Proofs | ✅ 13/13 proved | Medium-High | Medium-High |
 
 ## Phase Key
