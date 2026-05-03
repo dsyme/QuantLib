@@ -1,142 +1,27 @@
 {
-  "last_run": "2026-05-03T09:42Z",
+  "last_run": "2026-05-03T17:12Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
   "targets": [
-    {
-      "name": "InterestRate",
-      "file": "ql/interestrate.hpp, ql/interestrate.cpp",
-      "phase": 5,
-      "phase_name": "Proofs (partial)",
-      "lean_file": "formal-verification/lean/FVSquad/InterestRate.lean",
-      "sorry_count": 3,
-      "notes": "30 theorems, 3 Float sorry fundamentally blocked.",
-      "correspondence": "reviewed",
-      "tests": "1394 cases passing"
-    },
-    {
-      "name": "Actual360",
-      "file": "ql/time/daycounters/actual360.hpp",
-      "phase": 5,
-      "phase_name": "Fully proved",
-      "lean_file": "formal-verification/lean/FVSquad/Actual360.lean",
-      "sorry_count": 0,
-      "notes": "8/8 proved + correspondence tests.",
-      "correspondence": "reviewed",
-      "tests": "~2919 cases passing"
-    },
-    {
-      "name": "LinearInterpolation",
-      "file": "ql/math/interpolations/linearinterpolation.hpp",
-      "phase": 5,
-      "phase_name": "Fully proved",
-      "lean_file": "formal-verification/lean/FVSquad/LinearInterpolation.lean",
-      "sorry_count": 0,
-      "notes": "7/7 proved + 12 correspondence tests.",
-      "correspondence": "reviewed",
-      "tests": "12 cases passing"
-    },
-    {
-      "name": "Thirty360",
-      "file": "ql/time/daycounters/thirty360.hpp",
-      "phase": 5,
-      "phase_name": "Fully proved",
-      "lean_file": "formal-verification/lean/FVSquad/Thirty360.lean",
-      "sorry_count": 0,
-      "notes": "11/11 proved + 575 correspondence tests.",
-      "correspondence": "reviewed",
-      "tests": "575 cases passing"
-    },
-    {
-      "name": "NormalDistribution",
-      "file": "ql/math/distributions/normaldistribution.hpp",
-      "phase": 5,
-      "phase_name": "Proofs (partial)",
-      "lean_file": "formal-verification/lean/FVSquad/NormalDistribution.lean",
-      "sorry_count": 1,
-      "notes": "14/15 proved. 1 sorry: cdf_deriv_eq_pdf blocked by HasDerivAt erf.",
-      "correspondence": "reviewed",
-      "tests": "cases passing"
-    },
-    {
-      "name": "Factorial",
-      "file": "ql/math/factorial.hpp",
-      "phase": 5,
-      "phase_name": "Fully proved",
-      "lean_file": "formal-verification/lean/FVSquad/Factorial.lean",
-      "sorry_count": 0,
-      "notes": "10/10 proved + 28 correspondence tests.",
-      "correspondence": "reviewed",
-      "tests": "28 cases passing"
-    },
-    {
-      "name": "Bisection",
-      "file": "ql/math/solvers1d/bisection.hpp",
-      "phase": 5,
-      "phase_name": "Fully proved",
-      "lean_file": "formal-verification/lean/FVSquad/Bisection.lean",
-      "sorry_count": 0,
-      "notes": "11/11 proved.",
-      "correspondence": "reviewed",
-      "tests": "cases passing"
-    },
-    {
-      "name": "Actual365Fixed",
-      "file": "ql/time/daycounters/actual365fixed.hpp",
-      "phase": 5,
-      "phase_name": "Fully proved",
-      "lean_file": "formal-verification/lean/FVSquad/Actual365Fixed.lean",
-      "sorry_count": 0,
-      "notes": "8/8 proved + correspondence tests.",
-      "correspondence": "reviewed",
-      "tests": "2295 cases passing"
-    },
-    {
-      "name": "FloatingPointClose",
-      "file": "ql/math/comparison.hpp",
-      "phase": 5,
-      "phase_name": "Fully proved",
-      "lean_file": "formal-verification/lean/FVSquad/FloatingPointClose.lean",
-      "sorry_count": 0,
-      "notes": "12/12 proved. Correspondence reviewed.",
-      "correspondence": "reviewed",
-      "tests": "none (Q-based model)"
-    },
-    {
-      "name": "BlackFormula",
-      "file": "ql/pricingengines/blackformula.hpp/cpp",
-      "phase": 5,
-      "phase_name": "Fully proved",
-      "lean_file": "formal-verification/lean/FVSquad/BlackFormula.lean",
-      "sorry_count": 0,
-      "notes": "13/13 proved. 312 correspondence tests.",
-      "correspondence": "reviewed",
-      "tests": "312 cases passing"
-    },
-    {
-      "name": "NewtonSafe",
-      "file": "ql/math/solvers1d/newtonsafe.hpp",
-      "phase": 5,
-      "phase_name": "Fully proved",
-      "lean_file": "formal-verification/lean/FVSquad/NewtonSafe.lean",
-      "sorry_count": 0,
-      "notes": "13/13 proved. Bracket preservation, switching, convergence."
-    },
-    {
-      "name": "Matrix",
-      "file": "ql/math/matrix.hpp/cpp",
-      "phase": 5,
-      "phase_name": "Fully proved",
-      "lean_file": "formal-verification/lean/FVSquad/Matrix.lean",
-      "sorry_count": 0,
-      "notes": "23/23 proved. Algebraic properties over Q model using Mathlib Matrix. Run 43."
-    }
+    {"name": "InterestRate", "phase": 5, "sorry_count": 3, "notes": "30 theorems, 3 Float sorry blocked."},
+    {"name": "Actual360", "phase": 5, "sorry_count": 0, "notes": "8/8 proved."},
+    {"name": "LinearInterpolation", "phase": 5, "sorry_count": 0, "notes": "7/7 proved."},
+    {"name": "Thirty360", "phase": 5, "sorry_count": 0, "notes": "11/11 proved."},
+    {"name": "NormalDistribution", "phase": 5, "sorry_count": 1, "notes": "14/15 proved. 1 sorry: HasDerivAt erf."},
+    {"name": "Factorial", "phase": 5, "sorry_count": 0, "notes": "10/10 proved."},
+    {"name": "Bisection", "phase": 5, "sorry_count": 0, "notes": "11/11 proved."},
+    {"name": "Actual365Fixed", "phase": 5, "sorry_count": 0, "notes": "8/8 proved."},
+    {"name": "FloatingPointClose", "phase": 5, "sorry_count": 0, "notes": "12/12 proved."},
+    {"name": "BlackFormula", "phase": 5, "sorry_count": 0, "notes": "13/13 proved."},
+    {"name": "NewtonSafe", "phase": 5, "sorry_count": 0, "notes": "13/13 proved."},
+    {"name": "Matrix", "phase": 5, "sorry_count": 0, "notes": "23/23 proved."},
+    {"name": "BernsteinPolynomial", "phase": 5, "sorry_count": 0, "notes": "8/8 proved. Partition of unity, symmetry, boundary values."}
   ],
   "open_issues": [3],
   "ci_status": "lean-ci.yml exists and healthy",
-  "total_proved": 163,
+  "total_proved": 168,
   "total_sorry": 4,
   "paper_exists": true,
-  "notes": "Run 43: Task 2+3+5 wrote Matrix informal spec + Lean spec with 23/23 proved. Next: correspondence tests for Matrix/NewtonSafe, or new target identification."
+  "notes": "Run 44: Task 5+11. Added BernsteinPolynomial (8/8 proved). Updated conference paper to 168 theorems / 13 targets."
 }
