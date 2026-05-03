@@ -1,16 +1,16 @@
 > 🔬 *Lean Squad — automated formal verification for `dsyme/QuantLib`.*
 
-**Status**: 🔄 IN PROGRESS — 99 theorems (95 proved, 4 `sorry`), 9 Lean files, 8 targets, Lean 4 + Mathlib.
+**Status**: 🔄 IN PROGRESS — 140 theorems (136 proved, 4 `sorry`), 12 Lean files, 12 targets, Lean 4 + Mathlib.
 
 ## Last Updated
-- **Date**: 2026-05-01 10:01 UTC
-- **Commit**: `886459cb1`
+- **Date**: 2026-05-03 04:16 UTC
+- **Commit**: `8551bfa66`
 
 ---
 
 ## Executive Summary
 
-Formal verification of QuantLib's quantitative finance primitives is mature across 8 targets using Lean 4 with Mathlib. **95 of 99 theorems are fully proved** with only 4 `sorry` remaining (3 Float axioms in InterestRate, 1 HasDerivAt in NormalDistribution — both fundamentally blocked by Lean stdlib limitations). Six targets are fully verified with zero sorry: **Actual360** (8 theorems, ~2,920 correspondence tests), **Actual365Fixed** (8 theorems, 2,295 tests), **LinearInterpolation** (7 theorems, 12 tests), **Thirty360** (11 theorems, 575 tests), **Factorial** (10 theorems, 28 tests), and **Bisection** (11 theorems, 22 tests). **NormalDistribution** has 14 theorems (13 proved, 1 sorry) with 1,082 correspondence tests. **InterestRate** has 30 theorems (27 proved, 3 sorry) across Rat/ℝ/Float models with 1,394 tests. Over **8,300 correspondence test cases** validate model fidelity across all 8 targets. Zero bugs found — the implementations match their mathematical specifications. Two new targets (FloatingPointClose, BlackFormula) have informal specs; Matrix and NewtonSafe are in research phase.
+Formal verification of QuantLib's quantitative finance primitives is mature across 11 targets using Lean 4 with Mathlib. **136 of 140 theorems are fully proved** with only 4 `sorry` remaining (3 Float axioms in InterestRate, 1 HasDerivAt in NormalDistribution — both fundamentally blocked by Lean stdlib limitations). Nine targets are fully verified with zero sorry: **Actual360** (8 theorems, ~2,920 correspondence tests), **Actual365Fixed** (8 theorems, 2,295 tests), **LinearInterpolation** (7 theorems, 12 tests), **Thirty360** (11 theorems, 575 tests), **Factorial** (10 theorems, 28 tests), **Bisection** (11 theorems), **FloatingPointClose** (12 theorems), **BlackFormula** (13 theorems, 312 tests), and **NewtonSafe** (13 theorems — bracket preservation, Newton/bisection switching, convergence). **NormalDistribution** has 14 theorems (13 proved, 1 sorry) with 1,082 correspondence tests. **InterestRate** has 30 theorems (27 proved, 3 sorry) across Rat/ℝ/Float models with 1,394 tests. Over **8,600 correspondence test cases** validate model fidelity. Zero bugs found — the implementations match their mathematical specifications. Matrix remains in research phase.
 
 ---
 
@@ -158,8 +158,11 @@ graph LR
 | `NormalDistribution.lean` | 13 | 1 | 🔄 Partial (HasDerivAt) | PDF/CDF properties, symmetry, inverse monotonicity |
 | `Factorial.lean` | 10 | 0 | ✅ Fully proved | Growth bounds, divisibility, recursion |
 | `Bisection.lean` | 11 | 0 | ✅ Fully proved | Convergence, termination, accuracy guarantee |
+| `FloatingPointClose.lean` | 12 | 0 | ✅ Fully proved | Reflexivity, symmetry, triangle inequality |
+| `BlackFormula.lean` | 13 | 0 | ✅ Fully proved | Put-call parity, non-negativity, boundary limits |
+| `NewtonSafe.lean` | 13 | 0 | ✅ Fully proved | Bracket preservation, switching, convergence |
 | `Basic.lean` | 0 | 0 | — | Project root |
-| **Total** | **95** | **4** | — | **6 of 8 targets fully proved** |
+| **Total** | **136** | **4** | — | **9 of 11 targets fully proved** |
 
 ---
 
@@ -299,6 +302,12 @@ timeline
         BlackFormula : Informal spec written
         Correspondence : 8300+ test cases across 8 targets
         Total : 99 theorems, 4 sorry
+    section Phase 7 — New Verifications (Runs 36–42)
+        FloatingPointClose : 12 theorems fully proved
+        BlackFormula : 13 theorems fully proved
+        NewtonSafe : 13 theorems fully proved
+        Correspondence : 8600+ test cases
+        Total : 140 theorems, 4 sorry
 ```
 
 ---
