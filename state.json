@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-05-03T04:16Z",
+  "last_run": "2026-05-03T09:42Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -121,22 +121,22 @@
       "phase_name": "Fully proved",
       "lean_file": "formal-verification/lean/FVSquad/NewtonSafe.lean",
       "sorry_count": 0,
-      "notes": "13/13 proved. Bracket preservation, switching, convergence. Run 42."
+      "notes": "13/13 proved. Bracket preservation, switching, convergence."
     },
     {
       "name": "Matrix",
       "file": "ql/math/matrix.hpp/cpp",
-      "phase": 1,
-      "phase_name": "Research",
-      "lean_file": null,
-      "sorry_count": null,
-      "notes": "Algebraic properties."
+      "phase": 5,
+      "phase_name": "Fully proved",
+      "lean_file": "formal-verification/lean/FVSquad/Matrix.lean",
+      "sorry_count": 0,
+      "notes": "23/23 proved. Algebraic properties over Q model using Mathlib Matrix. Run 43."
     }
   ],
   "open_issues": [3],
   "ci_status": "lean-ci.yml exists and healthy",
-  "total_proved": 136,
+  "total_proved": 163,
   "total_sorry": 4,
   "paper_exists": true,
-  "notes": "Run 42: Task 3+5 wrote NewtonSafe Lean spec with 13/13 proved. Task 10 updated REPORT.md. Next: Matrix informal spec or correspondence tests for NewtonSafe."
+  "notes": "Run 43: Task 2+3+5 wrote Matrix informal spec + Lean spec with 23/23 proved. Next: correspondence tests for Matrix/NewtonSafe, or new target identification."
 }
