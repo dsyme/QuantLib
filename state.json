@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-05-03T17:12Z",
+  "last_run": "2026-05-04T04:14Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -16,12 +16,13 @@
     {"name": "BlackFormula", "phase": 5, "sorry_count": 0, "notes": "13/13 proved."},
     {"name": "NewtonSafe", "phase": 5, "sorry_count": 0, "notes": "13/13 proved."},
     {"name": "Matrix", "phase": 5, "sorry_count": 0, "notes": "23/23 proved."},
-    {"name": "BernsteinPolynomial", "phase": 5, "sorry_count": 0, "notes": "8/8 proved. Partition of unity, symmetry, boundary values."}
+    {"name": "BernsteinPolynomial", "phase": 5, "sorry_count": 0, "notes": "8/8 proved."},
+    {"name": "PlainVanillaPayoff", "phase": 5, "sorry_count": 0, "notes": "18/18 proved. Non-negativity, put-call parity, monotonicity, convexity, symmetry."}
   ],
   "open_issues": [3],
   "ci_status": "lean-ci.yml exists and healthy",
-  "total_proved": 168,
+  "total_proved": 186,
   "total_sorry": 4,
   "paper_exists": true,
-  "notes": "Run 44: Task 5+11. Added BernsteinPolynomial (8/8 proved). Updated conference paper to 168 theorems / 13 targets."
+  "notes": "Run 45: Task 5+11. Added PlainVanillaPayoff (18/18 proved). Total: 186 theorems / 14 targets."
 }
