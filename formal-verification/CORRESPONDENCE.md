@@ -3,8 +3,8 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-05-02 09:37 UTC
-- **Commit**: `4843b0805` (Run 40)
+- **Date**: 2026-05-04 10:28 UTC
+- **Commit**: `a3a319198` (Run 46)
 
 ---
 
@@ -277,6 +277,74 @@ The **3 sorry-guarded Float theorems** (`compoundContinuous_pos`, `continuous_ro
 The `≤` vs `<` divergence is cosmetic — it affects only the exact boundary value `|x-y| = ε²`, which is a measure-zero set in practice. All structural properties (reflexivity, symmetry, non-transitivity, monotonicity) hold regardless.
 
 **Validation evidence**: No runnable correspondence tests yet. The `ℚ`-based model is not directly executable against C++ `double` computations, but the algebraic properties proved are universal (they hold for any ordered field).
+
+---
+
+## NewtonSafe
+
+| Lean Definition | C++ Source | File / Line | Correspondence | Justification |
+|----------------|-----------|-------------|----------------|---------------|
+| `NSState` (structure) | Local variables `root_`, `xl`, `xh`, `dx`, `dxold` | `ql/math/solvers1d/newtonsafe.hpp` L52–53 | **Exact** | Fields map 1:1 to C++ local variables. |
+| `orient` | Orient block (`if (fxMin_ < 0.0)`) | `newtonsafe.hpp` L56–62 | **Exact** | Same branching logic; assigns xl/xh based on sign of f(xMin). |
+| `useBisection` | Bisection condition in while loop | `newtonsafe.hpp` L80–82 | **Exact** | Identical compound condition: out-of-range OR not-decreasing-fast-enough. |
+| `step` | Loop body (bisection + Newton branches + bracket update) | `newtonsafe.hpp` L79–104 | **Abstraction** | Models one iteration; C++ also updates `evaluationNumber_` and calls `f.derivative`; Lean evaluates `f`/`f'` as pure functions. |
+| `solve` | `while (evaluationNumber_<=maxEvaluations_)` loop | `newtonsafe.hpp` L78–105 | **Abstraction** | Fuel-bounded recursion models iteration cap; C++ uses `evaluationNumber_` counter; convergence test `|dx| < accuracy` is identical. |
+| `solveFromBracket` | `solveImpl` (full method) | `newtonsafe.hpp` L43–109 | **Abstraction** | Composes orient+solve; C++ has initial `f(root_)`/`f.derivative(root_)` call before loop; C++ does redundant `f(root_)` before return (not modelled). |
+
+**Divergences**:
+1. **Arithmetic domain**: Lean uses ℚ (exact rationals); C++ uses IEEE 754 `double`. No floating-point rounding modelled.
+2. **Initial evaluation**: C++ evaluates `f(root_)` and `f.derivative(root_)` before the loop (L72–73). Lean's `step` computes `f(root)` fresh each iteration — semantically equivalent but structurally different.
+3. **Evaluation counting**: `evaluationNumber_` tracking omitted entirely.
+4. **QL_FAIL path**: C++ throws on max-evaluations exceeded; Lean returns `Option.none`.
+5. **Null derivative check**: C++ has `QL_REQUIRE(dfroot != Null<Real>())`; Lean takes `f'` as a total function parameter.
+
+**Impact on proofs**: The 13 proved theorems (bracket preservation, bisection convergence rate, switching correctness, termination) hold for exact arithmetic. They validate the algorithmic logic but do not account for floating-point rounding.
+
+**Validation evidence**: No runnable correspondence tests yet for NewtonSafe.
+
+---
+
+## Matrix
+
+| Lean Definition | C++ Source | File / Line | Correspondence | Justification |
+|----------------|-----------|-------------|----------------|---------------|
+| `QMatrix m n` (`Matrix (Fin m) (Fin n) ℚ`) | `class Matrix` | `ql/math/matrix.hpp` L41 | **Abstraction** | Lean uses Mathlib's functional representation; C++ uses flat `Real*` array with row-major layout. |
+| `scalarMul` | `operator*(Real x, const Matrix&)` | `matrix.hpp` L641 | **Exact** | Semantically identical scalar-matrix multiply. |
+| `scalarDiv` | `operator/(const Matrix&, Real x)` | `matrix.hpp` L652 | **Exact** | Lean uses `c⁻¹ • M`; C++ divides each element. Equivalent when `c ≠ 0`. |
+| `transpose'` | `transpose(const Matrix&)` | `matrix.hpp` L705 | **Exact** | Both swap indices. |
+| `matMul` | `operator*(const Matrix&, const Matrix&)` | `matrix.hpp` L688 | **Exact** | Standard matrix multiplication. |
+| `outerProduct` | `outerProduct(const Array&, const Array&)` | `matrix.hpp` L715 | **Exact** | `result(i,j) = v1(i) * v2(j)` in both. |
+| `diagVec` | (no direct C++ counterpart) | — | **Approximation** | Lean extracts `M i i`; C++ has no direct free-function `diagonal` for Matrix. |
+
+**Divergences**:
+1. **Arithmetic domain**: ℚ vs IEEE 754 `double`.
+2. **Memory model**: C++ Matrix has mutable state, move semantics, row/column iterators, bounds checking — none modelled.
+3. **LU decomposition**: C++ has `inverse()` and `determinant()` via Boost — not modelled.
+4. **Dimension safety**: Lean enforces dimension compatibility at the type level (`Fin m`, `Fin n`); C++ checks at runtime via `QL_REQUIRE`.
+
+**Impact on proofs**: All 23 theorems prove standard linear algebra identities (commutativity, associativity, distributivity, transpose involution, identity elements). These are unconditionally true over ℚ and hold over ℝ. They validate the mathematical specification of the C++ operations but don't address floating-point accumulation errors.
+
+**Validation evidence**: No runnable correspondence tests yet for Matrix.
+
+---
+
+## PlainVanillaPayoff
+
+| Lean Definition | C++ Source | File / Line | Correspondence | Justification |
+|----------------|-----------|-------------|----------------|---------------|
+| `OptionType` (inductive: Call \| Put) | `Option::Type` enum (Call/Put) | `ql/option.hpp` | **Exact** | Direct 1:1 mapping; Lean omits other enum values. |
+| `payoff .Call K S = max(S-K, 0)` | `case Option::Call: return std::max<Real>(price-strike_,0.0)` | `ql/instruments/payoffs.cpp` | **Exact** | Identical formula. |
+| `payoff .Put K S = max(K-S, 0)` | `case Option::Put: return std::max<Real>(strike_-price,0.0)` | `ql/instruments/payoffs.cpp` | **Exact** | Identical formula. |
+
+**Divergences**:
+1. **Arithmetic domain**: Lean uses ℝ (exact reals); C++ uses `double`.
+2. **Class hierarchy**: C++ has `Payoff → TypePayoff → StrikedTypePayoff → PlainVanillaPayoff` with virtual dispatch and visitor pattern — entirely absent from Lean.
+3. **Default case**: C++ `operator()` has `default: QL_FAIL(...)` for unknown option types; Lean's exhaustive pattern match eliminates this.
+4. **State**: C++ stores `strike_` and `type_` as member variables; Lean passes `K` and `typ` as function parameters.
+
+**Impact on proofs**: The 18 theorems prove fundamental financial properties (non-negativity, put-call parity, monotonicity, convexity, boundary behaviour). Since `payoff` is a semantic exact match of C++ `operator()`, these proofs directly validate the payoff computation. The only gap is floating-point vs exact arithmetic, which for `max(a-b, 0)` with typical financial values is negligible.
+
+**Validation evidence**: No runnable correspondence tests yet for PlainVanillaPayoff.
 
 ---
 
