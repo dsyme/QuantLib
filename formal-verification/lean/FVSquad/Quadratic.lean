@@ -55,7 +55,7 @@ noncomputable def rootLarge (q : QuadPoly) : ℝ :=
 noncomputable def formalDeriv (q : QuadPoly) (x : ℝ) : ℝ :=
   2 * q.a * x + q.b
 
-/-! ## Proved Theorems (11 proved, 2 sorry) -/
+/-! ## Proved Theorems (13 proved, 0 sorry) -/
 
 theorem eval_eq_horner (q : QuadPoly) (x : ℝ) :
     eval q x = x * (x * q.a + q.b) + q.c := by unfold eval; ring
@@ -113,25 +113,28 @@ theorem root_implies_discriminant_nonneg (q : QuadPoly) (x : ℝ) (hx : eval q x
   have : q.b ^ 2 - 4 * q.a * -(q.a * x ^ 2 + q.b * x) = (2 * q.a * x + q.b) ^ 2 := by ring
   linarith [sq_nonneg (2 * q.a * x + q.b)]
 
-/-! ## Sorry-guarded theorems (root verification needs field_simp over division) -/
+/-! ## Root verification theorems -/
 
-/-- rootLarge is a root when Δ ≥ 0.
-    Sorry: requires clearing (2a)² denominator + nlinarith with sq_sqrt. -/
+/-- rootLarge is a root when Δ ≥ 0. -/
 theorem eval_rootLarge_eq_zero (q : QuadPoly) (hd : discriminant q ≥ 0) :
     eval q (rootLarge q) = 0 := by
   unfold eval rootLarge discriminant at *
   have h2a : (2 : ℝ) * q.a ≠ 0 := mul_ne_zero two_ne_zero q.ha
-  have hsq : Real.sqrt (q.b ^ 2 - 4 * q.a * q.c) ^ 2 = q.b ^ 2 - 4 * q.a * q.c :=
-    Real.sq_sqrt hd
-  sorry -- needs manual clearing of (2*a)^2 denominator
+  have ha2 : q.a ≠ 0 := q.ha
+  set s := Real.sqrt (q.b ^ 2 - 4 * q.a * q.c) with hs_def
+  have hsq : s ^ 2 = q.b ^ 2 - 4 * q.a * q.c := Real.sq_sqrt hd
+  field_simp
+  nlinarith [hsq, sq_nonneg s, sq_nonneg q.b, sq_nonneg (q.b - s), sq_nonneg (q.b + s)]
 
 /-- rootSmall is a root when Δ ≥ 0. -/
 theorem eval_rootSmall_eq_zero (q : QuadPoly) (hd : discriminant q ≥ 0) :
     eval q (rootSmall q) = 0 := by
   unfold eval rootSmall discriminant at *
   have h2a : (2 : ℝ) * q.a ≠ 0 := mul_ne_zero two_ne_zero q.ha
-  have hsq : Real.sqrt (q.b ^ 2 - 4 * q.a * q.c) ^ 2 = q.b ^ 2 - 4 * q.a * q.c :=
-    Real.sq_sqrt hd
-  sorry -- needs manual clearing of (2*a)^2 denominator
+  have ha2 : q.a ≠ 0 := q.ha
+  set s := Real.sqrt (q.b ^ 2 - 4 * q.a * q.c) with hs_def
+  have hsq : s ^ 2 = q.b ^ 2 - 4 * q.a * q.c := Real.sq_sqrt hd
+  field_simp
+  nlinarith [hsq, sq_nonneg s, sq_nonneg q.b, sq_nonneg (q.b - s), sq_nonneg (q.b + s)]
 
 end FVSquad.Quadratic
