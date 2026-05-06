@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-05-06T10:31Z",
+  "last_run": "2026-05-06T17:55Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -19,13 +19,15 @@
     {"name": "BernsteinPolynomial", "phase": 5, "sorry_count": 0, "notes": "8/8 proved."},
     {"name": "PlainVanillaPayoff", "phase": 5, "sorry_count": 0, "notes": "20/20 proved."},
     {"name": "Quadratic", "phase": 5, "sorry_count": 0, "notes": "15/15 proved."},
-    {"name": "Composition", "phase": 5, "sorry_count": 0, "notes": "28/28 proved. Cross-target composition (stdlib-only)."}
+    {"name": "Composition", "phase": 5, "sorry_count": 0, "notes": "28/28 proved. Cross-target composition (stdlib-only)."},
+    {"name": "Rounding", "phase": 1, "sorry_count": null, "notes": "Identified run 53. 5 OMG modes, high spec-to-impl ratio."},
+    {"name": "PrimeNumbers", "phase": 1, "sorry_count": null, "notes": "Identified run 53. Trial-division sieve, Mathlib Nat.Prime."}
   ],
   "open_issues": [3],
-  "ci_status": "lean-ci.yml exists and healthy; reservoir.leancache.cloud firewalled",
+  "ci_status": "lean-ci.yml exists; reservoir.leancache.cloud firewalled",
   "total_proved": 229,
   "total_sorry": 4,
   "paper_exists": true,
   "correspondence_complete": true,
-  "notes": "Run 52: Task 6. Updated CORRESPONDENCE.md with Quadratic and Composition entries. All 16 targets now have correspondence documentation."
+  "notes": "Run 53: Task 1+5. Added Rounding and PrimeNumbers targets. Task 5 blocked - all sorry are external limitations."
 }
