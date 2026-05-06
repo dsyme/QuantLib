@@ -16,6 +16,8 @@
 | 10 | BlackFormula | `ql/pricingengines/blackformula.hpp/cpp` | 2 — Informal Spec | 🔄 Spec written | **High** | High |
 | 11 | Matrix | `ql/math/matrix.hpp/cpp` | 1 — Research | ⬜ Identified | Medium | High |
 | 12 | NewtonSafe | `ql/math/solvers1d/newtonsafe.hpp` | 5 — Proofs | ✅ 13/13 proved | Medium-High | Medium-High |
+| 13 | Rounding | `ql/math/rounding.hpp/cpp` | 1 — Research | ⬜ Identified | **High** | High |
+| 14 | PrimeNumbers | `ql/math/primenumbers.hpp/cpp` | 1 — Research | ⬜ Identified | Medium | High |
 
 ## Phase Key
 
