@@ -3,8 +3,8 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-05-04 10:28 UTC
-- **Commit**: `a3a319198` (Run 46)
+- **Date**: 2026-05-06 10:31 UTC
+- **Commit**: `743cce366` (Run 52)
 
 ---
 
@@ -345,6 +345,59 @@ The `≤` vs `<` divergence is cosmetic — it affects only the exact boundary v
 **Impact on proofs**: The 18 theorems prove fundamental financial properties (non-negativity, put-call parity, monotonicity, convexity, boundary behaviour). Since `payoff` is a semantic exact match of C++ `operator()`, these proofs directly validate the payoff computation. The only gap is floating-point vs exact arithmetic, which for `max(a-b, 0)` with typical financial values is negligible.
 
 **Validation evidence**: No runnable correspondence tests yet for PlainVanillaPayoff.
+
+---
+
+## Quadratic
+
+| Lean Definition | C++ Source | File / Line | Correspondence | Justification |
+|----------------|-----------|-------------|----------------|---------------|
+| `QuadPoly` (structure: a, b, c, ha) | `class quadratic` (a_, b_, c_) | `ql/math/quadratic.hpp` L33–44 | **Abstraction** | Lean adds `ha : a ≠ 0` precondition at the type level; C++ has no such guard. Fields are otherwise 1:1. |
+| `eval` | `quadratic::operator()(Real x)` | `ql/math/quadratic.cpp` L37 | **Exact** | Both compute `a*x² + b*x + c`. C++ uses Horner form `x*(x*a+b)+c` — algebraically identical. |
+| `turningPoint` | `quadratic::turningPoint()` | `ql/math/quadratic.cpp` L28 | **Exact** | Both compute `-b/(2*a)`. |
+| `valueAtTurningPoint` | `quadratic::valueAtTurningPoint()` | `ql/math/quadratic.cpp` L32 | **Exact** | Both evaluate the polynomial at the turning point. |
+| `discriminant` | `quadratic::discriminant()` | `ql/math/quadratic.cpp` L41 | **Exact** | Both compute `b² - 4*a*c`. |
+| `rootSmall` | `quadratic::roots` (output `x`) | `ql/math/quadratic.cpp` L46–55 | **Abstraction** | Both compute `(-b - √Δ) / (2a)`. C++ returns via output parameter and returns `false` with turning point if Δ < 0; Lean uses `Real.sqrt` which returns 0 for negative inputs. |
+| `rootLarge` | `quadratic::roots` (output `y`) | `ql/math/quadratic.cpp` L46–55 | **Abstraction** | Both compute `(-b + √Δ) / (2a)`. Same Δ < 0 divergence as above. |
+| `formalDeriv` | (no C++ counterpart) | — | **Extension** | Lean adds a formal derivative `2ax + b` for proof purposes; C++ class does not expose a derivative method. |
+
+**Divergences**:
+1. **Non-zero `a` precondition**: Lean enforces `a ≠ 0` at the type level (`QuadPoly.ha`). C++ allows `a = 0` (degenerates to linear), which would cause division by zero in `turningPoint`/`roots`.
+2. **Negative discriminant handling**: C++ `roots()` checks `d < 0` and returns `false`, outputting the turning point instead. Lean's `rootSmall`/`rootLarge` are always defined — `Real.sqrt` returns 0 for negative inputs, producing both roots as `-b/(2a)` (i.e., the turning point). The semantics align in this edge case.
+3. **Arithmetic domain**: Lean uses Mathlib's `ℝ` (exact reals); C++ uses IEEE 754 `double`.
+4. **Horner evaluation**: C++ evaluates as `x*(x*a+b)+c`; Lean uses `a*x^2 + b*x + c`. Algebraically identical but floating-point rounding may differ — not modelled.
+
+**Impact on proofs**: All 13 proved theorems (`eval_eq_horner`, `eval_zero`, `eval_at_turningPoint`, `discriminant_nonneg_iff_real_roots`, `rootSmall_is_root`, `rootLarge_is_root`, `sum_of_roots`, `product_of_roots`, `deriv_at_root_small`, `deriv_at_root_large`, `vieta_sum`, `vieta_product`, `eval_symmetry_about_turningPoint`) are valid over `ℝ`. The `ha : a ≠ 0` precondition prevents division-by-zero edge cases. Proofs directly validate the mathematical correctness of the C++ operations on exact reals.
+
+**Validation evidence**: No runnable correspondence tests yet for Quadratic.
+
+---
+
+## Composition (Cross-Target)
+
+The Composition module does not model a single C++ class — it verifies algebraic properties of how multiple QuantLib components interact when composed. It uses simplified integer/natural-number models to capture structural properties.
+
+| Lean Definition | C++ Semantic Counterpart | Correspondence | Justification |
+|----------------|--------------------------|----------------|---------------|
+| `dayCount` (Int → Int → Int) | `Actual360::dayCount` / `Actual365Fixed::dayCount` | **Exact** | Models `d2 - d1` — same as all actual day count conventions. |
+| `callPayoff` / `putPayoff` (Int → Int → Int) | `PlainVanillaPayoff::operator()` | **Abstraction** | Models `max(S-K,0)` / `max(K-S,0)` over integers. C++ uses `double`. |
+| `discounted` (Int → Int → Int) | Multiplication by discount factor | **Abstraction** | Models `value * df` as integer multiply. C++ uses `double` discount factors in (0,1]. |
+| `compoundNumerator` (principal, rateBps, days) | Simple compounding: `principal * (1 + rate*time)` | **Abstraction** | Integer scaled model: `principal * (10000 + rateBps * days)`. Captures algebraic structure without floating-point. |
+
+**Divergences**:
+1. **Integer vs floating-point**: All Composition definitions use `Int` or `ℕ` for algebraic clarity. C++ uses `double` throughout. The proofs validate structural/algebraic properties (additivity, monotonicity, parity preservation) that hold regardless of numeric representation.
+2. **Scaling convention**: `compoundNumerator` uses basis-point scaling (`rateBps * days / 10000` effective rate) to avoid fractions. This is a faithful model of the algebraic structure but not a literal translation.
+3. **No single C++ counterpart**: These are compositional properties — they prove that day counting, payoff computation, and discounting compose correctly. The C++ equivalent would be a pricing pipeline test.
+
+**Impact on proofs**: All 28 theorems are proved (0 sorry). They validate:
+- Day count algebra (additivity, antisymmetry, monotonicity, translation invariance)
+- Payoff properties (non-negativity, put-call parity, monotonicity, boundary values)
+- Discounting properties (linearity, positivity, zero-value, ordering preservation)
+- Cross-component composition (put-call parity preserved under discounting, compounding monotonicity)
+
+These are structural algebraic truths that hold independently of the numeric domain. They confirm that the mathematical relationships QuantLib relies on are consistent.
+
+**Validation evidence**: No separate correspondence tests needed — Composition theorems are algebraic identities over integers proved by `omega`/`linarith`. Their validity is unconditional.
 
 ---
 
