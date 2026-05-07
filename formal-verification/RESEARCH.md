@@ -160,3 +160,29 @@ Lean 4 + Mathlib is chosen because:
 - Strong automation (omega, linarith, norm_num, simp, decide)
 - Active community and growing financial mathematics library
 - Good IDE support for iterative proof development
+
+---
+
+## New Targets Identified (Run 53, 2026-05-06)
+
+### 13. Rounding — **HIGH PRIORITY**
+
+- **Files**: `ql/math/rounding.hpp`, `ql/math/rounding.cpp` (~80 lines impl)
+- **What it does**: Implements 5 rounding modes (None, Up, Down, Closest, Floor, Ceiling) following the OMG specification for financial rounding. Uses a lookup-table fast_pow10 and modf to separate integral/fractional parts.
+- **Benefit**: Rounding correctness is critical in finance — incorrect rounding causes reconciliation failures and regulatory issues. Properties: idempotence, monotonicity, symmetry between Floor/Ceiling, bound properties (rounded value within one unit of precision).
+- **Spec-to-implementation complexity ratio**: **High** — The spec is ~6 algebraic properties (idempotence, bounded error, monotonicity, mode relationships). The implementation is ~60 lines with bit-masking tricks, modf decomposition, and five case branches. The specification is obviously correct on inspection while the implementation has subtle edge-case potential.
+- **Specification size**: ~40 Lean lines for types + 10-15 theorems
+- **Proof tractability**: Good — properties are arithmetic and can be proved with `omega`/`linarith`/`norm_num` over rationals. Modelling over ℚ avoids floating-point complications.
+- **Approximations needed**: Model over ℚ (or ℤ with scaled integers) rather than IEEE 754 doubles. The C++ uses `modf` and floating-point multiplication which introduces representability issues not modelled.
+- **Approach**: Define rounding modes algebraically, prove key properties by case analysis on the mode enum and arithmetic reasoning.
+
+### 14. PrimeNumbers — **MEDIUM PRIORITY**
+
+- **Files**: `ql/math/primenumbers.hpp`, `ql/math/primenumbers.cpp` (~50 lines)
+- **What it does**: Trial-division prime sieve. Lazily generates primes by testing odd candidates against known primes up to sqrt(n).
+- **Benefit**: The algorithm is a classic FV target — correctness = "every returned value is prime" + "no primes are skipped". Mathlib already has `Nat.Prime` and related infrastructure.
+- **Spec-to-implementation complexity ratio**: **High** — The spec is "get(n) returns the (n+1)-th prime number". The implementation manages mutable state, a static vector, and trial division with sqrt optimization.
+- **Specification size**: ~20 Lean lines (mostly leveraging Mathlib's `Nat.Prime`)
+- **Proof tractability**: Moderate — proving the trial division algorithm correct requires showing the loop invariant (all primes up to sqrt are tested). Bounded `decide` can verify specific outputs.
+- **Approximations needed**: Model as a pure function (ignore memoisation/caching). The C++ uses `BigNatural` (unsigned long) which may overflow for very large indices — not modelled.
+- **Approach**: Define `nthPrime : ℕ → ℕ` using Mathlib's prime infrastructure. State that the trial-division algorithm agrees with `nthPrime`. Use `decide`/`native_decide` for small cases, inductive invariant for general correctness.
