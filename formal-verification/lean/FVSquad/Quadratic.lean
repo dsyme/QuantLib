@@ -55,7 +55,7 @@ noncomputable def rootLarge (q : QuadPoly) : ℝ :=
 noncomputable def formalDeriv (q : QuadPoly) (x : ℝ) : ℝ :=
   2 * q.a * x + q.b
 
-/-! ## Proved Theorems (13 proved, 0 sorry) -/
+/-! ## Proved Theorems (17 proved, 0 sorry) -/
 
 theorem eval_eq_horner (q : QuadPoly) (x : ℝ) :
     eval q x = x * (x * q.a + q.b) + q.c := by unfold eval; ring
@@ -112,6 +112,44 @@ theorem root_implies_discriminant_nonneg (q : QuadPoly) (x : ℝ) (hx : eval q x
   rw [h1]
   have : q.b ^ 2 - 4 * q.a * -(q.a * x ^ 2 + q.b * x) = (2 * q.a * x + q.b) ^ 2 := by ring
   linarith [sq_nonneg (2 * q.a * x + q.b)]
+
+/-! ## Vieta's formulas and additional properties -/
+
+/-- Vieta's product: rootSmall * rootLarge = c/a. -/
+theorem vieta_product (q : QuadPoly) (hd : discriminant q ≥ 0) :
+    rootSmall q * rootLarge q = q.c / q.a := by
+  unfold rootSmall rootLarge discriminant at *
+  have h2a : (2 : ℝ) * q.a ≠ 0 := mul_ne_zero two_ne_zero q.ha
+  have ha : q.a ≠ 0 := q.ha
+  set s := Real.sqrt (q.b ^ 2 - 4 * q.a * q.c) with hs_def
+  have hsq : s ^ 2 = q.b ^ 2 - 4 * q.a * q.c := Real.sq_sqrt hd
+  have hs_sq : s * s = q.b ^ 2 - 4 * q.a * q.c := by nlinarith [hsq]
+  field_simp
+  nlinarith [hs_sq, sq_nonneg (q.b - s), sq_nonneg (q.b + s)]
+
+/-- Scaling: eval (a,b,c) at x = (1/a) · eval (a²,ab,ac) at x. -/
+theorem eval_scale (q : QuadPoly) (k : ℝ) (hk : k ≠ 0) :
+    eval ⟨k * q.a, k * q.b, k * q.c, mul_ne_zero hk q.ha⟩ x = k * eval q x := by
+  unfold eval; ring
+
+/-- The sum of roots equals -b/a (alternate form of vieta_sum). -/
+theorem sum_of_roots (q : QuadPoly) (hd : discriminant q ≥ 0) :
+    rootSmall q + rootLarge q = -(q.b / q.a) := by
+  have h := vieta_sum q hd
+  simp only [neg_div] at h; exact h
+
+/-- Derivative vanishes only at turning point. -/
+theorem formalDeriv_zero_iff (q : QuadPoly) (x : ℝ) :
+    formalDeriv q x = 0 ↔ x = turningPoint q := by
+  unfold formalDeriv turningPoint
+  have ha : q.a ≠ 0 := q.ha
+  constructor
+  · intro h
+    have : 2 * q.a * x = -q.b := by linarith
+    field_simp
+    linarith
+  · intro h
+    rw [h]; field_simp; ring
 
 /-! ## Root verification theorems -/
 
