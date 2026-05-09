@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-05-08T17:49Z",
+  "last_run": "2026-05-09T04:01Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -8,7 +8,7 @@
     {"name": "Actual360", "phase": 5, "sorry_count": 0, "notes": "8/8 proved."},
     {"name": "LinearInterpolation", "phase": 5, "sorry_count": 0, "notes": "7/7 proved."},
     {"name": "Thirty360", "phase": 5, "sorry_count": 0, "notes": "11/11 proved."},
-    {"name": "NormalDistribution", "phase": 5, "sorry_count": 1, "notes": "14/15 proved. 1 sorry: HasDerivAt erf."},
+    {"name": "NormalDistribution", "phase": 5, "sorry_count": 1, "notes": "20/21 proved. 6 new theorems run 55. 1 sorry: HasDerivAt erf blocked."},
     {"name": "Factorial", "phase": 5, "sorry_count": 0, "notes": "10/10 proved."},
     {"name": "Bisection", "phase": 5, "sorry_count": 0, "notes": "15/15 proved."},
     {"name": "Actual365Fixed", "phase": 5, "sorry_count": 0, "notes": "8/8 proved."},
@@ -19,15 +19,15 @@
     {"name": "BernsteinPolynomial", "phase": 5, "sorry_count": 0, "notes": "8/8 proved."},
     {"name": "PlainVanillaPayoff", "phase": 5, "sorry_count": 0, "notes": "20/20 proved."},
     {"name": "Quadratic", "phase": 5, "sorry_count": 0, "notes": "15/15 proved."},
-    {"name": "Composition", "phase": 5, "sorry_count": 0, "notes": "28/28 proved. Cross-target composition (stdlib-only)."},
-    {"name": "Rounding", "phase": 2, "sorry_count": null, "notes": "Informal spec written run 54. 5 OMG modes, high spec-to-impl ratio."},
-    {"name": "PrimeNumbers", "phase": 1, "sorry_count": null, "notes": "Identified run 53. Trial-division sieve, Mathlib Nat.Prime."}
+    {"name": "Composition", "phase": 5, "sorry_count": 0, "notes": "28/28 proved."},
+    {"name": "Rounding", "phase": 2, "sorry_count": null, "notes": "Informal spec written run 54. Next: Task 3."},
+    {"name": "PrimeNumbers", "phase": 2, "sorry_count": null, "notes": "Informal spec written run 55. Mathlib Nat.Prime ready. Next: Task 3."}
   ],
   "open_issues": [3],
   "ci_status": "lean-ci.yml exists; reservoir.leancache.cloud firewalled",
-  "total_proved": 229,
+  "total_proved": 235,
   "total_sorry": 4,
   "paper_exists": true,
   "correspondence_complete": true,
-  "notes": "Run 54: Task 2 (Rounding informal spec) + Task 5 (reviewed sorry - all blocked). Next: Task 3 for Rounding."
+  "notes": "Run 55: Task 5 (6 new NormalDistribution theorems) + Task 2 (PrimeNumbers informal spec). Next: Task 3 for Rounding or PrimeNumbers."
 }
