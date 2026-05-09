@@ -207,4 +207,45 @@ theorem pdf_deriv_pos_left (μ σ x : ℝ) (hσ : σ > 0) (hx : x < μ) :
     · positivity
     · exact Real.exp_pos _
 
+/-! ## Additional proved properties -/
+
+/-- The standard PDF equals the general PDF with μ=0, σ=1 (definitional). -/
+theorem stdPDF_eq_general (x : ℝ) :
+    stdGaussianPDF x = gaussianPDF 0 1 x := rfl
+
+/-- The PDF is strictly positive for σ > 0. -/
+theorem pdf_pos (μ σ x : ℝ) (hσ : σ > 0) : gaussianPDF μ σ x > 0 := by
+  unfold gaussianPDF
+  apply mul_pos
+  · positivity
+  · exact Real.exp_pos _
+
+/-- The CDF is bounded: 0 ≤ Φ(x) ≤ 1 (lower bound).
+    Requires: Real.erf is bounded in [-1, 1]. -/
+theorem cdf_nonneg (μ σ x : ℝ) (hσ : σ > 0) : gaussianCDF μ σ x ≥ 0 := by
+  unfold gaussianCDF
+  have h := Real.erf_le_one ((x - μ) / (σ * Real.sqrt 2))
+  have h2 := Real.neg_one_le_erf ((x - μ) / (σ * Real.sqrt 2))
+  linarith
+
+/-- The CDF is bounded above by 1. -/
+theorem cdf_le_one (μ σ x : ℝ) (hσ : σ > 0) : gaussianCDF μ σ x ≤ 1 := by
+  unfold gaussianCDF
+  have h := Real.erf_le_one ((x - μ) / (σ * Real.sqrt 2))
+  linarith
+
+/-- The standard CDF at 0 equals 1/2. -/
+theorem stdCDF_at_zero : stdGaussianCDF 0 = 1 / 2 := by
+  unfold stdGaussianCDF gaussianCDF
+  simp [sub_self, zero_div, Real.erf_zero]
+
+/-- The standard CDF satisfies Φ(-x) + Φ(x) = 1. -/
+theorem stdCDF_symmetry (x : ℝ) :
+    stdGaussianCDF (-x) + stdGaussianCDF x = 1 := by
+  have h : (1 : ℝ) > 0 := one_pos
+  have := cdf_symmetry 0 1 x h
+  simp [stdGaussianCDF] at this ⊢
+  convert this using 2
+  ring
+
 end FVSquad.NormalDistribution
