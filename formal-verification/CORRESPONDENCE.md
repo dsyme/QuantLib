@@ -3,8 +3,8 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-05-06 10:31 UTC
-- **Commit**: `743cce366` (Run 52)
+- **Date**: 2026-05-10 04:29 UTC
+- **Commit**: `2b14e4794` (Run 58)
 
 ---
 
@@ -398,6 +398,29 @@ The Composition module does not model a single C++ class — it verifies algebra
 These are structural algebraic truths that hold independently of the numeric domain. They confirm that the mathematical relationships QuantLib relies on are consistent.
 
 **Validation evidence**: No separate correspondence tests needed — Composition theorems are algebraic identities over integers proved by `omega`/`linarith`. Their validity is unconditional.
+
+---
+
+## Rounding
+
+| Lean Definition | C++ Source | File / Line | Correspondence | Justification |
+|----------------|-----------|-------------|----------------|---------------|
+| `RoundingType` | `Rounding::Type` enum | `ql/math/rounding.hpp` L38–44 | **Exact** | One-to-one mapping: None/Up/Down/Closest/Floor/Ceiling. |
+| `RoundingConfig` | `Rounding` class members | `ql/math/rounding.hpp` L55–57 | **Exact** | `precision_`, `type_`, `digit_` ↔ `precision`, `type`, `digit`. |
+| `pow10` | `fast_pow10[precision]` | `ql/math/rounding.cpp` L30 | **Exact** | Both compute `10^n`. C++ uses a lookup table; Lean computes algebraically. |
+| `roundQ` | `Rounding::operator()` | `ql/math/rounding.cpp` L33–64 | **Abstraction** | Same algorithm over ℚ instead of IEEE 754 `double`. See divergences. |
+
+**Divergences**:
+1. **Numeric domain**: C++ operates on `double` (IEEE 754); Lean model uses exact `ℚ` (rationals). This means the Lean model has no representation error, no NaN/Inf, and `std::modf` is replaced by exact `q - ⌊q⌋`. The proofs are valid for the mathematical semantics, not for floating-point edge cases.
+2. **`fast_pow10` masking**: The C++ lookup table has 17 entries and masks out-of-range precision to [0,31]. The Lean model computes `10^n` for any `n : ℕ` without bounds. Proofs do not cover out-of-range precision.
+3. **`std::modf` vs floor subtraction**: In C++, `std::modf(lvalue, &integral)` separates integer and fractional parts. In Lean, `modVal := lvalue - ↑⌊lvalue⌋`. These are semantically equivalent for non-negative finite values (which is guaranteed since `lvalue = |v| * mult ≥ 0`).
+4. **Negative zero**: C++ may return `-0.0` for `round(−0.0)`. The Lean model has no negative zero.
+
+**Finding — `round_zero` with digit=0**: The theorem `round_zero` (zero maps to zero for all configs) is **false** when `cfg.digit = 0` and `cfg.type ∈ {closest, floor, ceiling}`. The comparison `0 ≥ 0/10` is true, causing a spurious round-up. This matches the C++ behaviour (digit=0 is documented as "non-meaningful" in the OMG spec; the informal spec notes digit should be in {1,…,9}). The theorem has been corrected to require `digit > 0` for these modes.
+
+**Impact on proofs**: The 4 mode-equivalence theorems (floor↔closest for positive, floor↔down for negative, ceiling↔down for positive, ceiling↔closest for negative) are structural and depend only on sign dispatch — fully sound. The `down_nonneg` theorem depends on `⌊x⌋ ≥ 0` for `x ≥ 0` — sound. The remaining sorry-guarded theorems (idempotent, monotone, bounded) require floor arithmetic but are structurally correct.
+
+**Validation evidence**: No runnable correspondence tests yet for Rounding. Recommended for a future Task 8 run.
 
 ---
 
