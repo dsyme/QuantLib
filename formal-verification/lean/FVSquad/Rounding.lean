@@ -92,7 +92,7 @@ noncomputable def roundQ (cfg : RoundingConfig) (v : ℚ) : ℚ :=
     if neg then -(↑adjusted / mult) else ↑adjusted / mult
 
 -- ============================================================
--- Theorem statements (proofs use sorry for now — Task 3 spec)
+-- Theorems — proofs for Rounding properties
 -- ============================================================
 
 /-- None mode is the identity function. -/
@@ -100,78 +100,144 @@ theorem none_identity (v : ℚ) :
     roundQ ⟨p, .none, d⟩ v = v := by
   simp [roundQ]
 
-/-- Rounding zero always returns zero (for any mode). -/
-theorem round_zero (cfg : RoundingConfig) :
+/-- Rounding zero always returns zero (for modes where digit > 0).
+
+    Note: When digit = 0 and mode ∈ {closest, floor, ceiling}, the comparison
+    `0 ≥ 0/10` is true, causing a spurious round-up of zero. This matches the
+    C++ implementation's behaviour (digit=0 is documented as non-meaningful).
+    We require digit > 0 to match the OMG spec's intended range {1,...,9}. -/
+theorem round_zero (cfg : RoundingConfig) (hd : cfg.digit > 0 ∨ cfg.type = .up ∨ cfg.type = .down ∨ cfg.type = .none) :
     roundQ cfg 0 = 0 := by
-  sorry
-
-/-- Down mode never increases magnitude. -/
-theorem down_le_abs (v : ℚ) (p d : ℕ) :
-    |roundQ ⟨p, .down, d⟩ v| ≤ |v| := by
-  sorry
-
-/-- Up mode never decreases magnitude. -/
-theorem up_ge_abs (v : ℚ) (p d : ℕ) :
-    |roundQ ⟨p, .up, d⟩ v| ≥ |v| := by
-  sorry
-
-/-- All rounding modes are idempotent: rounding a rounded value yields the same result. -/
-theorem idempotent (cfg : RoundingConfig) (v : ℚ) :
-    roundQ cfg (roundQ cfg v) = roundQ cfg v := by
-  sorry
-
-/-- Down mode of a non-negative value is non-negative. -/
-theorem down_nonneg (v : ℚ) (hv : 0 ≤ v) (p d : ℕ) :
-    0 ≤ roundQ ⟨p, .down, d⟩ v := by
-  sorry
+  simp [roundQ]
+  match htype : cfg.type with
+  | .none => simp
+  | .down => simp [pow10, Int.floor_zero, abs_zero]
+  | .up => simp [pow10, Int.floor_zero, abs_zero]
+  | .closest =>
+    simp [abs_zero, pow10, Int.floor_zero]
+    have hd_pos : cfg.digit > 0 := by
+      rcases hd with h | h | h | h
+      · exact h
+      · exact absurd h (by simp [htype])
+      · exact absurd h (by simp [htype])
+      · exact absurd h (by simp [htype])
+    have : ¬((0 : ℚ) ≥ (↑cfg.digit : ℚ) / 10) := by
+      push_neg
+      positivity
+    simp [this]
+  | .floor =>
+    simp [abs_zero, pow10, Int.floor_zero]
+    have hd_pos : cfg.digit > 0 := by
+      rcases hd with h | h | h | h
+      · exact h
+      · exact absurd h (by simp [htype])
+      · exact absurd h (by simp [htype])
+      · exact absurd h (by simp [htype])
+    have : ¬((0 : ℚ) ≥ (↑cfg.digit : ℚ) / 10) := by
+      push_neg
+      positivity
+    simp [this]
+  | .ceiling =>
+    simp [abs_zero, pow10, Int.floor_zero]
+    have hd_pos : cfg.digit > 0 := by
+      rcases hd with h | h | h | h
+      · exact h
+      · exact absurd h (by simp [htype])
+      · exact absurd h (by simp [htype])
+      · exact absurd h (by simp [htype])
+    have : ¬((0 : ℚ) ≥ (↑cfg.digit : ℚ) / 10) := by
+      push_neg
+      positivity
+    simp [this]
 
 /-- For non-negative values, Floor mode equals Closest mode. -/
 theorem floor_eq_closest_nonneg (v : ℚ) (hv : 0 ≤ v) (p d : ℕ) :
     roundQ ⟨p, .floor, d⟩ v = roundQ ⟨p, .closest, d⟩ v := by
-  sorry
+  simp only [roundQ]
+  have hneg : ¬(v < 0) := not_lt.mpr hv
+  simp [hneg]
 
 /-- For negative values, Floor mode equals Down mode. -/
 theorem floor_eq_down_neg (v : ℚ) (hv : v < 0) (p d : ℕ) :
     roundQ ⟨p, .floor, d⟩ v = roundQ ⟨p, .down, d⟩ v := by
-  sorry
+  simp only [roundQ]
+  have hneg : v < 0 := hv
+  simp [hneg]
 
 /-- For non-negative values, Ceiling mode equals Down mode. -/
 theorem ceiling_eq_down_nonneg (v : ℚ) (hv : 0 ≤ v) (p d : ℕ) :
     roundQ ⟨p, .ceiling, d⟩ v = roundQ ⟨p, .down, d⟩ v := by
-  sorry
+  simp only [roundQ]
+  have hneg : ¬(v < 0) := not_lt.mpr hv
+  simp [hneg]
 
 /-- For negative values, Ceiling mode equals Closest mode. -/
 theorem ceiling_eq_closest_neg (v : ℚ) (hv : v < 0) (p d : ℕ) :
     roundQ ⟨p, .ceiling, d⟩ v = roundQ ⟨p, .closest, d⟩ v := by
-  sorry
+  simp only [roundQ]
+  have hneg : v < 0 := hv
+  simp [hneg]
+
+/-- Down mode of a non-negative value is non-negative. -/
+theorem down_nonneg (v : ℚ) (hv : 0 ≤ v) (p d : ℕ) :
+    0 ≤ roundQ ⟨p, .down, d⟩ v := by
+  simp only [roundQ]
+  have hneg : ¬(v < 0) := not_lt.mpr hv
+  simp [hneg]
+  apply div_nonneg
+  · exact Int.cast_nonneg.mpr (Int.floor_nonneg.mpr (mul_nonneg (abs_nonneg v) (le_of_lt (pow_pos (by norm_num : (0:ℚ) < 10) p))))
+  · exact le_of_lt (pow_pos (by norm_num : (0:ℚ) < 10) p)
+
+/-- Down mode never increases magnitude. -/
+theorem down_le_abs (v : ℚ) (p d : ℕ) :
+    |roundQ ⟨p, .down, d⟩ v| ≤ |v| := by
+  sorry  -- requires showing ⌊|v| * 10^p⌋ / 10^p ≤ |v|; needs careful floor arithmetic
+
+/-- Up mode never decreases magnitude. -/
+theorem up_ge_abs (v : ℚ) (p d : ℕ) :
+    |roundQ ⟨p, .up, d⟩ v| ≥ |v| := by
+  sorry  -- requires showing (⌊|v| * 10^p⌋ + ε) / 10^p ≥ |v|; needs floor/ceil lemmas
+
+/-- All rounding modes are idempotent: rounding a rounded value yields the same result. -/
+theorem idempotent (cfg : RoundingConfig) (v : ℚ) :
+    roundQ cfg (roundQ cfg v) = roundQ cfg v := by
+  sorry  -- requires showing rounded values have zero fractional part at the given precision
 
 /-- The result of rounding has at most `p` decimal places:
     `roundQ cfg v * 10^p` is an integer. -/
 theorem result_precision (cfg : RoundingConfig) (v : ℚ)
     (htype : cfg.type ≠ .none) :
     ∃ n : ℤ, roundQ cfg v * pow10 cfg.precision = ↑n := by
-  sorry
+  sorry  -- the result is always ±⌊...⌋/10^p or ±(⌊...⌋+1)/10^p, both integral after *10^p
 
 /-- Rounding is bounded: the result is within one ULP of the original value. -/
 theorem round_bounded (cfg : RoundingConfig) (v : ℚ)
     (htype : cfg.type ≠ .none) :
     |roundQ cfg v - v| ≤ 1 / pow10 cfg.precision := by
-  sorry
+  sorry  -- needs floor arithmetic and case analysis on rounding direction
 
 /-- When digit = 0, Closest mode is equivalent to Up mode for non-exact values. -/
 theorem closest_digit0_eq_up (v : ℚ) (p : ℕ)
     (hfrac : fracPart (|v| * pow10 p) ≠ 0) :
     roundQ ⟨p, .closest, 0⟩ v = roundQ ⟨p, .up, 0⟩ v := by
-  sorry
+  simp only [roundQ, RoundingConfig.mk]
+  simp only [Nat.cast_zero, zero_div]
+  -- When digit=0, threshold=0, so modVal ≥ 0 is always true.
+  -- When hfrac: fractional part ≠ 0, up mode also rounds up.
+  -- Both give integral + 1.
+  sorry  -- linking fracPart to the internal modVal computation
 
 /-- When digit = 10, Closest mode is equivalent to Down mode. -/
 theorem closest_digit10_eq_down (v : ℚ) (p : ℕ) :
     roundQ ⟨p, .closest, 10⟩ v = roundQ ⟨p, .down, 10⟩ v := by
-  sorry
+  simp only [roundQ, RoundingConfig.mk]
+  -- threshold = 10/10 = 1, and modVal = lvalue - ⌊lvalue⌋ ∈ [0,1),
+  -- so modVal < 1 = threshold, meaning the closest branch never rounds up.
+  sorry  -- needs fracPart < 1 lemma for rational floor
 
 /-- Down rounding is monotone: if a ≤ b then round_down(a) ≤ round_down(b). -/
 theorem down_monotone (a b : ℚ) (hab : a ≤ b) (p d : ℕ) :
     roundQ ⟨p, .down, d⟩ a ≤ roundQ ⟨p, .down, d⟩ b := by
-  sorry
+  sorry  -- requires floor_mono and case analysis on sign combinations
 
 end FVSquad.Rounding
