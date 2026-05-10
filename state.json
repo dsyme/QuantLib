@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-05-10T04:29Z",
+  "last_run": "2026-05-10T09:51Z",
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -17,17 +17,17 @@
     {"name": "NewtonSafe", "phase": 5, "sorry_count": 0, "notes": "14/14 proved."},
     {"name": "Matrix", "phase": 5, "sorry_count": 0, "notes": "23/23 proved."},
     {"name": "PlainVanillaPayoff", "phase": 5, "sorry_count": 0, "notes": "20/20 proved."},
-    {"name": "Quadratic", "phase": 5, "sorry_count": 0, "notes": "18/18 proved. Vieta formulas. 63 correspondence tests."},
+    {"name": "Quadratic", "phase": 5, "sorry_count": 0, "notes": "18/18 proved. 63 correspondence tests."},
     {"name": "Composition", "phase": 5, "sorry_count": 0, "notes": "28/28 proved."},
-    {"name": "Rounding", "phase": 5, "sorry_count": 7, "notes": "Run 58: proved 6/15 (mode-equivalence + down_nonneg). Finding: round_zero needs digit>0. 7 sorry remain (floor arithmetic)."},
+    {"name": "Rounding", "phase": 5, "sorry_count": 5, "notes": "Run 59: proved down_le_abs, closest_digit10_eq_down, closest_digit0_eq_up. Fixed Mathlib imports. 5 sorry remain (up_ge_abs, idempotent, result_precision, round_bounded, down_monotone)."},
     {"name": "PrimeNumbers", "phase": 2, "sorry_count": null, "notes": "Informal spec written run 55. Next: Task 3."}
   ],
   "open_issues": [3],
   "ci_status": "lean-ci.yml exists; reservoir.leancache.cloud firewalled",
   "total_theorems": 245,
-  "total_sorry": 11,
+  "total_sorry": 9,
   "paper_exists": true,
   "report_updated": "2026-05-10",
   "correspondence_tests": ["actual360","actual365fixed","bisection","blackformula","factorial","interestrate","linearinterpolation","normaldistribution","thirty360","quadratic"],
-  "notes": "Run 58: Task 5 (Rounding proofs, 6 proved, 7 sorry remain) + Task 6 (Correspondence Review for Rounding). Finding: round_zero false for digit=0. lake build timed out again. Next: complete Rounding proofs (floor arith), Task 3 for PrimeNumbers."
+  "notes": "Run 59: Task 5 (Rounding: 3 proved, 5 sorry remain) + Task 7 (Critique update). Mathlib imports fixed. Next: prove result_precision and down_monotone, Task 3 for PrimeNumbers."
 }
