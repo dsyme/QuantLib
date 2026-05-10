@@ -3,66 +3,40 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-05-05 03:54 UTC
-- **Commit**: `49078ee68` (Run 48)
+- **Date**: 2026-05-10 09:51 UTC
+- **Commit**: `cb5b81e42` (Run 59)
 
 ---
 
 ## Overall Assessment
 
-The formal verification effort has produced **193 proved theorems** across 15 Lean files covering day counting (Actual360, Actual365Fixed, Thirty360), interest rate compounding (InterestRate), interpolation (LinearInterpolation), probability distributions (NormalDistribution), combinatorics (Factorial), root-finding (Bisection, NewtonSafe), floating-point comparison (FloatingPointClose), option pricing (BlackFormula, PlainVanillaPayoff), linear algebra (Matrix), polynomial algebra (Quadratic, BernsteinPolynomial). Only **4 `sorry`** remain in theorem proofs: 3 in InterestRate (Float stdlib limitations) and 1 in NormalDistribution (HasDerivAt for erf). The Quadratic target was fully completed this run (13/13 proved, removing the last 2 sorry). The proofs are sound and spec-to-implementation complexity ratios remain favourable across all targets.
+The formal verification effort has produced **245 theorems** across **17 Lean files** covering day counting (Actual360, Actual365Fixed, Thirty360), interest rate compounding (InterestRate), interpolation (LinearInterpolation), probability distributions (NormalDistribution), combinatorics (Factorial), root-finding (Bisection, NewtonSafe), floating-point comparison (FloatingPointClose), option pricing (BlackFormula, PlainVanillaPayoff), linear algebra (Matrix), polynomial algebra (Quadratic), rounding (Rounding), Bernstein polynomials, and cross-target composition (Composition). Approximately **236 theorems are fully proved**; **9 remain `sorry`-guarded** (3 InterestRate Float stdlib, 1 NormalDistribution HasDerivAt, 5 Rounding floor arithmetic). The BlackFormula target axiomatises Φ (1 `sorry` as a definition, not a theorem). This run proved 3 new Rounding theorems (`down_le_abs`, `closest_digit10_eq_down`, `closest_digit0_eq_up`) and fixed broken Mathlib imports.
 
 ---
 
 ## Proved Theorems (Selected Highlights)
 
-| Theorem | File | Level | Bug-catching | Spec:Impl Ratio | Notes |
-|---------|------|-------|-------------|-----------------|-------|
-| `dayCount_additive` | Actual360.lean | Mid | High | High | Composability — catches off-by-one |
-| `simple_roundtrip_exact` | InterestRate.lean | High | High | High | Inverse relationship — catches formula errors |
-| `compounded_mul_periods` | InterestRate.lean | High | High | High | Multiplicative structure — key algebraic law |
-| `knot_interpolation` | LinearInterpolation.lean | Mid | High | High | Interpolant passes through data points |
-| `day31_eq_day30` | Thirty360.lean | Mid | High | High | 30/360 convention — industry confusion source |
-| `pdf_symmetric` | NormalDistribution.lean | Mid | Medium | High | Bell curve symmetry about mean |
-| `factorial_growth` | Factorial.lean | Mid | Medium | High | Exponential lower bound 2^(n-1) |
-| `dx_halves_each_step` | Bisection.lean | Mid | High | High | Convergence rate — key correctness property |
-| `step_root_in_interval` | Bisection.lean | Mid | High | High | Root containment invariant |
-| `close_symm` | FloatingPointClose.lean | Mid | High | High | Symmetry of closeness relation |
-| `blackPrice_call_put_parity` | BlackFormula.lean | High | High | High | Put-call parity — fundamental financial identity |
-| `put_call_complement` | PlainVanillaPayoff.lean | High | High | High | Put-call payoff complementarity |
-| `transpose_transpose` | Matrix.lean | Mid | Medium | High | Involution of transpose |
-| `mul_assoc` | Matrix.lean | High | High | High | Matrix multiplication associativity |
-| `step_contracts_safe` | NewtonSafe.lean | Mid | High | High | Newton-safe step stays in interval |
-| `eval_rootLarge_eq_zero` | Quadratic.lean | High | High | High | rootLarge is a root ✅ (newly proved) |
-| `eval_rootSmall_eq_zero` | Quadratic.lean | High | High | High | rootSmall is a root ✅ (newly proved) |
-| `vieta_sum` | Quadratic.lean | High | High | High | Vieta's formula: r1+r2 = -b/a |
-| `bernstein_partition_unity` | BernsteinPolynomial.lean | Mid | Medium | High | Bernstein polynomials sum to 1 |
+| Theorem | File | Level | Bug-catching | Notes |
+|---------|------|-------|-------------|-------|
+| `dayCount_additive` | Actual360.lean | Mid | High | Composability — catches off-by-one |
+| `simple_roundtrip_exact` | InterestRate.lean | High | High | Inverse relationship — catches formula errors |
+| `compounded_mul_periods` | InterestRate.lean | High | High | Multiplicative structure — key algebraic law |
+| `knot_interpolation` | LinearInterpolation.lean | Mid | High | Interpolant passes through data points |
+| `day31_eq_day30` | Thirty360.lean | Mid | High | 30/360 convention — industry confusion source |
+| `pdf_symmetric` | NormalDistribution.lean | Mid | Medium | Bell curve symmetry about mean |
+| `dx_halves_each_step` | Bisection.lean | Mid | High | Convergence rate — key correctness property |
+| `close_symm` | FloatingPointClose.lean | Mid | High | Symmetry of closeness relation |
+| `blackPrice_call_put_parity` | BlackFormula.lean | High | High | Put-call parity — fundamental financial identity |
+| `mul_assoc` | Matrix.lean | High | High | Matrix multiplication associativity |
+| `step_contracts_safe` | NewtonSafe.lean | Mid | High | Newton-safe step stays in interval |
+| `eval_rootLarge_eq_zero` | Quadratic.lean | High | High | rootLarge is a root |
+| `vieta_sum` | Quadratic.lean | High | High | Vieta's formula: r1+r2 = -b/a |
+| `down_le_abs` | Rounding.lean | Mid | High | Down mode never increases magnitude ✅ (newly proved) |
+| `closest_digit10_eq_down` | Rounding.lean | Mid | Medium | digit=10 ⟹ threshold=1 ⟹ no rounding up ✅ (newly proved) |
+| `closest_digit0_eq_up` | Rounding.lean | Mid | Medium | digit=0 ⟹ threshold=0 ⟹ always rounds up ✅ (newly proved) |
+| `composition_compoundFactor_pos` | Composition.lean | High | High | Cross-target: compound factor always positive |
 
-*Full inventory: 193 proved theorems across 15 Lean files. See individual `.lean` files for complete listings.*
-
----
-
-## Spec-to-Implementation Complexity Assessment
-
-| Target | Spec Lines | Impl Lines (C++) | Ratio | Assessment |
-|--------|-----------|------------------|-------|------------|
-| Actual360 | ~45 (8 thms) | ~15 | **High** | Clean algebraic laws for date arithmetic. |
-| Actual365Fixed | ~40 (8 thms) | ~15 | **High** | Same pattern as Actual360. |
-| InterestRate | ~180 (30 thms) | ~120 | **High** | Algebraic properties constrain 5-mode implementation. |
-| LinearInterpolation | ~60 (7 thms) | ~80 | **High** | 7 properties capture correct interpolation concisely. |
-| Thirty360 | ~90 (11 thms) | ~60 | **High** | Convention rules captured despite complex day-adjustment. |
-| NormalDistribution | ~120 (14 thms) | ~150 | **High** | Analytical properties vs. numerical approximation code. |
-| Factorial | ~70 (10 thms) | ~30 | **Medium** | Standard properties; impl is simple table-based. |
-| Bisection | ~80 (11 thms) | ~50 | **High** | Convergence rate and root containment for iterative solver. |
-| FloatingPointClose | ~80 (12 thms) | ~40 | **High** | Metric space axioms for approximate comparison. |
-| BlackFormula | ~100 (13 thms) | ~200 | **High** | Put-call parity and boundary conditions for Black-Scholes. |
-| PlainVanillaPayoff | ~90 (18 thms) | ~30 | **Medium-High** | Payoff algebra is simple but 18 properties give thorough coverage. |
-| Matrix | ~130 (23 thms) | ~300 | **High** | 23 algebraic laws for matrix operations; impl has pointer arithmetic. |
-| NewtonSafe | ~90 (13 thms) | ~60 | **High** | Safety and convergence properties for hybrid Newton solver. |
-| Quadratic | ~70 (13 thms) | ~40 | **High** | Vieta's formulas, root verification — clean spec for polynomial impl. |
-| BernsteinPolynomial | ~60 (8 thms) | ~50 | **Medium-High** | Partition of unity and endpoint properties. |
-
-All targets sit at favourable ratios. The strongest are InterestRate, BlackFormula, Matrix, and NewtonSafe where clean mathematical properties constrain complex multi-branch implementations.
+*Full inventory: 245 theorems across 17 Lean files. See individual `.lean` files for complete listings.*
 
 ---
 
@@ -70,54 +44,50 @@ All targets sit at favourable ratios. The strongest are InterestRate, BlackFormu
 
 ### High Priority
 
-1. **InterestRate: Float-based continuous compounding** — The 3 remaining sorry in InterestRate (`compoundContinuous_pos`, `continuous_roundtrip`, `compounded_roundtrip`) need `Float.exp_pos`, `Float.log ∘ Float.exp = id`, and `rpow` inverse — none available in Lean stdlib. **Status: blocked on stdlib, acceptable.**
+1. **Rounding: 5 remaining sorry** — `up_ge_abs`, `idempotent`, `result_precision`, `round_bounded`, `down_monotone` all require floor arithmetic (⌊q⌋/m ≤ q/m, fractional part after rounding is zero, etc.). These are mathematically straightforward but need careful Lean/Mathlib floor lemma chaining. **Next step: prove `result_precision` (most tractable) and `down_monotone` (most valuable).**
 
-2. **NormalDistribution: `cdf_deriv_eq_pdf`** — The only sorry in this file. Needs `HasDerivAt` for the erf composition. Deep Mathlib dependency. **Status: blocked on Mathlib analysis API.**
+2. **InterestRate: Float-based continuous compounding** — 3 sorry (`compoundContinuous_pos`, `continuous_roundtrip`, `compounded_roundtrip`) blocked on `Float.exp_pos`, `Float.log ∘ Float.exp = id`. **Status: blocked on stdlib, acceptable.**
 
-3. **Cross-target composition theorems** — No theorems yet relate targets to each other (e.g., yearFraction from Actual360 composed with compoundFactor from InterestRate). These composition properties would be the highest-value next step for financial applications.
+3. **NormalDistribution: `cdf_deriv_eq_pdf`** — Blocked on `HasDerivAt` for erf composition. **Status: blocked on Mathlib analysis API.**
 
-4. **Quadratic: Vieta product** — Now that both roots are proved correct (`eval_rootLarge_eq_zero`, `eval_rootSmall_eq_zero`), the Vieta product theorem `r1 * r2 = c/a` should be provable and would complete the quadratic algebraic characterisation.
+4. **Cross-target composition depth** — The Composition.lean file has 27 theorems but these could be expanded to cover more realistic financial workflows (e.g., full NPV calculation chain, multi-leg instrument pricing).
 
 ### Medium Priority
 
-5. **New target: Schedule generation** — `ql/time/schedule.hpp` is complex, bug-prone, and has clear correctness criteria (dates in order, correct frequency, boundary handling). High spec-to-impl ratio.
+5. **New target: PrimeNumbers** — Informal spec exists (phase 2). Next step: Task 3 (formal spec). The sieve-of-Eratosthenes implementation has clear correctness criteria.
 
-6. **New target: CashFlow NPV** — Present value calculations compose InterestRate with cash flow timing. Would exercise proved properties in a higher-level context.
+6. **Correspondence tests for newer targets** — Rounding, Composition, and BernsteinPolynomial lack runnable correspondence tests. Quadratic has 63 tests (added Run 55).
 
-7. **Correspondence tests for newer targets** — FloatingPointClose, BlackFormula, PlainVanillaPayoff, Matrix, NewtonSafe, Quadratic, and BernsteinPolynomial lack runnable correspondence tests. Adding these would validate the Lean models against C++ outputs.
+7. **New target: Schedule generation** — `ql/time/schedule.hpp` is complex, bug-prone, and has clear correctness criteria.
 
 ### Lower Priority
 
-8. **Factorial: connection to Mathlib `Nat.factorial`** — Proving equivalence to Mathlib's `Nat.factorial` would bridge to Mathlib's factorial lemma library.
+8. **Factorial: connection to Mathlib `Nat.factorial`** — Proving equivalence would bridge to Mathlib's factorial lemma library.
 
 ---
 
 ## Concerns
 
-1. **Float theorems remain unprovable without stdlib support**: The 3 sorry-guarded InterestRate theorems operate over `Float` and cannot be proved in Lean stdlib. **Status: unchanged, acceptable — clearly documented as aspirational.**
+1. **Float theorems remain unprovable**: 3 sorry in InterestRate over `Float`. Clearly documented as aspirational. No risk.
 
-2. **No vacuity concerns**: All 189 proved theorems (excluding 4 sorry) operate over exact types (`Rat`, `Int`, `ℕ`, `ℝ`) with clear correspondence to C++ formulas. Model approximations (Nat exponent, SimpleDate, axiomatised Φ) are clearly documented. No theorem relies on dubious assumptions.
+2. **No vacuity concerns**: All ~236 proved theorems operate over exact types (`ℚ`, `ℤ`, `ℕ`, `ℝ`) with documented correspondence to C++ formulas. Model approximations are clearly stated.
 
-3. **NormalDistribution model uses `Real` (ℝ)**: Proofs verify the *mathematical specification*, not the *numerical implementation*. The gap is mediated by 1082 correspondence test cases. Acceptable but noted.
+3. **BlackFormula axiomatises Φ**: 13 theorems hold *relative to* the Φ axiom. The proofs verify formula structure and put-call parity but not CDF implementation. Acceptable.
 
-4. **No composition theorems**: All 15 targets are verified independently. Real financial calculations chain components (day count → year fraction → compound factor → NPV). Cross-target theorems would provide end-to-end assurance — this is the most significant remaining gap.
+4. **Rounding model uses ℚ, not IEEE 754**: The 15 Rounding theorems verify the mathematical semantics. 4 known divergences from C++ (Q vs double, fast_pow10 masking, modf semantics, negative zero) are documented in CORRESPONDENCE.md.
 
-5. **BlackFormula axiomatises Φ**: The cumulative normal distribution function is defined as `sorry` (axiom). All 13 BlackFormula theorems hold *relative to* this axiom. The proofs verify Black-Scholes formula structure and put-call parity but do not constrain the CDF implementation itself. Acceptable for the algebraic properties proved but limits the depth of verification.
-
-6. **Correspondence test coverage uneven**: Only 7 of 15 targets have runnable correspondence tests. The newer targets (FloatingPointClose, BlackFormula, PlainVanillaPayoff, Matrix, NewtonSafe, Quadratic, BernsteinPolynomial) would benefit from executable validation against C++ outputs.
+5. **Correspondence test coverage**: 10 of 17 targets have runnable tests. The remaining 7 (FloatingPointClose, PlainVanillaPayoff, Matrix, NewtonSafe, BernsteinPolynomial, Rounding, Composition) would benefit from executable validation.
 
 ---
 
 ## Positive Findings
 
-- **193 theorems proved with zero bugs found**: all specified mathematical properties of QuantLib's core hold. This is a strong positive signal — the mathematical foundations are correctly implemented.
+- **245 theorems with zero implementation bugs found**: all specified mathematical properties of QuantLib's core hold. Strong positive signal for the mathematical foundations.
 
-- **Quadratic root verification completed** (this run): `eval_rootLarge_eq_zero` and `eval_rootSmall_eq_zero` proved using `field_simp` + `nlinarith` with `sq_sqrt`. The `sorry` were blocked on clearing `(2a)²` denominators combined with `√Δ` terms — resolved by introducing `set s := √Δ` and providing appropriate `sq_nonneg` hints.
+- **Rounding proofs advancing** (this run): `down_le_abs` proves truncation never increases magnitude using `Int.floor_le`. `closest_digit10_eq_down` and `closest_digit0_eq_up` verify the boundary behaviour of the digit threshold parameter — `Int.fract_lt_one` is the key lemma.
 
-- **Put-call parity** (`blackPrice_call_put_parity`): formally verifies the fundamental Black-Scholes identity `C - P = F·Φ(d₁) - K·Φ(d₂) - (F·Φ(-d₁) - K·Φ(-d₂))`. This is one of the highest-value theorems in the project — a violation would indicate a critical pricing bug.
+- **Finding from prior run**: `round_zero` theorem was originally stated without a `digit > 0` precondition. When `digit = 0` and mode ∈ {closest, floor, ceiling}, `0 ≥ 0/10` is true, causing spurious round-up of zero. This matches C++ behaviour — the OMG spec documents `digit = 0` as non-meaningful. Fixed by adding precondition.
 
-- **Matrix associativity** (`mul_assoc`): proves `(A·B)·C = A·(B·C)` for the matrix module. Non-trivial due to the summation structure; a bug here would propagate through all matrix-based calculations.
+- **Put-call parity** (`blackPrice_call_put_parity`): formally verifies the fundamental Black-Scholes identity.
 
-- **Newton-safe convergence** (`step_contracts_safe`): proves the hybrid Newton method stays within bounds, catching potential divergence bugs in the root-finding infrastructure.
-
-- **Broad coverage**: 15 targets across day counting, interest rates, interpolation, distributions, combinatorics, root-finding, floating-point comparison, option pricing, linear algebra, and polynomial algebra. This demonstrates FV applicability across QuantLib's full mathematical core.
+- **Broad coverage**: 17 targets across day counting, interest rates, interpolation, distributions, combinatorics, root-finding, floating-point comparison, option pricing, linear algebra, polynomial algebra, rounding, and cross-target composition.
