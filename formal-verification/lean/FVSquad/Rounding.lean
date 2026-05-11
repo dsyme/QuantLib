@@ -204,7 +204,43 @@ theorem down_le_abs (v : ℚ) (p d : ℕ) :
 /-- Up mode never decreases magnitude. -/
 theorem up_ge_abs (v : ℚ) (p d : ℕ) :
     |roundQ ⟨p, .up, d⟩ v| ≥ |v| := by
-  sorry  -- requires showing (⌊|v| * 10^p⌋ + ε) / 10^p ≥ |v|; needs floor/ceil lemmas
+  unfold roundQ
+  simp only
+  by_cases hv : v < 0
+  · simp only [hv, ↓reduceIte]
+    by_cases hmod : |v| * pow10 p - ↑⌊|v| * pow10 p⌋ ≠ 0
+    · rw [if_pos hmod, abs_neg, abs_of_nonneg]
+      · rw [ge_iff_le, le_div_iff₀ (pow10_pos p)]
+        push_cast
+        linarith [Int.lt_floor_add_one (|v| * pow10 p)]
+      · apply div_nonneg
+        · exact_mod_cast show (0 : ℤ) ≤ ⌊|v| * pow10 p⌋ + 1 by
+            linarith [Int.floor_nonneg.mpr (mul_nonneg (abs_nonneg v) (le_of_lt (pow10_pos p)))]
+        · exact le_of_lt (pow10_pos p)
+    · rw [not_not] at hmod
+      rw [if_neg (not_not.mpr hmod), abs_neg, abs_of_nonneg]
+      · have : |v| * pow10 p = ↑⌊|v| * pow10 p⌋ := by linarith
+        rw [ge_iff_le, ← this, mul_div_cancel_right₀ _ (pow10_ne_zero p)]
+      · apply div_nonneg
+        · exact_mod_cast Int.floor_nonneg.mpr (mul_nonneg (abs_nonneg v) (le_of_lt (pow10_pos p)))
+        · exact le_of_lt (pow10_pos p)
+  · simp only [hv, ↓reduceIte]
+    by_cases hmod : |v| * pow10 p - ↑⌊|v| * pow10 p⌋ ≠ 0
+    · rw [if_pos hmod, abs_of_nonneg]
+      · rw [ge_iff_le, le_div_iff₀ (pow10_pos p)]
+        push_cast
+        linarith [Int.lt_floor_add_one (|v| * pow10 p)]
+      · apply div_nonneg
+        · exact_mod_cast show (0 : ℤ) ≤ ⌊|v| * pow10 p⌋ + 1 by
+            linarith [Int.floor_nonneg.mpr (mul_nonneg (abs_nonneg v) (le_of_lt (pow10_pos p)))]
+        · exact le_of_lt (pow10_pos p)
+    · rw [not_not] at hmod
+      rw [if_neg (not_not.mpr hmod), abs_of_nonneg]
+      · have : |v| * pow10 p = ↑⌊|v| * pow10 p⌋ := by linarith
+        rw [ge_iff_le, ← this, mul_div_cancel_right₀ _ (pow10_ne_zero p)]
+      · apply div_nonneg
+        · exact_mod_cast Int.floor_nonneg.mpr (mul_nonneg (abs_nonneg v) (le_of_lt (pow10_pos p)))
+        · exact le_of_lt (pow10_pos p)
 
 /-- All rounding modes are idempotent: rounding a rounded value yields the same result. -/
 theorem idempotent (cfg : RoundingConfig) (v : ℚ) :
@@ -216,7 +252,64 @@ theorem idempotent (cfg : RoundingConfig) (v : ℚ) :
 theorem result_precision (cfg : RoundingConfig) (v : ℚ)
     (htype : cfg.type ≠ .none) :
     ∃ n : ℤ, roundQ cfg v * pow10 cfg.precision = ↑n := by
-  sorry  -- result is ±⌊...⌋/10^p or ±(⌊...⌋+1)/10^p; needs split_ifs + div_mul_cancel₀
+  unfold roundQ
+  have hm : pow10 cfg.precision ≠ 0 := pow10_ne_zero _
+  match hcfg : cfg.type with
+  | .none => exact absurd hcfg htype
+  | .down =>
+    by_cases hv : v < 0
+    · simp only [hcfg, hv, ↓reduceIte]
+      exact ⟨-⌊|v| * pow10 cfg.precision⌋, by rw [neg_mul, div_mul_cancel₀ _ hm]; push_cast; ring⟩
+    · simp only [hcfg, hv, ↓reduceIte]
+      exact ⟨⌊|v| * pow10 cfg.precision⌋, div_mul_cancel₀ _ hm⟩
+  | .up =>
+    by_cases hv : v < 0
+    · simp only [hcfg, hv, ↓reduceIte]
+      by_cases hmod : |v| * pow10 cfg.precision - ↑⌊|v| * pow10 cfg.precision⌋ ≠ 0
+      · rw [if_pos hmod]
+        exact ⟨-(⌊|v| * pow10 cfg.precision⌋ + 1), by rw [neg_mul, div_mul_cancel₀ _ hm]; push_cast; ring⟩
+      · rw [if_neg hmod]
+        exact ⟨-⌊|v| * pow10 cfg.precision⌋, by rw [neg_mul, div_mul_cancel₀ _ hm]; push_cast; ring⟩
+    · simp only [hcfg, hv, ↓reduceIte]
+      by_cases hmod : |v| * pow10 cfg.precision - ↑⌊|v| * pow10 cfg.precision⌋ ≠ 0
+      · rw [if_pos hmod]
+        exact ⟨⌊|v| * pow10 cfg.precision⌋ + 1, by rw [div_mul_cancel₀ _ hm]⟩
+      · rw [if_neg hmod]
+        exact ⟨⌊|v| * pow10 cfg.precision⌋, div_mul_cancel₀ _ hm⟩
+  | .closest =>
+    by_cases hv : v < 0
+    · simp only [hcfg, hv, ↓reduceIte]
+      by_cases hge : |v| * pow10 cfg.precision - ↑⌊|v| * pow10 cfg.precision⌋ ≥ ↑cfg.digit / 10
+      · rw [if_pos hge]
+        exact ⟨-(⌊|v| * pow10 cfg.precision⌋ + 1), by rw [neg_mul, div_mul_cancel₀ _ hm]; push_cast; ring⟩
+      · rw [if_neg hge]
+        exact ⟨-⌊|v| * pow10 cfg.precision⌋, by rw [neg_mul, div_mul_cancel₀ _ hm]; push_cast; ring⟩
+    · simp only [hcfg, hv, ↓reduceIte]
+      by_cases hge : |v| * pow10 cfg.precision - ↑⌊|v| * pow10 cfg.precision⌋ ≥ ↑cfg.digit / 10
+      · rw [if_pos hge]
+        exact ⟨⌊|v| * pow10 cfg.precision⌋ + 1, by rw [div_mul_cancel₀ _ hm]⟩
+      · rw [if_neg hge]
+        exact ⟨⌊|v| * pow10 cfg.precision⌋, div_mul_cancel₀ _ hm⟩
+  | .floor =>
+    by_cases hv : v < 0
+    · simp only [hcfg, hv, not_true_eq_false, ↓reduceIte]
+      exact ⟨-⌊|v| * pow10 cfg.precision⌋, by rw [neg_mul, div_mul_cancel₀ _ hm]; push_cast; ring⟩
+    · simp only [hcfg, hv, not_false_eq_true, ↓reduceIte]
+      by_cases hge : |v| * pow10 cfg.precision - ↑⌊|v| * pow10 cfg.precision⌋ ≥ ↑cfg.digit / 10
+      · rw [if_pos hge]
+        exact ⟨⌊|v| * pow10 cfg.precision⌋ + 1, by push_cast; rw [div_mul_cancel₀ _ hm]⟩
+      · rw [if_neg hge]
+        exact ⟨⌊|v| * pow10 cfg.precision⌋, div_mul_cancel₀ _ hm⟩
+  | .ceiling =>
+    by_cases hv : v < 0
+    · simp only [hcfg, hv, ↓reduceIte]
+      by_cases hge : |v| * pow10 cfg.precision - ↑⌊|v| * pow10 cfg.precision⌋ ≥ ↑cfg.digit / 10
+      · rw [if_pos hge]
+        exact ⟨-(⌊|v| * pow10 cfg.precision⌋ + 1), by rw [neg_mul, div_mul_cancel₀ _ hm]; push_cast; ring⟩
+      · rw [if_neg hge]
+        exact ⟨-⌊|v| * pow10 cfg.precision⌋, by rw [neg_mul, div_mul_cancel₀ _ hm]; push_cast; ring⟩
+    · simp only [hcfg, hv, ↓reduceIte]
+      exact ⟨⌊|v| * pow10 cfg.precision⌋, div_mul_cancel₀ _ hm⟩
 
 /-- Rounding is bounded: the result is within one ULP of the original value. -/
 theorem round_bounded (cfg : RoundingConfig) (v : ℚ)
