@@ -3,8 +3,8 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-05-10 04:29 UTC
-- **Commit**: `2b14e4794` (Run 58)
+- **Date**: 2026-06-12 UTC
+- **Commit**: Run 62 — Rounding proof completion
 
 ---
 
@@ -418,7 +418,14 @@ These are structural algebraic truths that hold independently of the numeric dom
 
 **Finding — `round_zero` with digit=0**: The theorem `round_zero` (zero maps to zero for all configs) is **false** when `cfg.digit = 0` and `cfg.type ∈ {closest, floor, ceiling}`. The comparison `0 ≥ 0/10` is true, causing a spurious round-up. This matches the C++ behaviour (digit=0 is documented as "non-meaningful" in the OMG spec; the informal spec notes digit should be in {1,…,9}). The theorem has been corrected to require `digit > 0` for these modes.
 
-**Impact on proofs**: The 4 mode-equivalence theorems (floor↔closest for positive, floor↔down for negative, ceiling↔down for positive, ceiling↔closest for negative) are structural and depend only on sign dispatch — fully sound. The `down_nonneg` theorem depends on `⌊x⌋ ≥ 0` for `x ≥ 0` — sound. The remaining sorry-guarded theorems (idempotent, monotone, bounded) require floor arithmetic but are structurally correct.
+**Finding — `idempotent` with digit=0**: Same root cause as `round_zero`. The `idempotent` theorem (`roundQ cfg (roundQ cfg v) = roundQ cfg v`) is **false** when `cfg.digit = 0` for closest/floor/ceiling modes. Already-rounded values have `modVal = 0`, and `0 ≥ 0/10` is true, causing a spurious round-up on re-rounding. The corrected theorem requires `digit > 0 ∨ type ∈ {up, down, none}`. A documentation-only counterexample theorem is included. The C++ default digit is 5, so this does not affect practical usage.
+
+**Impact on proofs**: 17 theorems total, 16 fully proved, 1 documentation `sorry` (counterexample for noncomputable `roundQ`). The key structural theorems are:
+- **`round_bounded`** (fully proved): `|roundQ cfg v - v| ≤ 1/10^precision` — result is within one ULP of the input.
+- **`idempotent`** (fully proved with corrected precondition): re-rounding is a no-op when `digit > 0` or mode is up/down/none.
+- **`result_precision`** (fully proved): output is always a multiple of `1/10^precision`.
+- **Mode equivalence theorems** (4, fully proved): floor↔closest/down, ceiling↔down/closest by sign.
+- **`down_nonneg`**, **`up_ge_abs`**, **`round_zero`** (fully proved): basic mode properties.
 
 **Validation evidence**: No runnable correspondence tests yet for Rounding. Recommended for a future Task 8 run.
 
