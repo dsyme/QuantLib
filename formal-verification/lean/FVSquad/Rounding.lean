@@ -216,7 +216,7 @@ theorem idempotent (cfg : RoundingConfig) (v : ℚ) :
 theorem result_precision (cfg : RoundingConfig) (v : ℚ)
     (htype : cfg.type ≠ .none) :
     ∃ n : ℤ, roundQ cfg v * pow10 cfg.precision = ↑n := by
-  sorry  -- result is ±⌊...⌋/10^p or ±(⌊...⌋+1)/10^p; need div_mul_cancel for pow10
+  sorry  -- result is ±⌊...⌋/10^p or ±(⌊...⌋+1)/10^p; needs split_ifs + div_mul_cancel₀
 
 /-- Rounding is bounded: the result is within one ULP of the original value. -/
 theorem round_bounded (cfg : RoundingConfig) (v : ℚ)
@@ -260,6 +260,31 @@ theorem closest_digit0_eq_up (v : ℚ) (p : ℕ)
 /-- Down rounding is monotone: if a ≤ b then round_down(a) ≤ round_down(b). -/
 theorem down_monotone (a b : ℚ) (hab : a ≤ b) (p d : ℕ) :
     roundQ ⟨p, .down, d⟩ a ≤ roundQ ⟨p, .down, d⟩ b := by
-  sorry  -- requires floor_mono and case analysis on sign combinations
+  simp only [roundQ]
+  by_cases ha : a < 0
+  · by_cases hb : b < 0
+    · -- both negative: result = -(⌊|v|*m⌋/m), |a| ≥ |b| so ⌊|a|*m⌋ ≥ ⌊|b|*m⌋
+      simp only [ha, hb, ↓reduceIte]
+      rw [neg_le_neg_iff]
+      apply div_le_div_of_nonneg_right _ (pow10_pos p).le
+      have hab' : |b| ≤ |a| := by
+        rw [abs_of_neg ha, abs_of_neg hb, neg_le_neg_iff]; exact hab
+      exact_mod_cast Int.floor_le_floor (mul_le_mul_of_nonneg_right hab' (le_of_lt (pow10_pos p)))
+    · -- a < 0 ≤ b: result_a = -(⌊|a|*m⌋/m) ≤ 0 ≤ ⌊|b|*m⌋/m = result_b
+      simp only [ha, hb, ↓reduceIte]
+      apply le_trans (neg_nonpos_of_nonneg _) (div_nonneg _ (le_of_lt (pow10_pos p)))
+      · apply div_nonneg
+        · exact_mod_cast Int.floor_nonneg.mpr (mul_nonneg (abs_nonneg a) (le_of_lt (pow10_pos p)))
+        · exact le_of_lt (pow10_pos p)
+      · exact_mod_cast Int.floor_nonneg.mpr (mul_nonneg (abs_nonneg b) (le_of_lt (pow10_pos p)))
+  · by_cases hb : b < 0
+    · -- impossible: a ≥ 0 > b contradicts a ≤ b
+      exact absurd (lt_of_le_of_lt hab hb) (not_lt.mpr (not_lt.mp ha))
+    · -- both nonneg: result = ⌊|v|*m⌋/m, |a| ≤ |b|
+      simp only [ha, hb, ↓reduceIte]
+      apply div_le_div_of_nonneg_right _ (pow10_pos p).le
+      have hab' : |a| ≤ |b| := by
+        rw [abs_of_nonneg (not_lt.mp ha), abs_of_nonneg (not_lt.mp hb)]; exact hab
+      exact_mod_cast Int.floor_le_floor (mul_le_mul_of_nonneg_right hab' (le_of_lt (pow10_pos p)))
 
 end FVSquad.Rounding
