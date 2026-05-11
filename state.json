@@ -1,33 +1,132 @@
 {
-  "last_run": "2026-05-11T04:40Z",
+  "last_run": 62,
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
   "targets": [
-    {"name": "InterestRate", "phase": 5, "sorry_count": 3, "notes": "30 theorems, 3 Float sorry blocked on stdlib."},
-    {"name": "Actual360", "phase": 5, "sorry_count": 0, "notes": "8/8 proved."},
-    {"name": "LinearInterpolation", "phase": 5, "sorry_count": 0, "notes": "7/7 proved."},
-    {"name": "Thirty360", "phase": 5, "sorry_count": 0, "notes": "11/11 proved."},
-    {"name": "NormalDistribution", "phase": 5, "sorry_count": 1, "notes": "20/21 proved. 1 sorry: HasDerivAt erf blocked."},
-    {"name": "Factorial", "phase": 5, "sorry_count": 0, "notes": "10/10 proved."},
-    {"name": "Bisection", "phase": 5, "sorry_count": 0, "notes": "15/15 proved."},
-    {"name": "Actual365Fixed", "phase": 5, "sorry_count": 0, "notes": "8/8 proved."},
-    {"name": "FloatingPointClose", "phase": 5, "sorry_count": 0, "notes": "12/12 proved."},
-    {"name": "BlackFormula", "phase": 5, "sorry_count": 0, "notes": "14/14 proved. Phi axiomatised."},
-    {"name": "NewtonSafe", "phase": 5, "sorry_count": 0, "notes": "14/14 proved. 49 correspondence tests added run 61."},
-    {"name": "Matrix", "phase": 5, "sorry_count": 0, "notes": "23/23 proved."},
-    {"name": "PlainVanillaPayoff", "phase": 5, "sorry_count": 0, "notes": "20/20 proved."},
-    {"name": "Quadratic", "phase": 5, "sorry_count": 0, "notes": "18/18 proved. 63 correspondence tests."},
-    {"name": "Composition", "phase": 5, "sorry_count": 0, "notes": "28/28 proved."},
-    {"name": "Rounding", "phase": 5, "sorry_count": 2, "notes": "Run 61: proved up_ge_abs and result_precision. 2 sorry remain (idempotent, round_bounded)."},
-    {"name": "PrimeNumbers", "phase": 2, "sorry_count": null, "notes": "Informal spec written run 55. Next: Task 3."}
+    {
+      "name": "InterestRate",
+      "phase": 5,
+      "sorry_count": 3,
+      "notes": "30 theorems, 3 Float sorry blocked on stdlib."
+    },
+    {
+      "name": "Actual360",
+      "phase": 5,
+      "sorry_count": 0,
+      "notes": "8/8 proved."
+    },
+    {
+      "name": "LinearInterpolation",
+      "phase": 5,
+      "sorry_count": 0,
+      "notes": "7/7 proved."
+    },
+    {
+      "name": "Thirty360",
+      "phase": 5,
+      "sorry_count": 0,
+      "notes": "11/11 proved."
+    },
+    {
+      "name": "NormalDistribution",
+      "phase": 5,
+      "sorry_count": 1,
+      "notes": "20/21 proved. 1 sorry: HasDerivAt erf blocked."
+    },
+    {
+      "name": "Factorial",
+      "phase": 5,
+      "sorry_count": 0,
+      "notes": "10/10 proved."
+    },
+    {
+      "name": "Bisection",
+      "phase": 5,
+      "sorry_count": 0,
+      "notes": "15/15 proved."
+    },
+    {
+      "name": "Actual365Fixed",
+      "phase": 5,
+      "sorry_count": 0,
+      "notes": "8/8 proved."
+    },
+    {
+      "name": "FloatingPointClose",
+      "phase": 5,
+      "sorry_count": 0,
+      "notes": "12/12 proved."
+    },
+    {
+      "name": "BlackFormula",
+      "phase": 5,
+      "sorry_count": 0,
+      "notes": "14/14 proved. Phi axiomatised."
+    },
+    {
+      "name": "NewtonSafe",
+      "phase": 5,
+      "sorry_count": 0,
+      "notes": "14/14 proved. 49 correspondence tests added run 61."
+    },
+    {
+      "name": "Matrix",
+      "phase": 5,
+      "sorry_count": 0,
+      "notes": "23/23 proved."
+    },
+    {
+      "name": "PlainVanillaPayoff",
+      "phase": 5,
+      "sorry_count": 0,
+      "notes": "20/20 proved."
+    },
+    {
+      "name": "Quadratic",
+      "phase": 5,
+      "sorry_count": 0,
+      "notes": "18/18 proved. 63 correspondence tests."
+    },
+    {
+      "name": "Composition",
+      "phase": 5,
+      "sorry_count": 0,
+      "notes": "28/28 proved."
+    },
+    {
+      "name": "Rounding",
+      "phase": 5,
+      "sorry_count": 1,
+      "notes": "idempotent+round_bounded proved run62. 1 doc sorry. Finding: idempotent false for digit=0."
+    },
+    {
+      "name": "PrimeNumbers",
+      "phase": 2,
+      "sorry_count": null,
+      "notes": "Informal spec written run 55. Next: Task 3."
+    }
   ],
-  "open_issues": [3],
+  "open_issues": [
+    3
+  ],
   "ci_status": "lean-ci.yml exists and functional",
   "total_theorems": 248,
   "total_sorry": 6,
   "paper_exists": true,
   "report_updated": "2026-05-10",
-  "correspondence_tests": ["actual360","actual365fixed","bisection","blackformula","factorial","interestrate","linearinterpolation","newtonsafe","normaldistribution","thirty360","quadratic"],
+  "correspondence_tests": [
+    "actual360",
+    "actual365fixed",
+    "bisection",
+    "blackformula",
+    "factorial",
+    "interestrate",
+    "linearinterpolation",
+    "newtonsafe",
+    "normaldistribution",
+    "thirty360",
+    "quadratic"
+  ],
   "notes": "Run 61: Task 5 (Rounding: proved up_ge_abs + result_precision, 2 sorry remain) + Task 8 (NewtonSafe: 49 correspondence tests). Next: prove idempotent/round_bounded, Task 3 for PrimeNumbers."
 }
