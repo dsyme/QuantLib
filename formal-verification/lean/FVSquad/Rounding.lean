@@ -311,11 +311,209 @@ theorem result_precision (cfg : RoundingConfig) (v : ℚ)
     · simp only [hcfg, hv, ↓reduceIte]
       exact ⟨⌊|v| * pow10 cfg.precision⌋, div_mul_cancel₀ _ hm⟩
 
+/-- Rounding modes with threshold-based rounding (closest, floor, ceiling) are idempotent
+    only when `digit > 0`. When `digit = 0`, the threshold is `0/10 = 0`, and since
+    `modVal ≥ 0` is always true, a precisely representable value gets spuriously
+    rounded up. The modes `none`, `up`, and `down` are unconditionally idempotent.
+
+    The `digit > 0` precondition matches the OMG rounding spec's intended range `{1,...,9}`
+    and the C++ implementation's practical usage (default digit = 5). -/
+theorem idempotent (cfg : RoundingConfig) (v : ℚ)
+    (hd : cfg.digit > 0 ∨ cfg.type = .up ∨ cfg.type = .down ∨ cfg.type = .none) :
+    roundQ cfg (roundQ cfg v) = roundQ cfg v := by
+  match hcfg : cfg.type with
+  | .none => unfold roundQ; simp [hcfg]
+  | .down | .up | .closest | .floor | .ceiling =>
+    have htype : cfg.type ≠ .none := by simp [hcfg]
+    set w := roundQ cfg v with hw_def
+    obtain ⟨n, hn⟩ := result_precision cfg v htype
+    have hm_ne := pow10_ne_zero cfg.precision
+    have hm_pos := pow10_pos cfg.precision
+    set m := pow10 cfg.precision with hm_eq
+    have hw_eq : w = ↑n / m := by
+      field_simp [hm_ne] at hn ⊢; linarith
+    -- |w| * m is an integer (= |n|), so floor is itself and modVal = 0
+    have habs_eq : |w| * m = |(↑n : ℚ)| := by
+      rw [hw_eq, abs_div, abs_of_pos hm_pos, div_mul_cancel₀ _ hm_ne]
+    have hmod_eq : |w| * m - ↑⌊|w| * m⌋ = 0 := by
+      rw [habs_eq, ← Int.cast_abs, Int.floor_intCast]; simp
+    have hfloor_cast : (↑⌊|w| * m⌋ : ℚ) / m = |w| := by
+      have h0 : (↑⌊|w| * m⌋ : ℚ) = |w| * m := by linarith [hmod_eq]
+      rw [h0, mul_div_cancel_right₀ _ hm_ne]
+    unfold roundQ
+    match hcfg2 : cfg.type with
+    | .none => exact absurd hcfg2 htype
+    | .down =>
+      by_cases hwn : w < 0
+      · simp only [hcfg2, hwn, ↓reduceIte]
+        rw [hfloor_cast, abs_of_neg hwn, neg_neg]
+      · simp only [hcfg2, hwn, ↓reduceIte]
+        rw [hfloor_cast, abs_of_nonneg (not_lt.mp hwn)]
+    | .up =>
+      have hmod_f : ¬(|w| * m - ↑⌊|w| * m⌋ ≠ 0) := by simp [hmod_eq]
+      by_cases hwn : w < 0
+      · simp only [hcfg2, hwn, ↓reduceIte]; rw [if_neg hmod_f]
+        rw [hfloor_cast, abs_of_neg hwn, neg_neg]
+      · simp only [hcfg2, hwn, ↓reduceIte]; rw [if_neg hmod_f]
+        rw [hfloor_cast, abs_of_nonneg (not_lt.mp hwn)]
+    | .closest =>
+      have hd_pos : cfg.digit > 0 := by
+        rcases hd with h | h | h | h
+        · exact h
+        · simp [hcfg2] at h
+        · simp [hcfg2] at h
+        · simp [hcfg2] at h
+      have hmod_ge : ¬(|w| * m - ↑⌊|w| * m⌋ ≥ ↑cfg.digit / 10) := by
+        rw [hmod_eq]; push_neg
+        exact div_pos (Nat.cast_pos.mpr hd_pos) (by norm_num : (0:ℚ) < 10)
+      by_cases hwn : w < 0
+      · simp only [hcfg2, hwn, ↓reduceIte]; rw [if_neg hmod_ge]
+        rw [hfloor_cast, abs_of_neg hwn, neg_neg]
+      · simp only [hcfg2, hwn, ↓reduceIte]; rw [if_neg hmod_ge]
+        rw [hfloor_cast, abs_of_nonneg (not_lt.mp hwn)]
+    | .floor =>
+      have hd_pos : cfg.digit > 0 := by
+        rcases hd with h | h | h | h
+        · exact h
+        · simp [hcfg2] at h
+        · simp [hcfg2] at h
+        · simp [hcfg2] at h
+      by_cases hwn : w < 0
+      · simp only [hcfg2, hwn, not_true_eq_false, ↓reduceIte]
+        rw [hfloor_cast, abs_of_neg hwn, neg_neg]
+      · simp only [hcfg2, hwn, not_false_eq_true, ↓reduceIte]
+        have hmod_ge : ¬(|w| * m - ↑⌊|w| * m⌋ ≥ ↑cfg.digit / 10) := by
+          rw [hmod_eq]; push_neg
+          exact div_pos (Nat.cast_pos.mpr hd_pos) (by norm_num : (0:ℚ) < 10)
+        rw [if_neg hmod_ge, hfloor_cast, abs_of_nonneg (not_lt.mp hwn)]
+    | .ceiling =>
+      have hd_pos : cfg.digit > 0 := by
+        rcases hd with h | h | h | h
+        · exact h
+        · simp [hcfg2] at h
+        · simp [hcfg2] at h
+        · simp [hcfg2] at h
+      by_cases hwn : w < 0
+      · simp only [hcfg2, hwn, ↓reduceIte]
+        have hmod_ge : ¬(|w| * m - ↑⌊|w| * m⌋ ≥ ↑cfg.digit / 10) := by
+          rw [hmod_eq]; push_neg
+          exact div_pos (Nat.cast_pos.mpr hd_pos) (by norm_num : (0:ℚ) < 10)
+        rw [if_neg hmod_ge, hfloor_cast, abs_of_neg hwn, neg_neg]
+      · simp only [hcfg2, hwn, ↓reduceIte]
+        rw [hfloor_cast, abs_of_nonneg (not_lt.mp hwn)]
+
+/-- Counterexample: idempotent fails for closest mode with digit=0.
+    With precision=0, mult=1: roundQ({closest,0,0}) 1 computes |1|*1=1, floor=1, modVal=0,
+    threshold=0/10=0, 0≥0 is true, so adjusted=2, result=2 ≠ 1. -/
+theorem idempotent_counterexample_digit0 :
+    ¬∀ v : ℚ, roundQ ⟨0, .closest, 0⟩ (roundQ ⟨0, .closest, 0⟩ v) = roundQ ⟨0, .closest, 0⟩ v := by
+  push_neg
+  use 0
+  -- roundQ ⟨0, .closest, 0⟩ 0 = 1 (since threshold=0/10=0, modVal=0≥0 → adjusted=1)
+  -- roundQ ⟨0, .closest, 0⟩ 1 = 2 (same logic on |1|*1=1, floor=1, mod=0≥0 → adjusted=2)
+  -- So double-round gives 2, single-round gives 1.
+  unfold roundQ pow10
+  simp only [show (0 : ℚ) < 0 ↔ False from by norm_num, ite_false,
+    show ¬((0 : ℚ) < 0) from by norm_num]
+  norm_num [Int.floor_zero, Int.floor_one]
+
+/-- Helper: |⌊q⌋ - q| ≤ 1 for any rational. -/
+private theorem floor_sub_le (q : ℚ) : |(↑⌊q⌋ : ℚ) - q| ≤ 1 := by
+  rw [abs_le]; exact ⟨by linarith [Int.lt_floor_add_one q], by linarith [Int.floor_le q]⟩
+
+/-- Helper: |(⌊q⌋ + 1) - q| ≤ 1 for any rational. -/
+private theorem floor_add_one_sub_le (q : ℚ) : |(↑(⌊q⌋ + 1) : ℚ) - q| ≤ 1 := by
+  have hle := Int.floor_le q
+  have hlt := Int.lt_floor_add_one q
+  rw [abs_le]; simp only [Int.cast_add, Int.cast_one]
+  exact ⟨by linarith, by linarith⟩
+
 /-- Rounding is bounded: the result is within one ULP of the original value. -/
 theorem round_bounded (cfg : RoundingConfig) (v : ℚ)
     (htype : cfg.type ≠ .none) :
     |roundQ cfg v - v| ≤ 1 / pow10 cfg.precision := by
-  sorry  -- needs floor arithmetic and case analysis on rounding direction
+  have hm_pos := pow10_pos cfg.precision
+  have hm_ne := pow10_ne_zero cfg.precision
+  set m := pow10 cfg.precision with hm_def
+  have habs_m : |m| = m := abs_of_pos hm_pos
+  -- Key helper: |↑adj / m - |v|| ≤ 1/m given adj ∈ {⌊|v|*m⌋, ⌊|v|*m⌋+1}
+  have key : ∀ adj : ℤ, (adj = ⌊|v| * m⌋ ∨ adj = ⌊|v| * m⌋ + 1) →
+      |(↑adj : ℚ) / m - (|v|)| ≤ 1 / m := by
+    intro adj hadj
+    rw [le_div_iff₀ hm_pos]
+    calc |(↑adj / m - (|v|))| * m
+        = |(↑adj / m - (|v|)) * m| := by rw [abs_mul, habs_m]
+      _ = |↑adj - |v| * m| := by congr 1; field_simp
+      _ ≤ 1 := by
+          rcases hadj with h | h <;> subst h
+          · exact floor_sub_le _
+          · exact floor_add_one_sub_le _
+  -- For each mode × sign, reduce to `key`
+  unfold roundQ
+  match hcfg : cfg.type with
+  | .none => exact absurd hcfg htype
+  | .down =>
+    by_cases hv : v < 0
+    · simp only [hcfg, hv, ↓reduceIte]
+      have : -(↑⌊|v| * m⌋ / m) - v = |v| - ↑⌊|v| * m⌋ / m := by rw [abs_of_neg hv]; ring
+      rw [this, abs_sub_comm]; exact key _ (Or.inl rfl)
+    · simp only [hcfg, hv, ↓reduceIte]
+      have : ↑⌊|v| * m⌋ / m - v = ↑⌊|v| * m⌋ / m - |v| := by rw [abs_of_nonneg (not_lt.mp hv)]
+      rw [this]; exact key _ (Or.inl rfl)
+  | .up =>
+    by_cases hv : v < 0 <;> simp only [hcfg, hv, ↓reduceIte]
+    · by_cases hmod : |v| * m - ↑⌊|v| * m⌋ ≠ 0
+      · rw [if_pos hmod]
+        have : -(↑(⌊|v| * m⌋ + 1) / m) - v = |v| - ↑(⌊|v| * m⌋ + 1) / m := by rw [abs_of_neg hv]; ring
+        rw [this, abs_sub_comm]; exact key _ (Or.inr rfl)
+      · rw [if_neg hmod]
+        have : -(↑⌊|v| * m⌋ / m) - v = |v| - ↑⌊|v| * m⌋ / m := by rw [abs_of_neg hv]; ring
+        rw [this, abs_sub_comm]; exact key _ (Or.inl rfl)
+    · by_cases hmod : |v| * m - ↑⌊|v| * m⌋ ≠ 0
+      · rw [if_pos hmod]
+        have : ↑(⌊|v| * m⌋ + 1) / m - v = ↑(⌊|v| * m⌋ + 1) / m - |v| := by rw [abs_of_nonneg (not_lt.mp hv)]
+        rw [this]; exact key _ (Or.inr rfl)
+      · rw [if_neg hmod]
+        have : ↑⌊|v| * m⌋ / m - v = ↑⌊|v| * m⌋ / m - |v| := by rw [abs_of_nonneg (not_lt.mp hv)]
+        rw [this]; exact key _ (Or.inl rfl)
+  | .closest =>
+    by_cases hv : v < 0 <;> simp only [hcfg, hv, ↓reduceIte]
+    · by_cases hge : |v| * m - ↑⌊|v| * m⌋ ≥ ↑cfg.digit / 10
+      · rw [if_pos hge]
+        have : -(↑(⌊|v| * m⌋ + 1) / m) - v = |v| - ↑(⌊|v| * m⌋ + 1) / m := by rw [abs_of_neg hv]; ring
+        rw [this, abs_sub_comm]; exact key _ (Or.inr rfl)
+      · rw [if_neg hge]
+        have : -(↑⌊|v| * m⌋ / m) - v = |v| - ↑⌊|v| * m⌋ / m := by rw [abs_of_neg hv]; ring
+        rw [this, abs_sub_comm]; exact key _ (Or.inl rfl)
+    · by_cases hge : |v| * m - ↑⌊|v| * m⌋ ≥ ↑cfg.digit / 10
+      · rw [if_pos hge]
+        have : ↑(⌊|v| * m⌋ + 1) / m - v = ↑(⌊|v| * m⌋ + 1) / m - |v| := by rw [abs_of_nonneg (not_lt.mp hv)]
+        rw [this]; exact key _ (Or.inr rfl)
+      · rw [if_neg hge]
+        have : ↑⌊|v| * m⌋ / m - v = ↑⌊|v| * m⌋ / m - |v| := by rw [abs_of_nonneg (not_lt.mp hv)]
+        rw [this]; exact key _ (Or.inl rfl)
+  | .floor =>
+    by_cases hv : v < 0 <;> simp only [hcfg, hv, not_true_eq_false, not_false_eq_true, ↓reduceIte]
+    · have : -(↑⌊|v| * m⌋ / m) - v = |v| - ↑⌊|v| * m⌋ / m := by rw [abs_of_neg hv]; ring
+      rw [this, abs_sub_comm]; exact key _ (Or.inl rfl)
+    · by_cases hge : |v| * m - ↑⌊|v| * m⌋ ≥ ↑cfg.digit / 10
+      · rw [if_pos hge]
+        have : ↑(⌊|v| * m⌋ + 1) / m - v = ↑(⌊|v| * m⌋ + 1) / m - |v| := by rw [abs_of_nonneg (not_lt.mp hv)]
+        rw [this]; exact key _ (Or.inr rfl)
+      · rw [if_neg hge]
+        have : ↑⌊|v| * m⌋ / m - v = ↑⌊|v| * m⌋ / m - |v| := by rw [abs_of_nonneg (not_lt.mp hv)]
+        rw [this]; exact key _ (Or.inl rfl)
+  | .ceiling =>
+    by_cases hv : v < 0 <;> simp only [hcfg, hv, ↓reduceIte]
+    · by_cases hge : |v| * m - ↑⌊|v| * m⌋ ≥ ↑cfg.digit / 10
+      · rw [if_pos hge]
+        have : -(↑(⌊|v| * m⌋ + 1) / m) - v = |v| - ↑(⌊|v| * m⌋ + 1) / m := by rw [abs_of_neg hv]; ring
+        rw [this, abs_sub_comm]; exact key _ (Or.inr rfl)
+      · rw [if_neg hge]
+        have : -(↑⌊|v| * m⌋ / m) - v = |v| - ↑⌊|v| * m⌋ / m := by rw [abs_of_neg hv]; ring
+        rw [this, abs_sub_comm]; exact key _ (Or.inl rfl)
+    · have : ↑⌊|v| * m⌋ / m - v = ↑⌊|v| * m⌋ / m - |v| := by rw [abs_of_nonneg (not_lt.mp hv)]
+      rw [this]; exact key _ (Or.inl rfl)
 
 /-- When digit = 10, Closest mode is equivalent to Down mode.
     Because threshold = 10/10 = 1, and the fractional part is always < 1,
