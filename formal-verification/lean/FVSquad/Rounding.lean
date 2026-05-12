@@ -403,8 +403,14 @@ theorem idempotent (cfg : RoundingConfig) (v : ℚ)
 theorem idempotent_counterexample_digit0 :
     ¬∀ v : ℚ, roundQ ⟨0, .closest, 0⟩ (roundQ ⟨0, .closest, 0⟩ v) = roundQ ⟨0, .closest, 0⟩ v := by
   push_neg
-  use 0 -- any value; the digit=0 precondition is the point
-  sorry -- noncomputable roundQ prevents decide; stated for documentation
+  use 0
+  -- roundQ ⟨0, .closest, 0⟩ 0 = 1 (since threshold=0/10=0, modVal=0≥0 → adjusted=1)
+  -- roundQ ⟨0, .closest, 0⟩ 1 = 2 (same logic on |1|*1=1, floor=1, mod=0≥0 → adjusted=2)
+  -- So double-round gives 2, single-round gives 1.
+  unfold roundQ pow10
+  simp only [show (0 : ℚ) < 0 ↔ False from by norm_num, ite_false,
+    show ¬((0 : ℚ) < 0) from by norm_num]
+  norm_num [Int.floor_zero, Int.floor_one]
 
 /-- Helper: |⌊q⌋ - q| ≤ 1 for any rational. -/
 private theorem floor_sub_le (q : ℚ) : |(↑⌊q⌋ : ℚ) - q| ≤ 1 := by
