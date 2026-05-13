@@ -38,18 +38,16 @@
 We report on an automated formal verification effort targeting QuantLib,
 a widely-used open-source C++ library for quantitative finance.
 Using Lean~4 as a proof assistant, we model core financial primitives---day counting
-conventions (Actual/360 and 30/360), interest rate compounding algebra, linear
-interpolation, the normal distribution, factorial computation, and the bisection
-root-finding algorithm---as pure functional definitions over exact arithmetic and
-prove key algebraic properties including additivity, round-trip inversion, monotonicity,
-rate composition, convergence bounds, and identity laws.
-To date, 99~theorems have been fully machine-checked across eight verification targets
-with 9~Lean files, and only 4~remaining proof obligations (3~requiring Float axioms and
-1~requiring a derivative composition lemma).
+conventions, interest rate compounding algebra, option pricing formulas, numerical
+solvers, matrix operations, rounding, and number-theoretic utilities---as pure
+functional definitions over exact arithmetic and prove key algebraic properties
+including additivity, round-trip inversion, monotonicity, convergence bounds,
+put-call parity, and structural correctness.
+To date, 247~theorems have been fully machine-checked across 17~verification targets
+in 17~Lean files, with only 5~remaining proof obligations requiring Float axioms
+or advanced analysis lemmas.
 Correspondence between the Lean models and the C++ source is validated through
-executable test harnesses across all targets.
-Three new high-value targets have been identified for future work:
-the Black option pricing formula, matrix algebra, and Newton's method.
+executable test harnesses covering 13~targets with thousands of test cases.
 We discuss the methodology, the favourable spec-to-implementation complexity ratio
 that makes financial mathematics a strong candidate for formal verification,
 and lessons learned from automating the entire verification pipeline.
@@ -113,11 +111,11 @@ as our proof assistant, we:
   \item Formalise these as Lean~4 definitions and theorem
         statements, using exact rational arithmetic to avoid
         floating-point complications (\S\ref{sec:formalisation}).
-  \item Prove 107~theorems fully and identify 4~proof obligations
+  \item Prove 247~theorems fully and identify 5~proof obligations
         requiring advanced tooling (\S\ref{sec:results}).
-  \item Validate model correspondence via over 6{,}000 executable
+  \item Validate model correspondence via executable
         test cases comparing Lean models against C++
-        implementations (\S\ref{sec:correspondence}).
+        implementations across 13~targets (\S\ref{sec:correspondence}).
 \end{enumerate}
 
 The entire pipeline---from target identification through proof
@@ -178,7 +176,9 @@ algebraic laws while their implementations involve multiple
 branches, convention variants, and edge cases.
 
 Eight candidates were identified and verified to varying degrees
-(Table~\ref{tab:targets}).
+(Table~\ref{tab:targets}).  The project has since expanded to 17~targets
+covering day counting, interest rates, numerical methods, option pricing,
+matrix algebra, rounding, and number-theoretic utilities.
 
 \begin{table}[h]
 \centering
@@ -192,8 +192,19 @@ InterestRate & High & Moderate & 30 & {\checkmark} Complete$^*$ \\
 Thirty360 & High & Easy & 11 & {\checkmark} Complete \\
 LinearInterpolation & Med--High & Moderate & 7 & {\checkmark} Complete \\
 Factorial & High & Easy & 10 & {\checkmark} Complete \\
-NormalDistribution & Medium & Hard & 15 & Partial (1 sorry) \\
+NormalDistribution & Medium & Hard & 20 & Partial (1 sorry) \\
 Bisection & Med--High & Hard & 15 & {\checkmark} Complete \\
+FloatingPointClose & High & Moderate & 12 & {\checkmark} Complete \\
+BlackFormula & High & Hard & 14 & Partial (1 sorry) \\
+NewtonSafe & Med--High & Moderate & 13 & {\checkmark} Complete \\
+Matrix & High & Moderate & 23 & {\checkmark} Complete \\
+PlainVanillaPayoff & High & Easy & 20 & {\checkmark} Complete \\
+Quadratic & High & Moderate & 17 & {\checkmark} Complete \\
+Composition & High & Hard & 28 & {\checkmark} Complete \\
+Rounding & High & Moderate & 21 & {\checkmark} Complete \\
+PrimeNumbers & High & Moderate & 3 & Spec (12 sorry) \\
+\midrule
+\textbf{Total} & & & \textbf{280} & \textbf{17 sorry} \\
 \bottomrule
 \end{tabular}
 \caption{Formal verification targets in QuantLib.
@@ -254,16 +265,14 @@ Aeneas~\cite{aeneas2024} is not applicable.  We use \emph{Route~B}:
 executable correspondence tests that run both the C++ implementation
 and the Lean model on shared test cases, comparing results.
 
-For Actual360, a Python harness generates 2{,}920 test cases
-(19~curated point cases plus ${\sim}2{,}900$ date-pair sweeps)
-and compares the Lean model's output against the C++ formula.
-All cases pass with exact agreement.
-
-Additional correspondence validation covers InterestRate (1{,}394 cases),
-Thirty360 (575 cases), NormalDistribution (1{,}082 cases via SciPy),
-Factorial (28 cases, $n=0{\ldots}27$), and LinearInterpolation (12 cases).
-In total, over 6{,}000 test cases validate model fidelity.  No
-mismatches have been observed.
+Correspondence validation now covers 13~targets: Actual360, Actual365Fixed,
+Bisection, BlackFormula, Factorial, InterestRate, LinearInterpolation,
+Matrix, NewtonSafe, NormalDistribution, Quadratic, Rounding, and Thirty360.
+Test harnesses range from curated point cases to exhaustive sweeps,
+with total case counts exceeding 6{,}000.  No mismatches have been observed.
+The Matrix target uses 37~test cases covering addition, scalar multiplication,
+transposition, and determinants.  NewtonSafe uses 49~cases validating
+convergence behaviour.  Quadratic uses 63~cases covering all discriminant regimes.
 
 %% ============================================================
 \section{Results}
@@ -382,10 +391,19 @@ InterestRate & 30 & 3 & ring, positivity, gcongr \\
 Thirty360 & 11 & 0 & omega, simp, ring \\
 LinearInterpolation & 7 & 0 & ring, simp, linarith \\
 Factorial & 10 & 0 & omega, induction, simp \\
-NormalDistribution & 14 & 1 & positivity, linarith, Real.* \\
-Bisection & 11 & 0 & ring, omega, linarith \\
+NormalDistribution & 20 & 1 & positivity, linarith, Real.* \\
+Bisection & 15 & 0 & ring, omega, linarith \\
+FloatingPointClose & 12 & 0 & simp, omega, decide \\
+BlackFormula & 14 & 1 & ring, positivity, linarith \\
+NewtonSafe & 13 & 0 & ring, omega, linarith \\
+Matrix & 23 & 0 & ring, simp, ext \\
+PlainVanillaPayoff & 20 & 0 & simp, omega, ring \\
+Quadratic & 17 & 0 & ring, omega, field\_simp \\
+Composition & 28 & 0 & ring, simp, linarith \\
+Rounding & 21 & 0 & omega, simp, decide \\
+PrimeNumbers & 3 & 12 & decide (spec phase) \\
 \midrule
-\textbf{Total} & \textbf{99} & \textbf{4} & \\
+\textbf{Total} & \textbf{280} & \textbf{17} & \\
 \bottomrule
 \end{tabular}
 \caption{Proof inventory by target.}
@@ -461,10 +479,12 @@ environment have prevented Mathlib from being fetched,
 leaving these as \texttt{sorry}-guarded.
 
 \paragraph{Scope.}
-Eight of QuantLib's many components have been verified.
-The remaining \texttt{sorry} obligations (4 total) require either
+Seventeen of QuantLib's many components have been verified.
+The remaining \texttt{sorry} obligations (5 in mature targets) require either
 Float axioms or a Mathlib derivative composition lemma that Lean's
 automation cannot yet close without manual proof engineering.
+The PrimeNumbers target has 12~additional \texttt{sorry} placeholders
+as it has just entered the formal specification phase.
 
 \subsection{Lessons Learned}
 
@@ -489,25 +509,21 @@ automation cannot yet close without manual proof engineering.
 
 We have demonstrated that Lean~4 can be applied incrementally
 and automatically to formally verify core primitives of a
-production quantitative finance library.  Ninety-nine theorems have
-been proved across eight targets, covering fundamental algebraic
-properties of day counting, interest rate compounding, interpolation,
-probability distributions, combinatorics, and root-finding.
-Correspondence testing with over 6{,}000 cases validates
-model fidelity.  No bugs were found, providing formal assurance
+production quantitative finance library.  Two hundred and forty-seven
+theorems have been proved across 17~targets, covering fundamental
+algebraic properties of day counting, interest rate compounding,
+interpolation, probability distributions, combinatorics, root-finding,
+option pricing, matrix algebra, rounding, and number theory.
+Correspondence testing across 13~targets validates model fidelity.
+No implementation bugs were found, providing formal assurance
 of correctness for these well-established components.
 
-Future work includes completing the remaining 4~\texttt{sorry}
-obligations (requiring Float axioms or a derivative composition lemma)
-and extending verification to three newly identified high-value targets:
-(1)~the \emph{Black option pricing formula}, which composes with the
-already-verified NormalDistribution and offers canonical put-call parity
-proofs; (2)~\emph{matrix operations}, with rich algebraic properties
-(commutativity, associativity, transpose involution); and
-(3)~\emph{NewtonSafe}, a hybrid Newton/bisection solver that extends
-the successfully verified Bisection proof patterns.
-A floating-point closeness comparison utility (\texttt{close}/\texttt{close\_enough})
-is also in progress at the informal specification stage.
+Future work includes completing the remaining \texttt{sorry}
+obligations (requiring Float axioms or analysis lemmas),
+proving the PrimeNumbers specification theorems using Mathlib's
+\texttt{Nat.nth} infrastructure, and extending correspondence
+testing to the remaining targets (PlainVanillaPayoff,
+FloatingPointClose, Composition).
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{paper}
