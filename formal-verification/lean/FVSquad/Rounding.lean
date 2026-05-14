@@ -242,10 +242,8 @@ theorem up_ge_abs (v : ℚ) (p d : ℕ) :
         · exact_mod_cast Int.floor_nonneg.mpr (mul_nonneg (abs_nonneg v) (le_of_lt (pow10_pos p)))
         · exact le_of_lt (pow10_pos p)
 
-/-- All rounding modes are idempotent: rounding a rounded value yields the same result. -/
-theorem idempotent (cfg : RoundingConfig) (v : ℚ) :
-    roundQ cfg (roundQ cfg v) = roundQ cfg v := by
-  sorry  -- requires showing rounded values have zero fractional part at the given precision
+/-- Idempotent without precondition is FALSE for digit=0 (see `idempotent_counterexample_digit0`).
+    The correctly-guarded version is `idempotent` below (with `hd : cfg.digit > 0 ∨ ...`). -/
 
 /-- The result of rounding has at most `p` decimal places:
     `roundQ cfg v * 10^p` is an integer. -/
