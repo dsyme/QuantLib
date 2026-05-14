@@ -17,7 +17,8 @@
 | 11 | Matrix | `ql/math/matrix.hpp/cpp` | 1 — Research | ⬜ Identified | Medium | High |
 | 12 | NewtonSafe | `ql/math/solvers1d/newtonsafe.hpp` | 5 — Proofs | ✅ 13/13 proved | Medium-High | Medium-High |
 | 13 | Rounding | `ql/math/rounding.hpp/cpp` | 3 — Lean Spec | 🔄 15 theorems (14 sorry) | **High** | High |
-| 14 | PrimeNumbers | `ql/math/primenumbers.hpp/cpp` | 3 — Lean Spec | 🔄 14 theorems (12 sorry) | Medium | High |
+| 14 | PrimeNumbers | `ql/math/primenumbers.hpp/cpp` | 5 — Proofs | ✅ 14/14 proved | Medium | High |
+| 15 | BernsteinPolynomial | `ql/math/bernsteinpolynomial.hpp/cpp` | 2 — Informal Spec | 🔄 Spec written | Medium | High |
 
 ## Phase Key
 

@@ -15,6 +15,9 @@
 -/
 
 import Mathlib.Data.Nat.Prime.Nth
+import Mathlib.Data.Nat.PrimeFin
+import Mathlib.Data.List.Basic
+import Mathlib.Tactic.FinCases
 import Mathlib.Data.List.Basic
 
 namespace FVSquad.PrimeNumbers
@@ -32,6 +35,15 @@ noncomputable def nthPrime (n : ℕ) : ℕ := Nat.nth Nat.Prime n
 
 /-- Every value returned by `nthPrime` is prime. -/
 theorem nthPrime_is_prime (n : ℕ) : Nat.Prime (nthPrime n) := by
+  exact Nat.nth_mem_of_infinite Nat.infinite_setOf_prime n
+
+/-- The sequence is strictly monotone. -/
+theorem nthPrime_strictMono : StrictMono nthPrime := by
+  exact Nat.nth_strictMono Nat.infinite_setOf_prime
+
+/-- Monotonicity corollary: `i < j → nthPrime i < nthPrime j`. -/
+theorem nthPrime_lt_of_lt {i j : ℕ} (h : i < j) : nthPrime i < nthPrime j := by
+  exact nthPrime_strictMono h
   sorry
 
 /-- The sequence is strictly monotone. -/
@@ -45,15 +57,18 @@ theorem nthPrime_lt_of_lt {i j : ℕ} (h : i < j) : nthPrime i < nthPrime j := b
 /-- Completeness: every prime appears in the sequence. -/
 theorem nthPrime_surjective (p : ℕ) (hp : Nat.Prime p) :
     ∃ n, nthPrime n = p := by
-  sorry
+  have h := Nat.range_nth_of_infinite Nat.infinite_setOf_prime
+  have : p ∈ Set.range (Nat.nth Nat.Prime) := by rw [h]; exact hp
+  obtain ⟨n, hn⟩ := this
+  exact ⟨n, hn⟩
 
 /-- The first prime is 2. -/
 theorem nthPrime_zero : nthPrime 0 = 2 := by
-  sorry
+  exact Nat.nth_prime_zero_eq_two
 
 /-- The second prime is 3. -/
 theorem nthPrime_one : nthPrime 1 = 3 := by
-  sorry
+  exact Nat.nth_prime_one_eq_three
 
 /-! ## Seed table correctness -/
 
@@ -69,10 +84,33 @@ theorem seedPrimes_sorted : List.Pairwise (· < ·) seedPrimes := by
 theorem seedPrimes_length : seedPrimes.length = 15 := by
   decide
 
+/-- Helper: prove nthPrime k = p by showing p is prime and count p = k. -/
+private theorem nthPrime_eq_of_count (p k : ℕ) (hp : Nat.Prime p)
+    (hc : Nat.count Nat.Prime p = k) : nthPrime k = p := by
+  unfold nthPrime
+  rw [← hc]
+  exact Nat.nth_count hp
+
 /-- The seed table matches the first 15 primes. -/
 theorem seedPrimes_eq_nthPrimes :
     ∀ i : Fin 15, seedPrimes[i] = nthPrime i := by
-  sorry
+  intro i
+  fin_cases i <;> simp [seedPrimes] <;> symm
+  · exact Nat.nth_prime_zero_eq_two
+  · exact Nat.nth_prime_one_eq_three
+  · exact nthPrime_eq_of_count 5 2 (by decide) (by native_decide)
+  · exact nthPrime_eq_of_count 7 3 (by decide) (by native_decide)
+  · exact Nat.nth_prime_four_eq_eleven
+  · exact nthPrime_eq_of_count 13 5 (by decide) (by native_decide)
+  · exact nthPrime_eq_of_count 17 6 (by decide) (by native_decide)
+  · exact nthPrime_eq_of_count 19 7 (by decide) (by native_decide)
+  · exact nthPrime_eq_of_count 23 8 (by decide) (by native_decide)
+  · exact nthPrime_eq_of_count 29 9 (by decide) (by native_decide)
+  · exact nthPrime_eq_of_count 31 10 (by decide) (by native_decide)
+  · exact nthPrime_eq_of_count 37 11 (by decide) (by native_decide)
+  · exact nthPrime_eq_of_count 41 12 (by decide) (by native_decide)
+  · exact nthPrime_eq_of_count 43 13 (by decide) (by native_decide)
+  · exact nthPrime_eq_of_count 47 14 (by decide) (by native_decide)
 
 /-! ## Trial division correctness -/
 
@@ -81,25 +119,41 @@ theorem seedPrimes_eq_nthPrimes :
 theorem trial_division_correct (m : ℕ) (hm : m ≥ 2)
     (h : ∀ p, Nat.Prime p → p * p ≤ m → ¬(p ∣ m)) :
     Nat.Prime m := by
-  sorry
+  by_contra hnp
+  have hne1 : m ≠ 1 := by omega
+  have hfac := Nat.minFac_prime hne1
+  have hdvd := Nat.minFac_dvd m
+  have hsq : Nat.minFac m ^ 2 ≤ m := Nat.minFac_sq_le_self (by omega) hnp
+  rw [sq] at hsq
+  exact h m.minFac hfac hsq hdvd
 
 /-- After 2, all primes are odd — justifies the step-by-2 optimisation. -/
 theorem prime_gt_two_odd (p : ℕ) (hp : Nat.Prime p) (h2 : p > 2) :
     ¬ 2 ∣ p := by
-  sorry
+  intro h
+  have := hp.eq_one_or_self_of_dvd 2 h
+  omega
 
 /-! ## Specific values (correspondence with C++ implementation) -/
 
 /-- `nthPrime 4 = 11` -/
 theorem nthPrime_four : nthPrime 4 = 11 := by
-  sorry
+  exact Nat.nth_prime_four_eq_eleven
 
 /-- `nthPrime 9 = 29` -/
 theorem nthPrime_nine : nthPrime 9 = 29 := by
-  sorry
+  have hp : Nat.Prime 29 := by decide
+  have hc : Nat.count Nat.Prime 29 = 9 := by native_decide
+  have := Nat.nth_count hp
+  rw [hc] at this
+  exact this
 
 /-- `nthPrime 14 = 47` -/
 theorem nthPrime_fourteen : nthPrime 14 = 47 := by
-  sorry
+  have hp : Nat.Prime 47 := by decide
+  have hc : Nat.count Nat.Prime 47 = 14 := by native_decide
+  have := Nat.nth_count hp
+  rw [hc] at this
+  exact this
 
 end FVSquad.PrimeNumbers
