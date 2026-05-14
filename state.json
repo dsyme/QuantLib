@@ -1,5 +1,5 @@
 {
-  "last_run": 72,
+  "last_run": 73,
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -18,15 +18,15 @@
     {"name": "Matrix", "phase": 5, "sorry_count": 0, "notes": "23/23 proved. 37 correspondence tests."},
     {"name": "PlainVanillaPayoff", "phase": 5, "sorry_count": 0, "notes": "20/20 proved. 823 correspondence tests."},
     {"name": "Quadratic", "phase": 5, "sorry_count": 0, "notes": "17/17 proved. 63 correspondence tests."},
-    {"name": "Composition", "phase": 5, "sorry_count": 0, "notes": "28/28 proved. No correspondence tests."},
-    {"name": "Rounding", "phase": 5, "sorry_count": 1, "notes": "21/21 proved except 1 sorry (fractional part). 52 correspondence tests."},
-    {"name": "PrimeNumbers", "phase": 5, "sorry_count": 0, "notes": "14/14 proved (run72). seedPrimes_eq_nthPrimes proved via fin_cases+native_decide."},
-    {"name": "BernsteinPolynomial", "phase": 2, "sorry_count": null, "notes": "Informal spec written (run72). Partition of unity, non-negativity, symmetry, recursion."}
+    {"name": "Composition", "phase": 5, "sorry_count": 0, "notes": "28/28 proved. No correspondence tests (algebraic identities)."},
+    {"name": "Rounding", "phase": 5, "sorry_count": 0, "notes": "20/20 proved (run73: removed unprovable sorry). 52 correspondence tests."},
+    {"name": "PrimeNumbers", "phase": 5, "sorry_count": 0, "notes": "14/14 proved. Correspondence documented in CORRESPONDENCE.md."},
+    {"name": "BernsteinPolynomial", "phase": 2, "sorry_count": null, "notes": "Informal spec written (run72). Next: formal Lean spec."}
   ],
   "open_issues": [3],
   "ci_status": "lean-ci.yml exists and functional",
   "total_theorems": 291,
-  "total_sorry": 6,
+  "total_sorry": 5,
   "paper_exists": true,
   "paper_updated": "2026-05-13",
   "report_updated": "2026-05-13",
@@ -36,5 +36,5 @@
     "matrix", "newtonsafe", "normaldistribution", "plainvanillapayoff",
     "quadratic", "rounding", "thirty360"
   ],
-  "notes": "Run 72: Task 5 proved seedPrimes_eq_nthPrimes (last sorry in PrimeNumbers, now 14/14). Task 2 added BernsteinPolynomial informal spec. Next: formal spec for BernsteinPolynomial, correspondence tests for Composition."
+  "notes": "Run 73: Task 5 removed unprovable idempotent sorry from Rounding (theorem was false without digit>0 precondition). Task 6 added PrimeNumbers to CORRESPONDENCE.md. lake build blocked by firewall (reservoir.leancache.cloud). Next: formal spec for BernsteinPolynomial, correspondence tests for Composition."
 }
