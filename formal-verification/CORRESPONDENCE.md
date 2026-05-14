@@ -3,8 +3,8 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-06-12 UTC
-- **Commit**: Run 62 — Rounding proof completion
+- **Date**: 2026-05-14 04:17 UTC
+- **Commit**: Run 71 — Added correspondence tests for PlainVanillaPayoff (823 cases) and FloatingPointClose (1696 cases)
 
 ---
 
@@ -276,7 +276,7 @@ The **3 sorry-guarded Float theorems** (`compoundContinuous_pos`, `continuous_ro
 
 The `≤` vs `<` divergence is cosmetic — it affects only the exact boundary value `|x-y| = ε²`, which is a measure-zero set in practice. All structural properties (reflexivity, symmetry, non-transitivity, monotonicity) hold regardless.
 
-**Validation evidence**: No runnable correspondence tests yet. The `ℚ`-based model is not directly executable against C++ `double` computations, but the algebraic properties proved are universal (they hold for any ordered field).
+**Validation evidence**: Runnable correspondence tests in `formal-verification/tests/floatingpointclose/` (1696 cases). Tests cover reflexivity (110), symmetry (1210), implication (605), zero tolerance (200), monotonicity in tolerance (968), strictly-weaker witness (2), and non-transitivity witness (3). Build and run: `g++ -std=c++17 -O2 -o test_floatingpointclose test_floatingpointclose.cpp && ./test_floatingpointclose`. All tests pass.
 
 ---
 
@@ -344,7 +344,7 @@ The `≤` vs `<` divergence is cosmetic — it affects only the exact boundary v
 
 **Impact on proofs**: The 18 theorems prove fundamental financial properties (non-negativity, put-call parity, monotonicity, convexity, boundary behaviour). Since `payoff` is a semantic exact match of C++ `operator()`, these proofs directly validate the payoff computation. The only gap is floating-point vs exact arithmetic, which for `max(a-b, 0)` with typical financial values is negligible.
 
-**Validation evidence**: No runnable correspondence tests yet for PlainVanillaPayoff.
+**Validation evidence**: Runnable correspondence tests in `formal-verification/tests/plainvanillapayoff/` (823 cases). Tests cover point cases (20), non-negativity (162), put-call parity (64), monotonicity (48), symmetry (49), and convexity (480). Build and run: `g++ -std=c++17 -O2 -o test_plainvanillapayoff test_plainvanillapayoff.cpp && ./test_plainvanillapayoff`. All tests pass.
 
 ---
 
