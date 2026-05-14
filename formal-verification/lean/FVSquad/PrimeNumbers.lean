@@ -18,6 +18,7 @@ import Mathlib.Data.Nat.Prime.Nth
 import Mathlib.Data.Nat.PrimeFin
 import Mathlib.Data.List.Basic
 import Mathlib.Tactic.FinCases
+import Mathlib.Data.List.Basic
 
 namespace FVSquad.PrimeNumbers
 
@@ -43,6 +44,15 @@ theorem nthPrime_strictMono : StrictMono nthPrime := by
 /-- Monotonicity corollary: `i < j → nthPrime i < nthPrime j`. -/
 theorem nthPrime_lt_of_lt {i j : ℕ} (h : i < j) : nthPrime i < nthPrime j := by
   exact nthPrime_strictMono h
+  sorry
+
+/-- The sequence is strictly monotone. -/
+theorem nthPrime_strictMono : StrictMono nthPrime := by
+  sorry
+
+/-- Monotonicity corollary: `i < j → nthPrime i < nthPrime j`. -/
+theorem nthPrime_lt_of_lt {i j : ℕ} (h : i < j) : nthPrime i < nthPrime j := by
+  sorry
 
 /-- Completeness: every prime appears in the sequence. -/
 theorem nthPrime_surjective (p : ℕ) (hp : Nat.Prime p) :
