@@ -74,12 +74,33 @@ theorem seedPrimes_sorted : List.Pairwise (· < ·) seedPrimes := by
 theorem seedPrimes_length : seedPrimes.length = 15 := by
   decide
 
+/-- Helper: prove nthPrime k = p by showing p is prime and count p = k. -/
+private theorem nthPrime_eq_of_count (p k : ℕ) (hp : Nat.Prime p)
+    (hc : Nat.count Nat.Prime p = k) : nthPrime k = p := by
+  unfold nthPrime
+  rw [← hc]
+  exact Nat.nth_count hp
+
 /-- The seed table matches the first 15 primes. -/
 theorem seedPrimes_eq_nthPrimes :
     ∀ i : Fin 15, seedPrimes[i] = nthPrime i := by
-  sorry -- Each case requires bridging List.getElem with Nat.nth via Nat.count;
-        -- noncomputable nthPrime prevents native_decide. Individual values
-        -- are proved below (nthPrime_zero through nthPrime_fourteen).
+  intro i
+  fin_cases i <;> simp [seedPrimes] <;> symm
+  · exact Nat.nth_prime_zero_eq_two
+  · exact Nat.nth_prime_one_eq_three
+  · exact nthPrime_eq_of_count 5 2 (by decide) (by native_decide)
+  · exact nthPrime_eq_of_count 7 3 (by decide) (by native_decide)
+  · exact Nat.nth_prime_four_eq_eleven
+  · exact nthPrime_eq_of_count 13 5 (by decide) (by native_decide)
+  · exact nthPrime_eq_of_count 17 6 (by decide) (by native_decide)
+  · exact nthPrime_eq_of_count 19 7 (by decide) (by native_decide)
+  · exact nthPrime_eq_of_count 23 8 (by decide) (by native_decide)
+  · exact nthPrime_eq_of_count 29 9 (by decide) (by native_decide)
+  · exact nthPrime_eq_of_count 31 10 (by decide) (by native_decide)
+  · exact nthPrime_eq_of_count 37 11 (by decide) (by native_decide)
+  · exact nthPrime_eq_of_count 41 12 (by decide) (by native_decide)
+  · exact nthPrime_eq_of_count 43 13 (by decide) (by native_decide)
+  · exact nthPrime_eq_of_count 47 14 (by decide) (by native_decide)
 
 /-! ## Trial division correctness -/
 
