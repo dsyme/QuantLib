@@ -1,5 +1,5 @@
 {
-  "last_run": 73,
+  "last_run": 74,
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -19,16 +19,19 @@
     {"name": "PlainVanillaPayoff", "phase": 5, "sorry_count": 0, "notes": "20/20 proved. 823 correspondence tests."},
     {"name": "Quadratic", "phase": 5, "sorry_count": 0, "notes": "17/17 proved. 63 correspondence tests."},
     {"name": "Composition", "phase": 5, "sorry_count": 0, "notes": "28/28 proved. No correspondence tests (algebraic identities)."},
-    {"name": "Rounding", "phase": 5, "sorry_count": 0, "notes": "20/20 proved (run73: removed unprovable sorry). 52 correspondence tests."},
-    {"name": "PrimeNumbers", "phase": 5, "sorry_count": 0, "notes": "14/14 proved. Correspondence documented in CORRESPONDENCE.md."},
-    {"name": "BernsteinPolynomial", "phase": 2, "sorry_count": null, "notes": "Informal spec written (run72). Next: formal Lean spec."}
+    {"name": "Rounding", "phase": 5, "sorry_count": 0, "notes": "20/20 proved. 52 correspondence tests."},
+    {"name": "PrimeNumbers", "phase": 5, "sorry_count": 0, "notes": "14/14 proved. Correspondence documented."},
+    {"name": "BernsteinPolynomial", "phase": 2, "sorry_count": null, "notes": "Informal spec written. Next: formal Lean spec."},
+    {"name": "RichardsonExtrapolation", "phase": 1, "sorry_count": null, "notes": "Identified run74. Algebraic properties, ~8-10 theorems expected."},
+    {"name": "LagrangeInterpolation", "phase": 1, "sorry_count": null, "notes": "Identified run74. Extends interpolation coverage."},
+    {"name": "Schedule", "phase": 1, "sorry_count": null, "notes": "Identified run74. Complex, defer to later runs."}
   ],
   "open_issues": [3],
   "ci_status": "lean-ci.yml exists and functional",
   "total_theorems": 291,
   "total_sorry": 5,
   "paper_exists": true,
-  "paper_updated": "2026-05-13",
+  "paper_updated": "2026-05-15",
   "report_updated": "2026-05-13",
   "correspondence_tests": [
     "actual360", "actual365fixed", "bisection", "blackformula",
@@ -36,5 +39,5 @@
     "matrix", "newtonsafe", "normaldistribution", "plainvanillapayoff",
     "quadratic", "rounding", "thirty360"
   ],
-  "notes": "Run 73: Task 5 removed unprovable idempotent sorry from Rounding (theorem was false without digit>0 precondition). Task 6 added PrimeNumbers to CORRESPONDENCE.md. lake build blocked by firewall (reservoir.leancache.cloud). Next: formal spec for BernsteinPolynomial, correspondence tests for Composition."
+  "notes": "Run 74: Task 1 added RichardsonExtrapolation, LagrangeInterpolation, Schedule as new targets. Task 11 updated paper stats. Next priorities: formal spec for BernsteinPolynomial, correspondence tests for Composition/PrimeNumbers."
 }
