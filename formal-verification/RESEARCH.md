@@ -186,3 +186,54 @@ Lean 4 + Mathlib is chosen because:
 - **Proof tractability**: Moderate — proving the trial division algorithm correct requires showing the loop invariant (all primes up to sqrt are tested). Bounded `decide` can verify specific outputs.
 - **Approximations needed**: Model as a pure function (ignore memoisation/caching). The C++ uses `BigNatural` (unsigned long) which may overflow for very large indices — not modelled.
 - **Approach**: Define `nthPrime : ℕ → ℕ` using Mathlib's prime infrastructure. State that the trial-division algorithm agrees with `nthPrime`. Use `decide`/`native_decide` for small cases, inductive invariant for general correctness.
+
+---
+
+## New Targets Identified (Run 74, 2026-05-15)
+
+*Incorporating critique feedback: prioritise deeper modelling and new mathematical targets that extend coverage to numerical methods and classical polynomial theory.*
+
+### 16. RichardsonExtrapolation — **MEDIUM-HIGH PRIORITY**
+
+- **Files**: `ql/math/richardsonextrapolation.hpp` (~73 lines)
+- **What it does**: Implements Richardson Extrapolation — a sequence acceleration technique that eliminates leading-order error terms. Given f(Δh) = f₀ + α·(Δh)ⁿ + O((Δh)^{n+1}), computes a better approximation of f₀ by combining evaluations at different step sizes.
+- **Key functions**: `operator()(Real t)` (known order n), `operator()(Real t, Real s)` (unknown order — two-parameter elimination)
+- **Properties to verify**:
+  - **Exactness on polynomials**: if f is a polynomial of degree ≤ n, Richardson extrapolation recovers f₀ exactly
+  - **Order elimination**: the extrapolated value eliminates the O(h^n) term
+  - **Formula correctness**: `(t^n · f(h) - f(t·h)) / (t^n - 1)` for known-order case
+  - **Two-parameter formula**: correct algebraic combination for unknown-order case
+- **Specification size**: ~25 Lean lines for types + 8-10 theorems
+- **Proof tractability**: Good — the key properties are algebraic identities over reals. Mathlib's `ring`, `field_simp`, and `linarith` should handle them.
+- **Approximations needed**: Model over ℝ (not IEEE 754). Ignore the stored function closure — model as pure algebra on function values.
+- **Approach**: Define the extrapolation formulas as pure functions on ℝ. Prove algebraic correctness (formula matches textbook). Prove exactness on polynomial sequences.
+
+### 17. LagrangeInterpolation — **MEDIUM PRIORITY**
+
+- **Files**: `ql/math/interpolations/lagrangeinterpolation.hpp` (~130 lines)
+- **What it does**: Implements barycentric Lagrange interpolation following Berrut & Trefethen (2004). Uses barycentric weights λᵢ for numerically stable evaluation.
+- **Key functions**: `value(x)`, `update()` (computes barycentric weights), `derivative(x)`
+- **Properties to verify**:
+  - **Interpolation condition**: L(xᵢ) = yᵢ for all data points
+  - **Uniqueness**: the polynomial of degree ≤ n-1 through n points is unique
+  - **Barycentric weight correctness**: λᵢ = 1/∏_{j≠i}(xᵢ - xⱼ) (scaled)
+  - **Linearity in y**: L(x; α·y + β·z) = α·L(x;y) + β·L(x;z)
+- **Specification size**: ~30 Lean lines + 8-12 theorems
+- **Proof tractability**: Moderate — interpolation condition provable by simplification at nodes. Uniqueness via polynomial degree arguments (Mathlib has `Polynomial`).
+- **Approximations needed**: Model over ℝ. Ignore the scaling factor cM1 (numerical stability trick that doesn't affect mathematical result). Assume distinct nodes.
+- **Approach**: Define the Lagrange basis polynomials, state interpolation condition and linearity. Prove knot interpolation by direct evaluation. Extend existing LinearInterpolation work.
+
+### 18. Schedule (date generation) — **LOWER PRIORITY (complex)**
+
+- **Files**: `ql/time/schedule.hpp`, `ql/time/schedule.cpp` (~253 + ~300 lines)
+- **What it does**: Generates payment schedules for financial instruments. Supports multiple date generation rules (Forward, Backward, Zero, ThirdWednesday, etc.) with business day adjustment.
+- **Properties to verify**:
+  - **Ordering**: generated dates are strictly increasing
+  - **Coverage**: first date ≤ effective date, last date ≥ termination date
+  - **Regularity**: regular periods have exact tenor length (before adjustment)
+  - **Boundary**: effective and termination dates are included
+- **Specification size**: ~60 Lean lines (complex due to many rules)
+- **Proof tractability**: Moderate-Hard — multiple interacting generation rules. Best to start with one rule (Forward) and prove ordering + coverage.
+- **Approximations needed**: Abstract calendar adjustments. Model date arithmetic as integer offsets. Focus on the date generation logic, not business day conventions.
+- **Approach**: Start with Forward rule only. Define schedule generation as a recursive function. Prove ordering invariant by induction on generation steps. Extend to other rules in future runs.
+- **Note**: Recommended by critique (Task 7) as a high-value complex target. Defer to later runs given its complexity.

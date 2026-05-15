@@ -12,13 +12,16 @@
 | 6 | Factorial | `ql/math/factorial.hpp/cpp` | 5 — Proofs | ✅ 10/10 proved | Medium | High |
 | 7 | Bisection | `ql/math/solvers1d/bisection.hpp` | 5 — Proofs | ✅ 15/15 proved | Medium | High |
 | 8 | Actual365Fixed | `ql/time/daycounters/actual365fixed.hpp` | 5 — Proofs | ✅ 8/8 proved | Medium | High |
-| 9 | FloatingPointClose | `ql/math/comparison.hpp` | 2 — Informal Spec | 🔄 Spec written | Medium-High | High |
-| 10 | BlackFormula | `ql/pricingengines/blackformula.hpp/cpp` | 2 — Informal Spec | 🔄 Spec written | **High** | High |
-| 11 | Matrix | `ql/math/matrix.hpp/cpp` | 1 — Research | ⬜ Identified | Medium | High |
-| 12 | NewtonSafe | `ql/math/solvers1d/newtonsafe.hpp` | 5 — Proofs | ✅ 13/13 proved | Medium-High | Medium-High |
-| 13 | Rounding | `ql/math/rounding.hpp/cpp` | 3 — Lean Spec | 🔄 15 theorems (14 sorry) | **High** | High |
+| 9 | FloatingPointClose | `ql/math/comparison.hpp` | 5 — Proofs | ✅ 12/12 proved + correspondence | Medium-High | High |
+| 10 | BlackFormula | `ql/pricingengines/blackformula.hpp/cpp` | 5 — Proofs | 🔄 14/15 proved (1 sorry) | **High** | High |
+| 11 | Matrix | `ql/math/matrix.hpp/cpp` | 5 — Proofs | ✅ 23/23 proved + correspondence | Medium | High |
+| 12 | NewtonSafe | `ql/math/solvers1d/newtonsafe.hpp` | 5 — Proofs | ✅ 13/13 proved + correspondence | Medium-High | Medium-High |
+| 13 | Rounding | `ql/math/rounding.hpp/cpp` | 5 — Proofs | ✅ 20/20 proved + correspondence | **High** | High |
 | 14 | PrimeNumbers | `ql/math/primenumbers.hpp/cpp` | 5 — Proofs | ✅ 14/14 proved | Medium | High |
 | 15 | BernsteinPolynomial | `ql/math/bernsteinpolynomial.hpp/cpp` | 2 — Informal Spec | 🔄 Spec written | Medium | High |
+| 16 | RichardsonExtrapolation | `ql/math/richardsonextrapolation.hpp` | 1 — Research | ⬜ Identified | Medium-High | High |
+| 17 | LagrangeInterpolation | `ql/math/interpolations/lagrangeinterpolation.hpp` | 1 — Research | ⬜ Identified | Medium | Medium-High |
+| 18 | Schedule | `ql/time/schedule.hpp/cpp` | 1 — Research | ⬜ Identified | Lower | Medium |
 
 ## Phase Key
 

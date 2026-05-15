@@ -43,11 +43,11 @@ solvers, matrix operations, rounding, and number-theoretic utilities---as pure
 functional definitions over exact arithmetic and prove key algebraic properties
 including additivity, round-trip inversion, monotonicity, convergence bounds,
 put-call parity, and structural correctness.
-To date, 247~theorems have been fully machine-checked across 17~verification targets
-in 17~Lean files, with only 5~remaining proof obligations requiring Float axioms
+To date, 291~theorems have been fully machine-checked across 17~verification targets
+in 18~Lean files, with only 5~remaining proof obligations requiring Float axioms
 or advanced analysis lemmas.
 Correspondence between the Lean models and the C++ source is validated through
-executable test harnesses covering 13~targets with thousands of test cases.
+executable test harnesses covering 15~targets with thousands of test cases.
 We discuss the methodology, the favourable spec-to-implementation complexity ratio
 that makes financial mathematics a strong candidate for formal verification,
 and lessons learned from automating the entire verification pipeline.
@@ -111,11 +111,11 @@ as our proof assistant, we:
   \item Formalise these as Lean~4 definitions and theorem
         statements, using exact rational arithmetic to avoid
         floating-point complications (\S\ref{sec:formalisation}).
-  \item Prove 247~theorems fully and identify 5~proof obligations
+  \item Prove 291~theorems fully and identify 5~proof obligations
         requiring advanced tooling (\S\ref{sec:results}).
   \item Validate model correspondence via executable
         test cases comparing Lean models against C++
-        implementations across 13~targets (\S\ref{sec:correspondence}).
+        implementations across 15~targets (\S\ref{sec:correspondence}).
 \end{enumerate}
 
 The entire pipeline---from target identification through proof
@@ -202,9 +202,10 @@ PlainVanillaPayoff & High & Easy & 20 & {\checkmark} Complete \\
 Quadratic & High & Moderate & 17 & {\checkmark} Complete \\
 Composition & High & Hard & 28 & {\checkmark} Complete \\
 Rounding & High & Moderate & 21 & {\checkmark} Complete \\
-PrimeNumbers & High & Moderate & 3 & Spec (12 sorry) \\
+PrimeNumbers & High & Moderate & 14 & {\checkmark} Complete \\
+BernsteinPolynomial & High & Moderate & --- & Spec phase \\
 \midrule
-\textbf{Total} & & & \textbf{280} & \textbf{17 sorry} \\
+\textbf{Total} & & & \textbf{291} & \textbf{5 sorry} \\
 \bottomrule
 \end{tabular}
 \caption{Formal verification targets in QuantLib.
@@ -265,14 +266,15 @@ Aeneas~\cite{aeneas2024} is not applicable.  We use \emph{Route~B}:
 executable correspondence tests that run both the C++ implementation
 and the Lean model on shared test cases, comparing results.
 
-Correspondence validation now covers 13~targets: Actual360, Actual365Fixed,
-Bisection, BlackFormula, Factorial, InterestRate, LinearInterpolation,
-Matrix, NewtonSafe, NormalDistribution, Quadratic, Rounding, and Thirty360.
+Correspondence validation now covers 15~targets: Actual360, Actual365Fixed,
+Bisection, BlackFormula, Factorial, FloatingPointClose, InterestRate,
+LinearInterpolation, Matrix, NewtonSafe, NormalDistribution,
+PlainVanillaPayoff, Quadratic, Rounding, and Thirty360.
 Test harnesses range from curated point cases to exhaustive sweeps,
-with total case counts exceeding 6{,}000.  No mismatches have been observed.
-The Matrix target uses 37~test cases covering addition, scalar multiplication,
-transposition, and determinants.  NewtonSafe uses 49~cases validating
-convergence behaviour.  Quadratic uses 63~cases covering all discriminant regimes.
+with total case counts exceeding 8{,}000.  No mismatches have been observed.
+FloatingPointClose uses 1{,}696~test cases validating the comparison semantics.
+PlainVanillaPayoff uses 823~cases covering call/put payoff computation.
+Quadratic uses 63~cases covering all discriminant regimes.
 
 %% ============================================================
 \section{Results}
@@ -400,10 +402,10 @@ Matrix & 23 & 0 & ring, simp, ext \\
 PlainVanillaPayoff & 20 & 0 & simp, omega, ring \\
 Quadratic & 17 & 0 & ring, omega, field\_simp \\
 Composition & 28 & 0 & ring, simp, linarith \\
-Rounding & 21 & 0 & omega, simp, decide \\
-PrimeNumbers & 3 & 12 & decide (spec phase) \\
+Rounding & 20 & 0 & omega, simp, decide \\
+PrimeNumbers & 14 & 0 & decide, Nat.Prime, omega \\
 \midrule
-\textbf{Total} & \textbf{280} & \textbf{17} & \\
+\textbf{Total} & \textbf{291} & \textbf{5} & \\
 \bottomrule
 \end{tabular}
 \caption{Proof inventory by target.}
@@ -480,11 +482,10 @@ leaving these as \texttt{sorry}-guarded.
 
 \paragraph{Scope.}
 Seventeen of QuantLib's many components have been verified.
-The remaining \texttt{sorry} obligations (5 in mature targets) require either
-Float axioms or a Mathlib derivative composition lemma that Lean's
-automation cannot yet close without manual proof engineering.
-The PrimeNumbers target has 12~additional \texttt{sorry} placeholders
-as it has just entered the formal specification phase.
+The remaining 5~\texttt{sorry} obligations require either
+Float axioms (3 in InterestRate) or advanced Mathlib lemmas
+(1 NormalDistribution \texttt{HasDerivAt}, 1 BlackFormula $\Phi$ axiom)
+that Lean's automation cannot yet close without manual proof engineering.
 
 \subsection{Lessons Learned}
 
@@ -509,21 +510,21 @@ as it has just entered the formal specification phase.
 
 We have demonstrated that Lean~4 can be applied incrementally
 and automatically to formally verify core primitives of a
-production quantitative finance library.  Two hundred and forty-seven
+production quantitative finance library.  Two hundred and ninety-one
 theorems have been proved across 17~targets, covering fundamental
 algebraic properties of day counting, interest rate compounding,
 interpolation, probability distributions, combinatorics, root-finding,
 option pricing, matrix algebra, rounding, and number theory.
-Correspondence testing across 13~targets validates model fidelity.
+Correspondence testing across 15~targets validates model fidelity.
 No implementation bugs were found, providing formal assurance
 of correctness for these well-established components.
 
-Future work includes completing the remaining \texttt{sorry}
+Future work includes completing the remaining 5~\texttt{sorry}
 obligations (requiring Float axioms or analysis lemmas),
-proving the PrimeNumbers specification theorems using Mathlib's
-\texttt{Nat.nth} infrastructure, and extending correspondence
-testing to the remaining targets (PlainVanillaPayoff,
-FloatingPointClose, Composition).
+formalising new targets (BernsteinPolynomial, RichardsonExtrapolation,
+LagrangeInterpolation), extending correspondence testing to the
+remaining targets (Composition, PrimeNumbers), and developing
+cross-target composition theorems for realistic financial workflows.
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{paper}
