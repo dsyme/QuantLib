@@ -1,5 +1,5 @@
 {
-  "last_run": 74,
+  "last_run": 75,
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -20,9 +20,9 @@
     {"name": "Quadratic", "phase": 5, "sorry_count": 0, "notes": "17/17 proved. 63 correspondence tests."},
     {"name": "Composition", "phase": 5, "sorry_count": 0, "notes": "28/28 proved. No correspondence tests (algebraic identities)."},
     {"name": "Rounding", "phase": 5, "sorry_count": 0, "notes": "20/20 proved. 52 correspondence tests."},
-    {"name": "PrimeNumbers", "phase": 5, "sorry_count": 0, "notes": "14/14 proved. Correspondence documented."},
+    {"name": "PrimeNumbers", "phase": 5, "sorry_count": 0, "notes": "14/14 proved. Fixed merge artifact duplicates in run75."},
     {"name": "BernsteinPolynomial", "phase": 2, "sorry_count": null, "notes": "Informal spec written. Next: formal Lean spec."},
-    {"name": "RichardsonExtrapolation", "phase": 1, "sorry_count": null, "notes": "Identified run74. Algebraic properties, ~8-10 theorems expected."},
+    {"name": "RichardsonExtrapolation", "phase": 2, "sorry_count": null, "notes": "Informal spec written run75. Algebraic properties, ~6 key theorems. Next: formal Lean spec."},
     {"name": "LagrangeInterpolation", "phase": 1, "sorry_count": null, "notes": "Identified run74. Extends interpolation coverage."},
     {"name": "Schedule", "phase": 1, "sorry_count": null, "notes": "Identified run74. Complex, defer to later runs."}
   ],
@@ -39,5 +39,5 @@
     "matrix", "newtonsafe", "normaldistribution", "plainvanillapayoff",
     "quadratic", "rounding", "thirty360"
   ],
-  "notes": "Run 74: Task 1 added RichardsonExtrapolation, LagrangeInterpolation, Schedule as new targets. Task 11 updated paper stats. Next priorities: formal spec for BernsteinPolynomial, correspondence tests for Composition/PrimeNumbers."
+  "notes": "Run 75: Task 2 wrote Richardson Extrapolation informal spec. Task 5 fixed PrimeNumbers merge artifact (removed 3 duplicate sorry). Next priorities: formal Lean specs for BernsteinPolynomial and RichardsonExtrapolation."
 }
