@@ -3,14 +3,14 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-05-12 04:11 UTC
-- **Commit**: `3749d9ae9` (Run 64)
+- **Date**: 2026-05-15 17:56 UTC
+- **Commit**: `70abc036d` (Run 76)
 
 ---
 
 ## Overall Assessment
 
-The formal verification effort has produced **252 theorems** across **17 Lean files** covering day counting (Actual360, Actual365Fixed, Thirty360), interest rate compounding (InterestRate), interpolation (LinearInterpolation), probability distributions (NormalDistribution), combinatorics (Factorial), root-finding (Bisection, NewtonSafe), floating-point comparison (FloatingPointClose), option pricing (BlackFormula, PlainVanillaPayoff), linear algebra (Matrix), polynomial algebra (Quadratic), rounding (Rounding), and cross-target composition (Composition). Approximately **247 theorems are fully proved**; **5 remain `sorry`-guarded** (3 InterestRate Float stdlib, 1 NormalDistribution HasDerivAt, 1 BlackFormula Φ axiom). Rounding is now **fully proved** (21/21 theorems, 0 sorry) — the `idempotent_counterexample_digit0` sorry was eliminated this run by manual unfolding of the noncomputable `roundQ` definition.
+The formal verification effort has produced **283 theorems** across **18 Lean files** covering day counting (Actual360, Actual365Fixed, Thirty360), interest rate compounding (InterestRate), interpolation (LinearInterpolation), probability distributions (NormalDistribution), combinatorics (Factorial), root-finding (Bisection, NewtonSafe), floating-point comparison (FloatingPointClose), option pricing (BlackFormula, PlainVanillaPayoff), linear algebra (Matrix), polynomial algebra (Quadratic, BernsteinPolynomial), rounding (Rounding), prime number generation (PrimeNumbers), and cross-target composition (Composition). Approximately **277 theorems are fully proved**; **6 remain `sorry`-guarded** (3 InterestRate Float stdlib, 1 NormalDistribution HasDerivAt, 2 BernsteinPolynomial partition-of-unity and recursion pending proof). The new BernsteinPolynomial spec adds 15 theorems (13 proved, 2 sorry) covering boundary values, symmetry, non-negativity, specific degree cases, and out-of-range behaviour.
 
 ---
 
@@ -37,7 +37,7 @@ The formal verification effort has produced **252 theorems** across **17 Lean fi
 | `idempotent_counterexample_digit0` | Rounding.lean | Mid | High | Counterexample: digit=0 breaks idempotent ✅ (newly proved) |
 | `composition_compoundFactor_pos` | Composition.lean | High | High | Cross-target: compound factor always positive |
 
-*Full inventory: 245 theorems across 17 Lean files. See individual `.lean` files for complete listings.*
+*Full inventory: 283 theorems across 18 Lean files. See individual `.lean` files for complete listings.*
 
 ---
 
@@ -45,25 +45,29 @@ The formal verification effort has produced **252 theorems** across **17 Lean fi
 
 ### High Priority
 
-1. **InterestRate: Float-based continuous compounding** — 3 sorry (`compoundContinuous_pos`, `continuous_roundtrip`, `compounded_roundtrip`) blocked on `Float.exp_pos`, `Float.log ∘ Float.exp = id`. **Status: blocked on stdlib, acceptable.**
+1. **BernsteinPolynomial: partition of unity** — The `bernstein_partition_of_unity` theorem (∑ B_{i,n}(x) = 1) requires connecting Lean's `Finset.sum` over the Bernstein definition to the binomial theorem. This is the single most important Bernstein property. The proof should use `Nat.sum_range_choose_mul_pow` or a custom induction. **Status: sorry, provable with effort.**
 
-2. **NormalDistribution: `cdf_deriv_eq_pdf`** — Blocked on `HasDerivAt` for erf composition. **Status: blocked on Mathlib analysis API.**
+2. **BernsteinPolynomial: de Casteljau recursion** — The recursion identity requires careful binomial coefficient algebra (`Nat.choose_succ_succ`). **Status: sorry, provable with effort.**
 
-3. **Cross-target composition depth** — The Composition.lean file has 28 theorems but could be expanded to cover more realistic financial workflows (e.g., full NPV calculation chain, multi-leg instrument pricing).
+3. **InterestRate: Float-based continuous compounding** — 3 sorry (`compoundContinuous_pos`, `continuous_roundtrip`, `compounded_roundtrip`) blocked on `Float.exp_pos`, `Float.log ∘ Float.exp = id`. **Status: blocked on stdlib, acceptable.**
 
-4. **Correspondence tests for remaining targets** — PlainVanillaPayoff, FloatingPointClose, Composition, and Rounding lack runnable correspondence tests. Adding these would strengthen model validation.
+4. **NormalDistribution: `cdf_deriv_eq_pdf`** — Blocked on `HasDerivAt` for erf composition. **Status: blocked on Mathlib analysis API.**
+
+5. **Cross-target composition depth** — The Composition.lean file has 28 theorems but could be expanded to cover more realistic financial workflows (e.g., full NPV calculation chain, multi-leg instrument pricing).
+
+6. **Richardson Extrapolation formal spec** — Informal spec complete (run 75). Next: Task 3. Algebraic convergence properties are highly amenable to Lean proofs.
 
 ### Medium Priority
 
-5. **New target: PrimeNumbers** — Informal spec exists (phase 2). Next step: Task 3 (formal spec). The sieve-of-Eratosthenes implementation has clear correctness criteria.
+7. **Richardson Extrapolation formal spec** — Informal spec complete. Algebraic convergence acceleration properties would add an interesting new domain (sequence/series analysis) to the FV portfolio.
 
-6. **Correspondence tests for newer targets** — Rounding, Composition, PlainVanillaPayoff, and FloatingPointClose lack runnable correspondence tests.
+8. **Correspondence tests for remaining targets** — Composition and PrimeNumbers lack runnable correspondence tests.
 
-7. **New target: Schedule generation** — `ql/time/schedule.hpp` is complex, bug-prone, and has clear correctness criteria.
+9. **New target: Schedule generation** — `ql/time/schedule.hpp` is complex, bug-prone, and has clear correctness criteria.
 
 ### Lower Priority
 
-8. **Factorial: connection to Mathlib `Nat.factorial`** — Proving equivalence would bridge to Mathlib's factorial lemma library.
+10. **Factorial: connection to Mathlib `Nat.factorial`** — Proving equivalence would bridge to Mathlib's factorial lemma library.
 
 ---
 
@@ -71,24 +75,26 @@ The formal verification effort has produced **252 theorems** across **17 Lean fi
 
 1. **Float theorems remain unprovable**: 3 sorry in InterestRate over `Float`. Clearly documented as aspirational. No risk.
 
-2. **No vacuity concerns**: All ~236 proved theorems operate over exact types (`ℚ`, `ℤ`, `ℕ`, `ℝ`) with documented correspondence to C++ formulas. Model approximations are clearly stated.
+2. **No vacuity concerns**: All ~277 proved theorems operate over exact types (`ℚ`, `ℤ`, `ℕ`, `ℝ`) with documented correspondence to C++ formulas. Model approximations are clearly stated.
 
 3. **BlackFormula axiomatises Φ**: 13 theorems hold *relative to* the Φ axiom. The proofs verify formula structure and put-call parity but not CDF implementation. Acceptable.
 
 4. **Rounding model uses ℚ, not IEEE 754**: The 15 Rounding theorems verify the mathematical semantics. 4 known divergences from C++ (Q vs double, fast_pow10 masking, modf semantics, negative zero) are documented in CORRESPONDENCE.md.
 
-5. **Correspondence test coverage**: 12 of 17 targets have runnable tests. The remaining 5 (FloatingPointClose, PlainVanillaPayoff, Rounding, Composition, PrimeNumbers) would benefit from executable validation.
+5. **Correspondence test coverage**: 15 of 18 targets have runnable tests. The remaining 3 (Composition, PrimeNumbers, BernsteinPolynomial) would benefit from executable validation.
 
 ---
 
 ## Positive Findings
 
-- **252 theorems with zero implementation bugs found**: all specified mathematical properties of QuantLib's core hold. Strong positive signal for the mathematical foundations.
+- **283 theorems with zero implementation bugs found**: all specified mathematical properties of QuantLib's core hold. Strong positive signal for the mathematical foundations.
 
-- **Rounding fully proved** (this run): eliminated the last `sorry` in `idempotent_counterexample_digit0` by manually unfolding the noncomputable `roundQ` definition with `norm_num` and `Int.floor_zero`/`Int.floor_one`. Rounding.lean now has 21 theorems, 0 sorry — covering all 6 rounding modes, boundary behaviour, monotonicity, bounded error, and result precision.
+- **BernsteinPolynomial spec** (this run): 15 theorems covering all boundary values, symmetry, non-negativity, specific degree cases (linear, quadratic), and out-of-range behaviour. 13 of 15 proved immediately using `simp` and `ring`. The remaining 2 (partition of unity, recursion) require deeper binomial coefficient manipulation — high-value targets for the next proof run.
+
+- **Rounding fully proved** (run 64): eliminated the last `sorry` in `idempotent_counterexample_digit0` by manually unfolding the noncomputable `roundQ` definition with `norm_num` and `Int.floor_zero`/`Int.floor_one`. Rounding.lean now has 21 theorems, 0 sorry — covering all 6 rounding modes, boundary behaviour, monotonicity, bounded error, and result precision.
 
 - **Finding from prior run**: `round_zero` theorem was originally stated without a `digit > 0` precondition. When `digit = 0` and mode ∈ {closest, floor, ceiling}, `0 ≥ 0/10` is true, causing spurious round-up of zero. This matches C++ behaviour — the OMG spec documents `digit = 0` as non-meaningful. Fixed by adding precondition.
 
 - **Put-call parity** (`blackPrice_call_put_parity`): formally verifies the fundamental Black-Scholes identity.
 
-- **Broad coverage**: 17 targets across day counting, interest rates, interpolation, distributions, combinatorics, root-finding, floating-point comparison, option pricing, linear algebra, polynomial algebra, rounding, and cross-target composition.
+- **Broad coverage**: 18 targets across day counting, interest rates, interpolation, distributions, combinatorics, root-finding, floating-point comparison, option pricing, linear algebra, polynomial algebra, Bernstein polynomials, rounding, prime numbers, and cross-target composition.
