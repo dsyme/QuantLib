@@ -1,5 +1,5 @@
 {
-  "last_run": 76,
+  "last_run": 77,
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -13,23 +13,23 @@
     {"name": "Bisection", "phase": 5, "sorry_count": 0, "notes": "15/15 proved."},
     {"name": "Actual365Fixed", "phase": 5, "sorry_count": 0, "notes": "8/8 proved."},
     {"name": "FloatingPointClose", "phase": 5, "sorry_count": 0, "notes": "12/12 proved. 1696 correspondence tests."},
-    {"name": "BlackFormula", "phase": 5, "sorry_count": 0, "notes": "14 theorems, Phi axiomatised (not counted as sorry)."},
+    {"name": "BlackFormula", "phase": 5, "sorry_count": 0, "notes": "14 theorems, Phi axiomatised."},
     {"name": "NewtonSafe", "phase": 5, "sorry_count": 0, "notes": "13/13 proved. 49 correspondence tests."},
     {"name": "Matrix", "phase": 5, "sorry_count": 0, "notes": "23/23 proved. 37 correspondence tests."},
     {"name": "PlainVanillaPayoff", "phase": 5, "sorry_count": 0, "notes": "20/20 proved. 823 correspondence tests."},
     {"name": "Quadratic", "phase": 5, "sorry_count": 0, "notes": "17/17 proved. 63 correspondence tests."},
     {"name": "Composition", "phase": 5, "sorry_count": 0, "notes": "28/28 proved. No correspondence tests (algebraic identities)."},
     {"name": "Rounding", "phase": 5, "sorry_count": 0, "notes": "20/20 proved. 52 correspondence tests."},
-    {"name": "PrimeNumbers", "phase": 5, "sorry_count": 0, "notes": "14/14 proved."},
-    {"name": "BernsteinPolynomial", "phase": 3, "sorry_count": 2, "notes": "15 theorems, 13 proved. sorry: partition_of_unity, recursion. Next: prove these two."},
-    {"name": "RichardsonExtrapolation", "phase": 2, "sorry_count": null, "notes": "Informal spec written run75. Next: formal Lean spec."},
+    {"name": "PrimeNumbers", "phase": 5, "sorry_count": 0, "notes": "14/14 proved. 1102 correspondence tests (run77)."},
+    {"name": "BernsteinPolynomial", "phase": 3, "sorry_count": 2, "notes": "15 theorems, 13 proved. sorry: partition_of_unity, recursion."},
+    {"name": "RichardsonExtrapolation", "phase": 3, "sorry_count": 7, "notes": "Lean spec written run77. 7 theorems, all sorry. Next: prove constant_function, exactness."},
     {"name": "LagrangeInterpolation", "phase": 1, "sorry_count": null, "notes": "Identified run74."},
     {"name": "Schedule", "phase": 1, "sorry_count": null, "notes": "Identified run74. Complex, defer."}
   ],
   "open_issues": [3],
   "ci_status": "lean-ci.yml exists and functional",
-  "total_theorems": 283,
-  "total_sorry": 6,
+  "total_theorems": 290,
+  "total_sorry": 13,
   "paper_exists": true,
   "paper_updated": "2026-05-15",
   "report_updated": "2026-05-13",
@@ -37,7 +37,7 @@
     "actual360", "actual365fixed", "bisection", "blackformula",
     "factorial", "floatingpointclose", "interestrate", "linearinterpolation",
     "matrix", "newtonsafe", "normaldistribution", "plainvanillapayoff",
-    "quadratic", "rounding", "thirty360"
+    "primenumbers", "quadratic", "rounding", "thirty360"
   ],
-  "notes": "Run 76: Task 3 wrote BernsteinPolynomial Lean spec (13/15 proved). Task 7 updated critique. lake build timed out (Mathlib from source). Next: prove partition_of_unity and recursion, write RichardsonExtrapolation spec."
+  "notes": "Run 77: Task 8 added PrimeNumbers correspondence tests (1102 cases). Task 3 wrote RichardsonExtrapolation Lean spec (7 theorems). lake build passed. Next: prove Richardson theorems, prove BernsteinPolynomial partition_of_unity."
 }
