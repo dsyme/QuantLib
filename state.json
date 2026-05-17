@@ -1,5 +1,5 @@
 {
-  "last_run": 81,
+  "last_run": 82,
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -18,12 +18,12 @@
     {"name": "Matrix", "phase": 5, "sorry_count": 0, "notes": "23/23 proved. 37 correspondence tests."},
     {"name": "PlainVanillaPayoff", "phase": 5, "sorry_count": 0, "notes": "20/20 proved. 823 correspondence tests."},
     {"name": "Quadratic", "phase": 5, "sorry_count": 0, "notes": "17/17 proved. 63 correspondence tests."},
-    {"name": "Composition", "phase": 5, "sorry_count": 0, "notes": "28/28 proved. No correspondence tests."},
+    {"name": "Composition", "phase": 5, "sorry_count": 0, "notes": "28/28 proved. 52904 correspondence tests."},
     {"name": "Rounding", "phase": 5, "sorry_count": 0, "notes": "20/20 proved. 52 correspondence tests."},
     {"name": "PrimeNumbers", "phase": 5, "sorry_count": 0, "notes": "14/14 proved. 1102 correspondence tests."},
     {"name": "BernsteinPolynomial", "phase": 5, "sorry_count": 0, "notes": "15/15 proved. 1706 correspondence tests."},
     {"name": "RichardsonExtrapolation", "phase": 5, "sorry_count": 0, "notes": "7/7 proved. 115 correspondence tests."},
-    {"name": "LagrangeInterpolation", "phase": 1, "sorry_count": null, "notes": "Identified run74."},
+    {"name": "LagrangeInterpolation", "phase": 2, "sorry_count": null, "notes": "Informal spec written run82. Next: Lean spec."},
     {"name": "Schedule", "phase": 1, "sorry_count": null, "notes": "Identified run74. Complex, defer."}
   ],
   "open_issues": [3],
@@ -34,10 +34,11 @@
   "paper_updated": "2026-05-15",
   "report_updated": "2026-05-13",
   "correspondence_tests": [
-    "actual360", "actual365fixed", "bisection", "blackformula", "factorial",
-    "floatingpointclose", "interestrate", "linearinterpolation", "matrix",
-    "newtonsafe", "normaldistribution", "plainvanillapayoff", "primenumbers",
-    "quadratic", "rounding", "thirty360", "bernsteinpolynomial", "richardsonextrapolation"
+    "actual360", "actual365fixed", "bisection", "blackformula", "composition",
+    "factorial", "floatingpointclose", "interestrate", "linearinterpolation",
+    "matrix", "newtonsafe", "normaldistribution", "plainvanillapayoff",
+    "primenumbers", "quadratic", "rounding", "thirty360",
+    "bernsteinpolynomial", "richardsonextrapolation"
   ],
-  "notes": "Run 81: Task 9 CI audit (healthy). Task 5 no actionable sorrys (all upstream-blocked). Next: advance LagrangeInterpolation or add Composition correspondence tests."
+  "notes": "Run 82: Task 8 added 52904 correspondence tests for Composition. Task 2 wrote LagrangeInterpolation informal spec. All targets now have correspondence tests. Next: Lean spec for LagrangeInterpolation (Task 3)."
 }
