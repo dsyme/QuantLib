@@ -3,8 +3,8 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-05-17 04:36 UTC
-- **Commit**: `51b387d53` (Run 80) — Added BernsteinPolynomial and RichardsonExtrapolation correspondence entries with runnable tests
+- **Date**: 2026-05-17 17:30 UTC
+- **Commit**: `53844b327b56`
 
 ---
 
@@ -397,7 +397,7 @@ The Composition module does not model a single C++ class — it verifies algebra
 
 These are structural algebraic truths that hold independently of the numeric domain. They confirm that the mathematical relationships QuantLib relies on are consistent.
 
-**Validation evidence**: No separate correspondence tests needed — Composition theorems are algebraic identities over integers proved by `omega`/`linarith`. Their validity is unconditional.
+**Validation evidence**: Runnable correspondence tests at `formal-verification/tests/composition/test_correspondence.py` — 52,904 test cases exhaustively verify all 28 theorems over representative integer ranges. Run with `python3 formal-verification/tests/composition/test_correspondence.py`.
 
 ---
 
