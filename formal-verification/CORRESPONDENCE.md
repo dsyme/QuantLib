@@ -3,8 +3,8 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-05-17 17:30 UTC
-- **Commit**: `53844b327b56`
+- **Date**: 2026-05-18 18:15 UTC
+- **Commit**: `e3356542a`
 
 ---
 
@@ -498,3 +498,33 @@ None identified. The Rat model's restriction to `Nat` exponents for compounded m
 - `order_improvement`: residual error is O(h^(n+1)), cancelling the leading term.
 
 **Validation evidence**: Runnable correspondence tests at `formal-verification/tests/richardsonextrapolation/`. 115 test cases covering exactness, constant preservation, linearity, order improvement, and numerical examples. All pass.
+
+---
+
+## Brent
+
+| Lean Definition | C++ Source | File / Line | Correspondence | Justification |
+|----------------|-----------|-------------|----------------|---------------|
+| `bisectMid` | midpoint computation `xMid = (xMax_ - root_) / 2` | `ql/math/solvers1d/brent.hpp` L38 | **Exact** | Both compute `(xMax - root) / 2`. |
+| `qsign` | `sign(a, b)` helper | `ql/math/solvers1d/brent.hpp` L28–30 | **Exact** | Both return `|a|` if `b ≥ 0`, else `-|a|`. |
+| `brentStep` | iteration body of `solveImpl` | `ql/math/solvers1d/brent.hpp` L32–90 | **Approximation** | The Lean model uses pure bisection as the step strategy. The C++ combines bisection, secant, and inverse quadratic interpolation. The Lean model captures the worst-case (bisection-only) behaviour, which gives the guaranteed convergence rate. Interpolation steps are strictly better (faster convergence). |
+| `brent` | outer loop of `solveImpl` | `ql/math/solvers1d/brent.hpp` L32–95 | **Approximation** | C++ uses a while loop with evaluation count; Lean uses fuel-based recursion. Termination conditions are equivalent (exact zero or midpoint within tolerance). |
+| `initState` | initial setup in `solveImpl` | `ql/math/solvers1d/brent.hpp` L32–37 | **Exact** | Both initialise root, xMax, froot, fxMax from the bracket endpoints. |
+| `bracketWidth` / `iterateBisect` | bracket width analysis | (mathematical property) | **Exact** | Pure mathematical model: bracket width after k bisection steps is `(xMax - root) / 2^k`. |
+
+**Divergences**:
+1. **Step strategy**: C++ uses adaptive step selection (bisection/secant/IQI). Lean models only the bisection fallback. This is a sound under-approximation: the real algorithm converges at least as fast as pure bisection, so bounds proved for the bisection model are valid for the full algorithm.
+2. **Floating-point**: C++ uses `double`; Lean uses exact `ℚ`. Machine epsilon tolerance term `2*ε*|root|` is omitted.
+3. **Evaluation counting**: C++ tracks `evaluationNumber_` and throws on overflow. Lean uses fuel parameter.
+4. **close() check**: C++ uses QuantLib's `close(froot, 0.0)` floating-point comparison. Lean uses exact `= 0`.
+
+**Impact on proofs**: 14 theorems, all fully proved (0 sorry). Key results:
+- `bracketWidth_formula`: bracket width = initial width / 2^k (convergence guarantee)
+- `brent_exact_zero`: immediate return on exact root
+- `brent_converged`: convergence detection correctness
+- `bisectMid_between`: midpoint containment in bracket
+- `qsign_pos`/`qsign_neg`/`qsign_abs`: sign helper algebraic properties
+
+The bisection-only model is a sound lower bound: any convergence property proved for this model also holds for the full Brent algorithm (which only uses faster-converging steps when safe).
+
+**Validation evidence**: Correspondence not yet independently validated via executable tests. The model captures worst-case bisection behaviour, which is the convergence guarantee. Future work: add correspondence tests comparing iteration counts and bracket widths against C++ execution.
