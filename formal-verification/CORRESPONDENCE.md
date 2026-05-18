@@ -3,8 +3,8 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-05-14 18:14 UTC
-- **Commit**: Run 73 — Added PrimeNumbers correspondence entry; removed unprovable Rounding sorry
+- **Date**: 2026-05-17 17:30 UTC
+- **Commit**: `53844b327b56`
 
 ---
 
@@ -397,7 +397,7 @@ The Composition module does not model a single C++ class — it verifies algebra
 
 These are structural algebraic truths that hold independently of the numeric domain. They confirm that the mathematical relationships QuantLib relies on are consistent.
 
-**Validation evidence**: No separate correspondence tests needed — Composition theorems are algebraic identities over integers proved by `omega`/`linarith`. Their validity is unconditional.
+**Validation evidence**: Runnable correspondence tests at `formal-verification/tests/composition/test_correspondence.py` — 52,904 test cases exhaustively verify all 28 theorems over representative integer ranges. Run with `python3 formal-verification/tests/composition/test_correspondence.py`.
 
 ---
 
@@ -456,3 +456,45 @@ These are structural algebraic truths that hold independently of the numeric dom
 ## Known Mismatches
 
 None identified. The Rat model's restriction to `Nat` exponents for compounded mode is a documented, intentional abstraction — not a mismatch. Proofs that rely on `compoundCompoundedQ` are valid only for integer compounding periods, which is clearly noted in theorem preconditions.
+
+
+---
+
+## BernsteinPolynomial
+
+| Lean Definition | C++ Source | File / Line | Correspondence | Justification |
+|----------------|-----------|-------------|----------------|---------------|
+| `bernstein n i x` | `BernsteinPolynomial::get(i, n, x)` | `ql/math/bernsteinpolynomial.hpp` L48 | **Exact** | Both compute C(n,i) * x^i * (1-x)^(n-i). The formula is identical. |
+
+**Divergences**:
+1. **Arithmetic**: C++ uses IEEE 754 doubles; Lean uses exact reals. For moderate n and x in [0,1], differences are negligible.
+2. **Overflow**: C++ Natural type may overflow for large n in C(n,i). Lean uses unbounded N.
+3. **Preconditions**: Lean proves i <= n is needed (bernstein_out_of_range). C++ does not enforce this.
+
+**Impact on proofs**: 15 theorems, all fully proved. Key results:
+- `bernstein_partition_of_unity`: sum of all basis polynomials equals 1 (binomial theorem).
+- `bernstein_symmetry`: B_{i,n}(x) = B_{n-i,n}(1-x).
+- `bernstein_recursion`: de Casteljau recursion relation.
+- `bernstein_nonneg`: non-negativity on [0,1].
+
+**Validation evidence**: Runnable correspondence tests at `formal-verification/tests/bernsteinpolynomial/`. 1706 test cases covering reference values, partition of unity, symmetry, non-negativity, and recursion. All pass.
+
+---
+
+## RichardsonExtrapolation
+
+| Lean Definition | C++ Source | File / Line | Correspondence | Justification |
+|----------------|-----------|-------------|----------------|---------------|
+| `extrapolate cfg t` | `RichardsonExtrapolation::operator()(t)` | `ql/math/richardsonextrapolation.cpp` L59-64 | **Exact** | Both compute (t^n * f(dh/t) - f(dh)) / (t^n - 1). |
+
+**Divergences**:
+1. **Arithmetic**: C++ uses doubles; Lean uses exact reals.
+2. **Unknown-order mode**: C++ supports a second mode using Brent solver to estimate n. Lean only models the known-order formula.
+3. **Error handling**: C++ checks for Null<Real>() sentinels. Lean model uses preconditions (n > 0, t > 1).
+
+**Impact on proofs**: 7 theorems, all fully proved. Key results:
+- `exactness_polynomial_error`: recovers f0 when error is exactly polynomial.
+- `linearity`: Richardson extrapolation is a linear operator.
+- `order_improvement`: residual error is O(h^(n+1)), cancelling the leading term.
+
+**Validation evidence**: Runnable correspondence tests at `formal-verification/tests/richardsonextrapolation/`. 115 test cases covering exactness, constant preservation, linearity, order improvement, and numerical examples. All pass.

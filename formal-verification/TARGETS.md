@@ -20,8 +20,9 @@
 | 14 | PrimeNumbers | `ql/math/primenumbers.hpp/cpp` | 5 — Proofs | ✅ 14/14 proved | Medium | High |
 | 15 | BernsteinPolynomial | `ql/math/bernsteinpolynomial.hpp/cpp` | 2 — Informal Spec | 🔄 Spec written | Medium | High |
 | 16 | RichardsonExtrapolation | `ql/math/richardsonextrapolation.hpp` | 1 — Research | ⬜ Identified | Medium-High | High |
-| 17 | LagrangeInterpolation | `ql/math/interpolations/lagrangeinterpolation.hpp` | 1 — Research | ⬜ Identified | Medium | Medium-High |
+| 17 | LagrangeInterpolation | `ql/math/interpolations/lagrangeinterpolation.hpp` | 2 — Informal Spec | 🔄 Spec written | Medium | Medium-High |
 | 18 | Schedule | `ql/time/schedule.hpp/cpp` | 1 — Research | ⬜ Identified | Lower | Medium |
+| 19 | Brent | `ql/math/solvers1d/brent.hpp` | 2 — Informal Spec | 🔄 Spec written | Medium-High | High |
 
 ## Phase Key
 
