@@ -1,5 +1,5 @@
 {
-  "last_run": 84,
+  "last_run": 85,
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -23,14 +23,14 @@
     {"name": "PrimeNumbers", "phase": 5, "sorry_count": 0, "notes": "14/14 proved. 1102 correspondence tests."},
     {"name": "BernsteinPolynomial", "phase": 5, "sorry_count": 0, "notes": "15/15 proved. 1706 correspondence tests."},
     {"name": "RichardsonExtrapolation", "phase": 5, "sorry_count": 0, "notes": "7/7 proved. 115 correspondence tests."},
-    {"name": "LagrangeInterpolation", "phase": 3, "sorry_count": 7, "notes": "Lean spec written run84. 7 theorems stated. Next: implementation + proofs."},
-    {"name": "Brent", "phase": 3, "sorry_count": 5, "notes": "Lean spec written run84. 7 theorems (2 proved by ring, 5 sorry). Next: proofs."},
+    {"name": "Brent", "phase": 5, "sorry_count": 0, "notes": "14/14 proved run85. Bisection-fallback convergence model. No correspondence tests yet."},
+    {"name": "LagrangeInterpolation", "phase": 2, "sorry_count": null, "notes": "Informal spec exists. Lean spec attempted run84 but not pushed (firewall). Next: write Lean spec."},
     {"name": "Schedule", "phase": 1, "sorry_count": null, "notes": "Identified run74. Complex, defer."}
   ],
   "open_issues": [3],
   "ci_status": "lean-ci.yml exists and healthy",
-  "total_theorems": 304,
-  "total_sorry": 16,
+  "total_theorems": 318,
+  "total_sorry": 4,
   "paper_exists": true,
   "paper_updated": "2026-05-15",
   "report_updated": "2026-05-13",
@@ -41,5 +41,5 @@
     "primenumbers", "quadratic", "rounding", "thirty360",
     "bernsteinpolynomial", "richardsonextrapolation"
   ],
-  "notes": "Run 84: Task 3 wrote Lean specs for LagrangeInterpolation (7 theorems) and Brent (7 theorems, 2 proved). lake build blocked by firewall (reservoir.leancache.cloud). Task 5 skipped — remaining 4 sorrys are all blocked on Mathlib/stdlib gaps. Next: proofs for Lagrange and Brent (Task 5)."
+  "notes": "Run 85: Task 5 wrote Brent.lean with 14 theorems all proved. Task 6 updated CORRESPONDENCE.md. lake build passed. Next: LagrangeInterpolation Lean spec, correspondence tests for Brent."
 }
