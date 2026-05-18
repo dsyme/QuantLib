@@ -24,6 +24,21 @@ hold for a Python implementation of the Black 1976 formula matching QuantLib's
 
 **Total**: 312 test cases, all passing.
 
+### Extended (Extreme Parameters)
+
+| Property | Regime | Cases |
+|----------|--------|-------|
+| Non-negativity | High vol (σ=50), deep ITM/OTM, near-zero F | 30+ |
+| Put-call parity | All extreme regimes | 30+ |
+| Zero-vol limit | Near-zero vol (σ=1e-8) | 9 |
+| Monotonicity (forward) | Fine grid 0.01–500 | 500 points |
+| Monotonicity (vol) | Fine grid 0.01–3.0 | 300 points |
+| Upper bounds | High vol, deep ITM/OTM, large displacement | 20+ |
+| Discount linearity | Extreme discounts (0.001–0.999) | 5 |
+| Near-zero forward | F → 0+ | 4 |
+
+**Total extended**: 53 test cases, all passing.
+
 ## How to run
 
 ```bash
