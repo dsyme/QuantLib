@@ -1,5 +1,5 @@
 {
-  "last_run": 87,
+  "last_run": 88,
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -24,13 +24,13 @@
     {"name": "BernsteinPolynomial", "phase": 5, "sorry_count": 0, "notes": "15/15 proved."},
     {"name": "RichardsonExtrapolation", "phase": 5, "sorry_count": 0, "notes": "7/7 proved."},
     {"name": "Brent", "phase": 5, "sorry_count": 0, "notes": "14/14 proved. No correspondence tests yet."},
-    {"name": "LagrangeInterpolation", "phase": 4, "sorry_count": 6, "notes": "9 theorems, 3 proved. 6 sorry remain. Correspondence added to CORRESPONDENCE.md run87."},
+    {"name": "LagrangeInterpolation", "phase": 5, "sorry_count": 4, "notes": "5/9 proved (run88: +partition_of_unity, +exact_on_constants). 4 sorry: linearity, bary_eq_classical, scaling_invariance, exact_on_linear."},
     {"name": "Schedule", "phase": 1, "sorry_count": null, "notes": "Identified run74. Complex, defer."}
   ],
   "open_issues": [3],
   "ci_status": "lean-ci.yml exists and healthy",
   "total_theorems": 307,
-  "total_sorry": 10,
+  "total_sorry": 8,
   "paper_exists": true,
   "paper_updated": "2026-05-15",
   "report_updated": "2026-05-19",
@@ -42,5 +42,5 @@
     "primenumbers", "quadratic", "rounding", "thirty360",
     "bernsteinpolynomial", "richardsonextrapolation"
   ],
-  "notes": "Run 87: Task 10 (Report) + Task 6 (Correspondence Review). Updated REPORT.md to 307 theorems/22 files. Added LagrangeInterpolation to CORRESPONDENCE.md. Next priorities: prove remaining Lagrange sorry, add correspondence tests for Brent and Lagrange."
+  "notes": "Run 88: Task 5 (Proof Assistance) + Task 9 (CI audit). Proved partition_of_unity and exact_on_constants in LagrangeInterpolation. CI healthy. Next: prove remaining 4 Lagrange sorry (linearity needs zipWith lemma, scaling_invariance needs weight ratio argument), add correspondence tests for Brent and Lagrange."
 }
