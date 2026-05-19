@@ -105,7 +105,15 @@ theorem partition_of_unity (xs : List ℚ) (hnd : xs.Nodup) (hne : xs ≠ [])
     (c : ℚ) (hc : c ≠ 0)
     (hdenom : baryDenom xs c x ≠ 0) :
     baryNumer xs (xs.map (fun _ => (1 : ℚ))) c x / baryDenom xs c x = 1 := by
-  sorry
+  suffices h : baryNumer xs (xs.map (fun _ => (1 : ℚ))) c x = baryDenom xs c x by
+    rw [h, div_self hdenom]
+  unfold baryNumer baryDenom
+  congr 1
+  apply List.map_congr_left
+  intro ⟨i, hi⟩ _
+  have hgetD : (xs.map (fun _ => (1 : ℚ))).getD i 0 = 1 := by
+    simp [List.getD, List.getElem?_map, show i < xs.length from hi]
+  rw [hgetD, mul_one]
 
 /-- **Linearity**: Interpolation is linear in y-values. -/
 theorem linearity (xs : List ℚ) (hnd : xs.Nodup) (hne : xs ≠ [])
@@ -117,6 +125,8 @@ theorem linearity (xs : List ℚ) (hnd : xs.Nodup) (hne : xs ≠ [])
       baryDenom xs c x =
     α * (baryNumer xs ys1 c x / baryDenom xs c x) +
     β * (baryNumer xs ys2 c x / baryDenom xs c x) := by
+  -- Linearity of the barycentric form follows from linearity of the numerator sum.
+  -- The key step: each term w_i/(x-x_i) * (α·y1_i + β·y2_i) = α·w_i/(x-x_i)·y1_i + β·w_i/(x-x_i)·y2_i
   sorry
 
 /-- **Single point**: With one data point, interpolation returns y_0 everywhere. -/
@@ -153,6 +163,10 @@ theorem scaling_invariance (xs ys : List ℚ) (c₁ c₂ : ℚ) (hc1 : c₁ ≠ 
     (hd2 : baryDenom xs c₂ x ≠ 0) :
     baryNumer xs ys c₁ x / baryDenom xs c₁ x =
     baryNumer xs ys c₂ x / baryDenom xs c₂ x := by
+  -- The key insight: changing c scales all weights uniformly, which cancels in the ratio.
+  -- weightDenom with c₂ = (c₂/c₁)^(n-1) * weightDenom with c₁
+  -- So baryWeight with c₂ = (c₁/c₂)^(n-1) * baryWeight with c₁
+  -- Both numer and denom get scaled by the same factor, so the ratio is preserved.
   sorry
 
 /-- **Weight product non-zero**: For distinct nodes, each weight denominator is non-zero. -/
@@ -181,7 +195,31 @@ theorem exact_on_constants (data : InterpData) (k : ℚ) (x : ℚ)
     (hx : ∀ i : Fin data.xs.length, data.xs.get i ≠ x)
     (hdenom : baryDenom data.xs (scalingConst data.xs) x ≠ 0) :
     baryEval data x = k := by
-  sorry
+  unfold baryEval
+  have hnotnode : ¬∃ i : Fin data.xs.length, data.xs.get i = x := by
+    push_neg; exact hx
+  rw [dif_neg hnotnode]
+  -- baryNumer with ys = map (fun _ => k) = k * baryDenom
+  unfold baryNumer
+  have heq : (List.finRange data.xs.length).map (fun i =>
+      baryWeight data.xs (scalingConst data.xs) i.val / (x - data.xs.get i) *
+        data.ys.getD i.val 0) =
+    (List.finRange data.xs.length).map (fun i =>
+      k * (baryWeight data.xs (scalingConst data.xs) i.val / (x - data.xs.get i))) := by
+    congr 1; ext ⟨i, hi⟩
+    have : data.ys.getD i 0 = k := by
+      rw [hys]
+      unfold List.getD
+      rw [List.getElem?_map]
+      simp [show i < data.xs.length from hi]
+    rw [this]; ring
+  rw [heq]
+  have hsuff : ((List.finRange data.xs.length).map (fun i =>
+      k * (baryWeight data.xs (scalingConst data.xs) i.val / (x - data.xs.get i)))).sum
+      = k * baryDenom data.xs (scalingConst data.xs) x := by
+    unfold baryDenom
+    rw [← List.sum_map_mul_left]
+  rw [hsuff]; exact mul_div_cancel_of_imp fun h => absurd h hdenom
 
 /-- **Exactness on linear**: If y_i = a·x_i + b, then p(x) = a·x + b. -/
 theorem exact_on_linear (data : InterpData) (a b : ℚ) (x : ℚ)
