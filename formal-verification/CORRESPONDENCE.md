@@ -3,8 +3,8 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-05-18 18:15 UTC
-- **Commit**: `e3356542a`
+- **Date**: 2026-05-19 11:35 UTC
+- **Commit**: `09a8a4362`
 
 ---
 
@@ -528,3 +528,34 @@ None identified. The Rat model's restriction to `Nat` exponents for compounded m
 The bisection-only model is a sound lower bound: any convergence property proved for this model also holds for the full Brent algorithm (which only uses faster-converging steps when safe).
 
 **Validation evidence**: Correspondence not yet independently validated via executable tests. The model captures worst-case bisection behaviour, which is the convergence guarantee. Future work: add correspondence tests comparing iteration counts and bracket widths against C++ execution.
+
+---
+
+## LagrangeInterpolation
+
+| Lean Definition | C++ Source | File / Line | Correspondence | Justification |
+|----------------|-----------|-------------|----------------|---------------|
+| `weightDenom` | `lambda_[i]` computation in `update()` | `ql/math/interpolations/lagrangeinterpolation.hpp` L64–72 | **Exact** | Both compute `Π_{j≠i} c*(x_i - x_j)`. Lean returns the product; C++ inverts it to get `lambda_[i] = 1/product`. |
+| `baryWeight` | `lambda_[i]` | `ql/math/interpolations/lagrangeinterpolation.hpp` L72 | **Exact** | Both represent `1 / Π_{j≠i} c*(x_i - x_j)`. |
+| `scalingConst` | `cM1 = 4.0/(x_{n-1} - x_0)` | `ql/math/interpolations/lagrangeinterpolation.hpp` L63 | **Exact** | Same formula: `4/(x_last - x_first)`. |
+| `baryNumer` | numerator in `_value()` loop: `Σ lambda_[i]/(x-x_i) * y_i` | `ql/math/interpolations/lagrangeinterpolation.hpp` L131 | **Exact** | Both compute the weighted sum of `λ_i/(x-x_i) * y_i`. |
+| `baryDenom` | denominator in `_value()` loop: `Σ lambda_[i]/(x-x_i)` | `ql/math/interpolations/lagrangeinterpolation.hpp` L132 | **Exact** | Both compute the sum `Σ λ_i/(x-x_i)`. |
+| `baryEval` | `_value()` with the `close_enough` short-circuit | `ql/math/interpolations/lagrangeinterpolation.hpp` L124–135 | **Abstraction** | Both return `y_i` when `x ≈ x_i`, else `numer/denom`. Lean uses exact equality; C++ uses `eps = 10*ε*|x|` tolerance. |
+| `lagrangeBasis` | (mathematical reference — not directly in C++) | — | **Exact** | Classical Lagrange basis polynomial `L_i(x) = Π_{j≠i} (x-x_j)/(x_i-x_j)`. Used for equivalence proof. |
+| `lagrangeClassical` | (mathematical reference) | — | **Exact** | Classical form `p(x) = Σ y_i * L_i(x)`. |
+
+**Divergences**:
+1. **Arithmetic**: C++ uses `double`; Lean uses exact `ℚ` (rationals). No floating-point rounding in the model.
+2. **Node proximity check**: C++ uses `close_enough(x, x_i)` with tolerance `10*ε*|x|`. Lean uses exact equality `x = x_i`. This means the Lean model does not capture floating-point near-node instability avoidance.
+3. **Iterator mechanics**: C++ uses `lower_bound` search for the near-node check. Lean uses a simple existential predicate over nodes.
+4. **Derivative**: C++ implements `derivative()` using a quotient-rule-style formula. The Lean model does not model differentiation.
+5. **Error handling**: C++ throws for `primitive()` and `secondDerivative()`. Not modelled.
+
+**Impact on proofs**: 9 theorems stated, 3 fully proved (`interp_at_node`, `single_point`, `weight_denom_ne_zero`), 6 `sorry`-guarded. Key proved results:
+- `interp_at_node`: interpolation passes through data points (fundamental correctness).
+- `single_point`: single-node interpolation returns the constant value.
+- `weight_denom_ne_zero`: barycentric weights are well-defined for distinct nodes.
+
+The remaining sorry-guarded theorems (`partition_of_unity`, `linearity`, `scaling_invariance`, `bary_eq_classical`, `exact_on_constants`, `exact_on_linear`) are standard mathematical properties of Lagrange interpolation and should be provable with further tactic work.
+
+**Validation evidence**: Correspondence not yet independently validated via executable tests. Future work: add correspondence tests comparing Lean's exact-rational evaluation against C++ double evaluation on shared test points.
