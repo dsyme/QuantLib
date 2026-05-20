@@ -125,9 +125,34 @@ theorem linearity (xs : List ℚ) (hnd : xs.Nodup) (hne : xs ≠ [])
       baryDenom xs c x =
     α * (baryNumer xs ys1 c x / baryDenom xs c x) +
     β * (baryNumer xs ys2 c x / baryDenom xs c x) := by
-  -- Linearity of the barycentric form follows from linearity of the numerator sum.
-  -- The key step: each term w_i/(x-x_i) * (α·y1_i + β·y2_i) = α·w_i/(x-x_i)·y1_i + β·w_i/(x-x_i)·y2_i
-  sorry
+  -- (α*N1 + β*N2)/D = α*(N1/D) + β*(N2/D) when D ≠ 0
+  suffices hnum : baryNumer xs (List.zipWith (fun y1 y2 => α * y1 + β * y2) ys1 ys2) c x =
+      α * baryNumer xs ys1 c x + β * baryNumer xs ys2 c x by
+    rw [hnum]; field_simp
+  unfold baryNumer
+  have hterm : ∀ i : Fin xs.length,
+      baryWeight xs c i.val / (x - xs.get i) *
+        (List.zipWith (fun y1 y2 => α * y1 + β * y2) ys1 ys2).getD i.val 0 =
+      α * (baryWeight xs c i.val / (x - xs.get i) * ys1.getD i.val 0) +
+      β * (baryWeight xs c i.val / (x - xs.get i) * ys2.getD i.val 0) := by
+    intro ⟨i, hi⟩
+    have hi1 : i < ys1.length := hlen1 ▸ hi
+    have hi2 : i < ys2.length := hlen2 ▸ hi
+    have hzw : (List.zipWith (fun y1 y2 => α * y1 + β * y2) ys1 ys2).getD i 0 =
+        α * ys1.getD i 0 + β * ys2.getD i 0 := by
+      unfold List.getD
+      have hlen_zw : i < (List.zipWith (fun y1 y2 => α * y1 + β * y2) ys1 ys2).length := by
+        simp [List.length_zipWith]; omega
+      rw [show (List.zipWith (fun y1 y2 => α * y1 + β * y2) ys1 ys2)[i]? =
+          some (α * ys1[i]'hi1 + β * ys2[i]'hi2) from by
+        rw [List.getElem?_eq_getElem hlen_zw, List.getElem_zipWith]]
+      rw [show ys1[i]? = some (ys1[i]'hi1) from List.getElem?_eq_getElem hi1]
+      rw [show ys2[i]? = some (ys2[i]'hi2) from List.getElem?_eq_getElem hi2]
+      simp
+    rw [hzw]; ring
+  simp_rw [hterm]
+  rw [List.sum_map_add]
+  simp only [List.sum_map_mul_left]
 
 /-- **Single point**: With one data point, interpolation returns y_0 everywhere. -/
 theorem single_point (y x0 x : ℚ) :
@@ -164,9 +189,9 @@ theorem scaling_invariance (xs ys : List ℚ) (c₁ c₂ : ℚ) (hc1 : c₁ ≠ 
     baryNumer xs ys c₁ x / baryDenom xs c₁ x =
     baryNumer xs ys c₂ x / baryDenom xs c₂ x := by
   -- The key insight: changing c scales all weights uniformly, which cancels in the ratio.
-  -- weightDenom with c₂ = (c₂/c₁)^(n-1) * weightDenom with c₁
-  -- So baryWeight with c₂ = (c₁/c₂)^(n-1) * baryWeight with c₁
-  -- Both numer and denom get scaled by the same factor, so the ratio is preserved.
+  -- weightDenom xs c i = Π_{j≠i} c*(x_i-x_j) = c^(n-1) * Π_{j≠i}(x_i-x_j)
+  -- So baryWeight xs c₂ i = (c₁/c₂)^(n-1) * baryWeight xs c₁ i uniformly in i.
+  -- Both numer and denom scale by the same factor, which cancels in the ratio.
   sorry
 
 /-- **Weight product non-zero**: For distinct nodes, each weight denominator is non-zero. -/
