@@ -1,16 +1,16 @@
 > 🔬 *Lean Squad — automated formal verification for `dsyme/QuantLib`.*
 
-**Status**: 🔄 IN PROGRESS — 307 theorems across 22 Lean files, 21 targets verified, 8 `sorry` remaining, Lean 4 + Mathlib.
+**Status**: 🔄 IN PROGRESS — 307 theorems across 22 Lean files, 21 targets verified, 7 `sorry` remaining, Lean 4 + Mathlib.
 
 ## Last Updated
-- **Date**: 2026-05-20 04:41 UTC
-- **Commit**: `5965568a4`
+- **Date**: 2026-05-20 11:23 UTC
+- **Commit**: `60738fbdb`
 
 ---
 
 ## Executive Summary
 
-Formal verification of QuantLib's quantitative finance primitives covers **21 targets** using Lean 4 with Mathlib. **307 theorems** are stated across 22 Lean files, with approximately **299 fully proved** and **8 `sorry` remaining** (3 InterestRate Float stdlib gaps, 1 NormalDistribution HasDerivAt, 4 LagrangeInterpolation theorems awaiting proof). Recent progress: **partition_of_unity** and **exact_on_constants** proved for LagrangeInterpolation (run 88), reducing its sorry count from 6 to 4. Over **58,000 correspondence test cases** across 19 targets validate model fidelity. Zero bugs found — all implementations match their mathematical specifications.
+Formal verification of QuantLib's quantitative finance primitives covers **21 targets** using Lean 4 with Mathlib. **307 theorems** are stated across 22 Lean files, with approximately **300 fully proved** and **7 `sorry` remaining** (3 InterestRate Float stdlib gaps, 1 NormalDistribution HasDerivAt, 3 LagrangeInterpolation theorems awaiting proof). Recent progress: **linearity** proved for LagrangeInterpolation (run 90), reducing its sorry count from 4 to 3. Over **58,000 correspondence test cases** across 19 targets validate model fidelity. Zero bugs found — all implementations match their mathematical specifications.
 
 ---
 
@@ -34,7 +34,7 @@ graph TD
     end
     subgraph Math["Mathematics (76 thms)"]
       D["LinearInterpolation<br/>7 ✅"]
-      LG["LagrangeInterpolation<br/>9 (4 sorry)"]
+      LG["LagrangeInterpolation<br/>9 (3 sorry)"]
       F["NormalDistribution<br/>20 (1 sorry)"]
       G["Factorial<br/>10 ✅"]
       M["Matrix<br/>23 ✅"]
@@ -169,7 +169,7 @@ graph LR
 | `Factorial.lean` | 10 | ✅ | Pascal's identity |
 | `FloatingPointClose.lean` | 12 | ✅ | Symmetry |
 | `InterestRate.lean` | 30 | 🔄 3 sorry | Roundtrip, monotonicity |
-| `LagrangeInterpolation.lean` | 9 | 🔄 4 sorry | Node interpolation, partition of unity |
+| `LagrangeInterpolation.lean` | 9 | 🔄 3 sorry | Node interpolation, partition of unity |
 | `LinearInterpolation.lean` | 7 | ✅ | Knot interpolation |
 | `Matrix.lean` | 23 | ✅ | Associativity |
 | `NewtonSafe.lean` | 13 | ✅ | Safe step selection |
