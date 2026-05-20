@@ -1,16 +1,16 @@
 > 🔬 *Lean Squad — automated formal verification for `dsyme/QuantLib`.*
 
-**Status**: 🔄 IN PROGRESS — 307 theorems across 22 Lean files, 21 targets verified, 10 `sorry` remaining, Lean 4 + Mathlib.
+**Status**: 🔄 IN PROGRESS — 307 theorems across 22 Lean files, 21 targets verified, 8 `sorry` remaining, Lean 4 + Mathlib.
 
 ## Last Updated
-- **Date**: 2026-05-19 11:35 UTC
-- **Commit**: `09a8a4362`
+- **Date**: 2026-05-20 04:41 UTC
+- **Commit**: `5965568a4`
 
 ---
 
 ## Executive Summary
 
-Formal verification of QuantLib's quantitative finance primitives covers **21 targets** using Lean 4 with Mathlib. **307 theorems** are stated across 22 Lean files, with approximately **297 fully proved** and **10 `sorry` remaining** (3 InterestRate Float stdlib gaps, 1 NormalDistribution HasDerivAt, 6 LagrangeInterpolation theorems awaiting proof). Since the last report, **77 new theorems** were added across 3 new targets: **Brent** (14 theorems — root-finding convergence, bracket width formula, all proved), **LagrangeInterpolation** (9 theorems — barycentric interpolation, 3 proved, 6 sorry), and **RichardsonExtrapolation** (7 theorems — all proved). Over **58,000 correspondence test cases** across 19 targets validate model fidelity. Zero bugs found — all implementations match their mathematical specifications.
+Formal verification of QuantLib's quantitative finance primitives covers **21 targets** using Lean 4 with Mathlib. **307 theorems** are stated across 22 Lean files, with approximately **299 fully proved** and **8 `sorry` remaining** (3 InterestRate Float stdlib gaps, 1 NormalDistribution HasDerivAt, 4 LagrangeInterpolation theorems awaiting proof). Recent progress: **partition_of_unity** and **exact_on_constants** proved for LagrangeInterpolation (run 88), reducing its sorry count from 6 to 4. Over **58,000 correspondence test cases** across 19 targets validate model fidelity. Zero bugs found — all implementations match their mathematical specifications.
 
 ---
 
@@ -34,7 +34,7 @@ graph TD
     end
     subgraph Math["Mathematics (76 thms)"]
       D["LinearInterpolation<br/>7 ✅"]
-      LG["LagrangeInterpolation<br/>9 (6 sorry)"]
+      LG["LagrangeInterpolation<br/>9 (4 sorry)"]
       F["NormalDistribution<br/>20 (1 sorry)"]
       G["Factorial<br/>10 ✅"]
       M["Matrix<br/>23 ✅"]
@@ -104,7 +104,7 @@ Pure mathematical functions: interpolation, distributions, combinatorics, polyno
 ```mermaid
 graph LR
     F1["LinearInterpolation.lean<br/>7 ✅<br/>Knot interpolation"]
-    F2["LagrangeInterpolation.lean<br/>9 (6 sorry)<br/>Barycentric form"]
+    F2["LagrangeInterpolation.lean<br/>9 (4 sorry)<br/>Barycentric form"]
     F3["NormalDistribution.lean<br/>20 (1 sorry)<br/>PDF/CDF symmetry"]
     F4["Factorial.lean<br/>10 ✅<br/>Combinatorial identities"]
     F5["Matrix.lean<br/>23 ✅<br/>Transpose, associativity"]
@@ -169,7 +169,7 @@ graph LR
 | `Factorial.lean` | 10 | ✅ | Pascal's identity |
 | `FloatingPointClose.lean` | 12 | ✅ | Symmetry |
 | `InterestRate.lean` | 30 | 🔄 3 sorry | Roundtrip, monotonicity |
-| `LagrangeInterpolation.lean` | 9 | 🔄 6 sorry | Node interpolation |
+| `LagrangeInterpolation.lean` | 9 | 🔄 4 sorry | Node interpolation, partition of unity |
 | `LinearInterpolation.lean` | 7 | ✅ | Knot interpolation |
 | `Matrix.lean` | 23 | ✅ | Associativity |
 | `NewtonSafe.lean` | 13 | ✅ | Safe step selection |
@@ -180,7 +180,7 @@ graph LR
 | `RichardsonExtrapolation.lean` | 7 | ✅ | Exactness, linearity |
 | `Rounding.lean` | 20 | ✅ | Idempotence |
 | `Thirty360.lean` | 11 | ✅ | EU convention |
-| **Total** | **307** | — | **10 sorry** |
+| **Total** | **307** | — | **8 sorry** |
 
 ---
 
