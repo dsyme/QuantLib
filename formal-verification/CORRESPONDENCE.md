@@ -3,8 +3,8 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-05-19 11:35 UTC
-- **Commit**: `09a8a4362`
+- **Date**: 2026-05-21 04:49 UTC
+- **Commit**: `5839cddb3`
 
 ---
 
@@ -527,7 +527,7 @@ None identified. The Rat model's restriction to `Nat` exponents for compounded m
 
 The bisection-only model is a sound lower bound: any convergence property proved for this model also holds for the full Brent algorithm (which only uses faster-converging steps when safe).
 
-**Validation evidence**: Correspondence not yet independently validated via executable tests. The model captures worst-case bisection behaviour, which is the convergence guarantee. Future work: add correspondence tests comparing iteration counts and bracket widths against C++ execution.
+**Validation evidence**: Runnable correspondence tests at `formal-verification/tests/brent/` — 14 test cases validating that the Lean bisection-only model converges and that a full Python Brent implementation (with IQI/secant steps matching C++ logic) also converges at least as fast. All pass. See `formal-verification/tests/brent/README.md` for details.
 
 ---
 
@@ -558,4 +558,4 @@ The bisection-only model is a sound lower bound: any convergence property proved
 
 The remaining sorry-guarded theorems (`partition_of_unity`, `linearity`, `scaling_invariance`, `bary_eq_classical`, `exact_on_constants`, `exact_on_linear`) are standard mathematical properties of Lagrange interpolation and should be provable with further tactic work.
 
-**Validation evidence**: Correspondence not yet independently validated via executable tests. Future work: add correspondence tests comparing Lean's exact-rational evaluation against C++ double evaluation on shared test points.
+**Validation evidence**: Correspondence not yet independently validated via executable tests. Future work: add correspondence tests comparing Lean's exact-rational evaluation against C++ double evaluation on shared test points. The `LagrangeInterpolation` target still needs correspondence tests.
