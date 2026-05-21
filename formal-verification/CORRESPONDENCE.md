@@ -3,8 +3,8 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-05-21 04:49 UTC
-- **Commit**: `5839cddb3`
+- **Date**: 2026-05-21 11:40 UTC
+- **Commit**: `6cbc78349`
 
 ---
 
@@ -558,4 +558,4 @@ The bisection-only model is a sound lower bound: any convergence property proved
 
 The remaining sorry-guarded theorems (`partition_of_unity`, `linearity`, `scaling_invariance`, `bary_eq_classical`, `exact_on_constants`, `exact_on_linear`) are standard mathematical properties of Lagrange interpolation and should be provable with further tactic work.
 
-**Validation evidence**: Correspondence not yet independently validated via executable tests. Future work: add correspondence tests comparing Lean's exact-rational evaluation against C++ double evaluation on shared test points. The `LagrangeInterpolation` target still needs correspondence tests.
+**Validation evidence**: Route B executable tests at `formal-verification/tests/lagrangeinterpolation/test_lagrange.py`. 8 test functions (37 assertions) covering node interpolation, constant/linear/quadratic exactness, scaling invariance, classical equivalence, C++ float correspondence (tol 1e-12), and weight denominator non-zero. All pass. Run: `python3 formal-verification/tests/lagrangeinterpolation/test_lagrange.py`.
