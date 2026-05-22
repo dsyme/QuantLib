@@ -1,5 +1,5 @@
 {
-  "last_run": 94,
+  "last_run": 95,
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -24,25 +24,16 @@
     {"name": "BernsteinPolynomial", "phase": 5, "sorry_count": 0, "notes": "15/15 proved."},
     {"name": "RichardsonExtrapolation", "phase": 5, "sorry_count": 0, "notes": "7/7 proved."},
     {"name": "Brent", "phase": 5, "sorry_count": 0, "notes": "14/14 proved. Correspondence tests: 14 cases, all pass."},
-    {"name": "LagrangeInterpolation", "phase": 5, "sorry_count": 3, "notes": "6/9 proved. 3 sorry remain. Correspondence tests: 37 assertions, all pass."},
-    {"name": "BinomialDistribution", "phase": 2, "sorry_count": null, "notes": "Informal spec written run 92. Next: Lean spec."},
-    {"name": "Copulas", "phase": 2, "sorry_count": null, "notes": "Informal spec written run 94. 9 copula functions. High provability for parameter-free copulas."},
+    {"name": "LagrangeInterpolation", "phase": 5, "sorry_count": 3, "notes": "6/9 proved. 3 sorry remain."},
+    {"name": "BinomialDistribution", "phase": 3, "sorry_count": 3, "notes": "Lean spec written run 95. 20 theorems, 17 proved, 3 sorry (normalization, CDF bounds). Next: prove pmf_sum_eq_one."},
+    {"name": "Copulas", "phase": 2, "sorry_count": null, "notes": "Informal spec written run 94. Next: Lean spec."},
     {"name": "Schedule", "phase": 1, "sorry_count": null, "notes": "Identified run74. Complex, defer."}
   ],
   "open_issues": [3],
   "ci_status": "lean-ci.yml exists and healthy",
-  "total_theorems": 307,
-  "total_sorry": 7,
+  "total_theorems": 327,
+  "total_sorry": 10,
   "paper_exists": true,
-  "paper_updated": "2026-05-15",
-  "report_updated": "2026-05-20",
-  "correspondence_updated": "2026-05-21",
-  "correspondence_tests": [
-    "actual360", "actual365fixed", "bisection", "blackformula", "brent", "composition",
-    "factorial", "floatingpointclose", "interestrate", "lagrangeinterpolation",
-    "linearinterpolation", "matrix", "newtonsafe", "normaldistribution",
-    "plainvanillapayoff", "primenumbers", "quadratic", "rounding", "thirty360",
-    "bernsteinpolynomial", "richardsonextrapolation"
-  ],
-  "notes": "Run 94: Task 2 added Copulas informal spec. Task 5 deferred — Mathlib build timeout (reservoir.leancache.cloud blocked by firewall). Next: Lean specs for Copulas and BinomialDistribution, LagrangeInterpolation proofs when cache available."
+  "report_updated": "2026-05-22",
+  "notes": "Run 95: Task 3 added BinomialDistribution Lean spec (20 thms). Task 10 updated report. Mathlib cache still blocked by firewall. Next: Copulas Lean spec, prove BinomialDistribution normalization."
 }
