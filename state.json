@@ -1,5 +1,5 @@
 {
-  "last_run": 95,
+  "last_run": 96,
   "fv_tool": "Lean 4 + Mathlib",
   "language": "C++",
   "aeneas_applicable": false,
@@ -23,17 +23,17 @@
     {"name": "PrimeNumbers", "phase": 5, "sorry_count": 0, "notes": "15/15 proved."},
     {"name": "BernsteinPolynomial", "phase": 5, "sorry_count": 0, "notes": "15/15 proved."},
     {"name": "RichardsonExtrapolation", "phase": 5, "sorry_count": 0, "notes": "7/7 proved."},
-    {"name": "Brent", "phase": 5, "sorry_count": 0, "notes": "14/14 proved. Correspondence tests: 14 cases, all pass."},
-    {"name": "LagrangeInterpolation", "phase": 5, "sorry_count": 3, "notes": "6/9 proved. 3 sorry remain."},
-    {"name": "BinomialDistribution", "phase": 3, "sorry_count": 3, "notes": "Lean spec written run 95. 20 theorems, 17 proved, 3 sorry (normalization, CDF bounds). Next: prove pmf_sum_eq_one."},
+    {"name": "Brent", "phase": 5, "sorry_count": 0, "notes": "14/14 proved."},
+    {"name": "LagrangeInterpolation", "phase": 5, "sorry_count": 3, "notes": "6/9 proved. 3 sorry: bary_eq_classical, scaling_invariance, exact_on_linear. Complex list algebra."},
+    {"name": "BinomialDistribution", "phase": 5, "sorry_count": 2, "notes": "13/15 proved. 2 sorry: pmf_sum_eq_one (binomial theorem), cdf_le_one. Run 96 created spec+proofs."},
     {"name": "Copulas", "phase": 2, "sorry_count": null, "notes": "Informal spec written run 94. Next: Lean spec."},
     {"name": "Schedule", "phase": 1, "sorry_count": null, "notes": "Identified run74. Complex, defer."}
   ],
   "open_issues": [3],
   "ci_status": "lean-ci.yml exists and healthy",
-  "total_theorems": 327,
-  "total_sorry": 10,
+  "total_theorems": 342,
+  "total_sorry": 9,
   "paper_exists": true,
   "report_updated": "2026-05-22",
-  "notes": "Run 95: Task 3 added BinomialDistribution Lean spec (20 thms). Task 10 updated report. Mathlib cache still blocked by firewall. Next: Copulas Lean spec, prove BinomialDistribution normalization."
+  "notes": "Run 96: Added BinomialDistribution.lean (15 thms, 13 proved). Mathlib cache now downloadable. LagrangeInterpolation sorry require complex list product factoring. Next: prove pmf_sum_eq_one, Copulas spec."
 }
