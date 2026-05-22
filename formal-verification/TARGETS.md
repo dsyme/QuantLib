@@ -23,6 +23,7 @@
 | 17 | LagrangeInterpolation | `ql/math/interpolations/lagrangeinterpolation.hpp` | 2 — Informal Spec | 🔄 Spec written | Medium | Medium-High |
 | 18 | Schedule | `ql/time/schedule.hpp/cpp` | 1 — Research | ⬜ Identified | Lower | Medium |
 | 19 | Brent | `ql/math/solvers1d/brent.hpp` | 2 — Informal Spec | 🔄 Spec written | Medium-High | High |
+| 20 | BinomialDistribution | `ql/math/distributions/binomialdistribution.hpp` | 2 — Informal Spec | 🔄 Spec written | Medium | High |
 
 ## Phase Key
 
