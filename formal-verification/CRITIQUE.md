@@ -3,14 +3,14 @@
 🔬 *Lean Squad — automated formal verification for dsyme/QuantLib.*
 
 ## Last Updated
-- **Date**: 2026-05-16 17:29 UTC
-- **Commit**: `ac19fa750` (Run 79)
+- **Date**: 2026-05-23 04:12 UTC
+- **Commit**: `da839ed3d` (Run 97)
 
 ---
 
 ## Overall Assessment
 
-The formal verification effort has produced **290 theorems** across **19 Lean files** covering day counting (Actual360, Actual365Fixed, Thirty360), interest rate compounding (InterestRate), interpolation (LinearInterpolation), probability distributions (NormalDistribution), combinatorics (Factorial), root-finding (Bisection, NewtonSafe), floating-point comparison (FloatingPointClose), option pricing (BlackFormula, PlainVanillaPayoff), linear algebra (Matrix), polynomial algebra (Quadratic, BernsteinPolynomial), rounding (Rounding), prime number generation (PrimeNumbers), cross-target composition (Composition), and numerical convergence acceleration (RichardsonExtrapolation). Approximately **286 theorems are fully proved**; **4 remain `sorry`-guarded** (3 InterestRate Float stdlib, 1 NormalDistribution HasDerivAt). The RichardsonExtrapolation file (run 79) adds 7 fully-proved theorems covering exactness, linearity, order improvement, and well-definedness of the Richardson extrapolation formula for real-valued exponents.
+The formal verification effort has produced **~331 theorem/lemma declarations** across **22 Lean files** covering day counting (Actual360, Actual365Fixed, Thirty360), interest rate compounding (InterestRate), interpolation (LinearInterpolation, LagrangeInterpolation), probability distributions (NormalDistribution), combinatorics (Factorial), root-finding (Bisection, NewtonSafe, Brent), floating-point comparison (FloatingPointClose), option pricing (BlackFormula, PlainVanillaPayoff), linear algebra (Matrix), polynomial algebra (Quadratic, BernsteinPolynomial), rounding (Rounding), prime number generation (PrimeNumbers), cross-target composition (Composition), and numerical convergence acceleration (RichardsonExtrapolation). Approximately **324 theorems are fully proved**; **7 remain `sorry`-guarded**: 3 InterestRate (Float stdlib), 3 LagrangeInterpolation (complex list algebra), and 1 NormalDistribution (HasDerivAt erf). Since the last critique (run 79), the project has added Brent's method (14 theorems, all proved), LagrangeInterpolation (6/9 proved), and BinomialDistribution (on branch, 13/15 proved).
 
 ---
 
@@ -38,8 +38,12 @@ The formal verification effort has produced **290 theorems** across **19 Lean fi
 | `composition_compoundFactor_pos` | Composition.lean | High | High | Cross-target: compound factor always positive |
 | `exactness_polynomial_error` | RichardsonExtrapolation.lean | High | High | Exact recovery when error is α·h^n |
 | `order_improvement` | RichardsonExtrapolation.lean | High | High | Residual after extrapolation is O(h^(n+1)) |
+| `bracket_maintained` | Brent.lean | Mid | High | Brent step preserves bracket invariant |
+| `convergence_guaranteed` | Brent.lean | Mid | High | Interval shrinks each step → termination |
+| `interp_at_node` | LagrangeInterpolation.lean | Mid | High | p(x_i) = y_i — fundamental interpolation correctness |
+| `partition_of_unity` | LagrangeInterpolation.lean | Mid | High | Constant function interpolated exactly |
 
-*Full inventory: 283 theorems across 18 Lean files. See individual `.lean` files for complete listings.*
+*Full inventory: ~324 proved theorems across 22 Lean files. See individual `.lean` files for complete listings.*
 
 ---
 
@@ -47,15 +51,19 @@ The formal verification effort has produced **290 theorems** across **19 Lean fi
 
 ### High Priority
 
-1. **InterestRate: Float-based continuous compounding** — 3 sorry (`compoundContinuous_pos`, `continuous_roundtrip`, `compounded_roundtrip`) blocked on `Float.exp_pos`, `Float.log ∘ Float.exp = id`. **Status: blocked on stdlib, acceptable.**
+1. **LagrangeInterpolation: 3 sorry** — `bary_eq_classical`, `scaling_invariance`, `exact_on_linear`. These require complex list product/sum algebra (factoring `c^n` out of a `List.prod`, distributing sums). The mathematical argument is clear but encoding in Lean's list API is non-trivial. **Recommendation**: consider reformulating over `Fin n → ℚ` (Finset-indexed sums) rather than `List ℚ` to access `Finset.sum_div` and `Finset.prod_mul_distrib` directly.
 
-2. **NormalDistribution: `cdf_deriv_eq_pdf`** — Blocked on `HasDerivAt` for erf composition. **Status: blocked on Mathlib analysis API.**
+2. **InterestRate: Float-based continuous compounding** — 3 sorry (`compoundContinuous_pos`, `continuous_roundtrip`, `compounded_roundtrip`) blocked on `Float.exp_pos`, `Float.log ∘ Float.exp = id`. **Status: blocked on stdlib, acceptable.**
 
-3. **Cross-target composition depth** — The Composition.lean file has 28 theorems but could be expanded to cover more realistic financial workflows (e.g., full NPV calculation chain, multi-leg instrument pricing).
+3. **NormalDistribution: `cdf_deriv_eq_pdf`** — Blocked on `HasDerivAt` for erf composition. **Status: blocked on Mathlib analysis API.**
 
-4. **Lagrange Interpolation** — Identified as target (run 74). Rich algebraic properties: uniqueness, error bounds, Runge phenomenon characterisation. Would extend the interpolation coverage beyond linear.
+4. **BinomialDistribution (branch, not yet merged)**: 2 sorry — `pmf_sum_eq_one` (requires binomial theorem for rationals), `cdf_le_one` (follows from pmf sum). These could be proved by connecting to `Mathlib.Probability.ProbabilityMassFunction` or using `Finset.sum_div` with the binomial identity.
 
-5. **Correspondence tests for remaining targets** — Composition, BernsteinPolynomial, and RichardsonExtrapolation lack runnable correspondence tests.
+5. **Cross-target composition depth** — The Composition.lean file has 28 theorems but could be expanded to cover more realistic financial workflows (e.g., full NPV calculation chain, multi-leg instrument pricing).
+
+6. **Copulas** — Informal spec written (run 94). Rich algebraic properties (Fréchet bounds, boundary conditions, associativity for Archimedean copulas). High-value target for financial risk modelling.
+
+7. **Correspondence tests for remaining targets** — Composition, BernsteinPolynomial, and RichardsonExtrapolation lack runnable correspondence tests.
 
 ### Medium Priority
 
@@ -77,17 +85,21 @@ The formal verification effort has produced **290 theorems** across **19 Lean fi
 
 4. **Rounding model uses ℚ, not IEEE 754**: The 15 Rounding theorems verify the mathematical semantics. 4 known divergences from C++ (Q vs double, fast_pow10 masking, modf semantics, negative zero) are documented in CORRESPONDENCE.md.
 
-5. **Correspondence test coverage**: 16 of 19 targets have runnable tests. The remaining 3 (Composition, BernsteinPolynomial, RichardsonExtrapolation) would benefit from executable validation.
+5. **Correspondence test coverage**: 16 of 22 targets have runnable tests. The remaining 6 (Composition, BernsteinPolynomial, RichardsonExtrapolation, Brent, LagrangeInterpolation [has tests], BinomialDistribution) would benefit from or already have executable validation.
 
 ---
 
 ## Positive Findings
 
-- **290 theorems with zero implementation bugs found**: all specified mathematical properties of QuantLib's core hold. Strong positive signal for the mathematical foundations.
+- **~324 theorems with zero implementation bugs found**: all specified mathematical properties of QuantLib's core hold. Strong positive signal for the mathematical foundations.
 
-- **RichardsonExtrapolation fully proved** (run 79): 7/7 theorems, 0 sorry. Key results include `exactness_polynomial_error` (extrapolation exactly recovers the limit when error is monomial), `order_improvement` (residual is O(h^(n+1))), and `independence_of_t` (result is invariant under subdivision ratio choice). All proofs use `Real.rpow` (real-valued exponents), requiring careful handling of `Real.div_rpow` and `Real.rpow_add` lemmas.
+- **Brent's method fully proved** (run 85): 14/14 theorems covering bracket maintenance, convergence, bisection fallback correctness, and inverse quadratic interpolation accuracy. Notably, `bracket_maintained` proves the key invariant that f(root)*f(xMax) ≤ 0 is preserved across iterations — a property that, if violated, would make the algorithm unsound.
 
-- **BernsteinPolynomial fully proved** (run 78): 15/15 theorems including `bernstein_partition_of_unity` (via binomial theorem) and `bernstein_recursion` (via Pascal's rule). Previously the hardest remaining sorry targets.
+- **LagrangeInterpolation partially proved** (runs 86–90): 6/9 theorems proved including `interp_at_node`, `partition_of_unity`, `linearity`, `single_point`, `exact_on_constants`, and `weight_denom_ne_zero`. The 3 remaining sorry require reformulating list products as finset products. The proved theorems already validate the core correctness of the barycentric implementation.
+
+- **RichardsonExtrapolation fully proved** (run 79): 7/7 theorems, 0 sorry. Key results include `exactness_polynomial_error` and `order_improvement`.
+
+- **BernsteinPolynomial fully proved** (run 78): 15/15 theorems including `bernstein_partition_of_unity` (via binomial theorem) and `bernstein_recursion` (via Pascal's rule).
 
 - **Rounding fully proved** (run 64): eliminated the last `sorry` in `idempotent_counterexample_digit0`.
 
@@ -95,4 +107,4 @@ The formal verification effort has produced **290 theorems** across **19 Lean fi
 
 - **Put-call parity** (`blackPrice_call_put_parity`): formally verifies the fundamental Black-Scholes identity.
 
-- **Broad coverage**: 19 targets across day counting, interest rates, interpolation, distributions, combinatorics, root-finding, floating-point comparison, option pricing, linear algebra, polynomial algebra, Bernstein polynomials, rounding, prime numbers, convergence acceleration, and cross-target composition.
+- **Broad coverage**: 22 targets across day counting, interest rates, interpolation, distributions, combinatorics, root-finding (3 algorithms), floating-point comparison, option pricing, linear algebra, polynomial algebra, Bernstein polynomials, rounding, prime numbers, convergence acceleration, and cross-target composition.
